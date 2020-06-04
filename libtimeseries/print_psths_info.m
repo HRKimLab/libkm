@@ -1,0 +1,6 @@
+function print_psths_info(stPSTH)
+% print verbose information about structured psth
+% 2019 HRK
+array2table([structfun(@(x) min(x.x), stPSTH) structfun(@(x) max(x.x), stPSTH) ...
+    structfun(@(x) diff(x.x(1:2)), stPSTH) structfun(@(x) size(x.mean, 1), stPSTH)], ...
+    'VariableNames', {'X1','X2','dX', 'n_grp'} )
