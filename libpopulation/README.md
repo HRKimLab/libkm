@@ -10,6 +10,7 @@
 
 - The first column of individual result file should be 'unitname', which is a key identifier to combine different tables.
 - The unitname follows the format 'mNsNrNeNuN', which indicates the subject, session and, run number of the experiment. The next two is reserved for neural data. For example, e can be tetrode number and u can be a unit id for single units. As long as you use a 5-digit numertic format, the program does not care the meaning of it. It is just a key.
+- NaN indicates missing value or errors in loading. Plotting functions in the toolbox treat NaNs appropriately.
 
 ### Store analysis results in a one-line text format in the per-session analysis
 ```
