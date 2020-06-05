@@ -25,11 +25,10 @@ plot_timecourse(data_type, n_signal, trig, st, et, grp);
 ## Save
 [ax, h_psth, psth] = plot_timecourse(...) <br>
 m2034s23r1 = psth; % assign psth to a variale with the dataname <br>
-asave('D:\foo\bar.mat', 'm2034s23r1');     % asave is in [libutil][]
-
-[libutil]: https://github.com/hkim09/libutil/
+asave('D:\foo\bar.mat', 'm2034s23r1');
 
 ## Plot population data
-psths = load('D:\foo\bar.mat'); <br>
+```
+psths = load('D:\foo\bar.mat');
 plot_mpsths(psths);
-
+```
