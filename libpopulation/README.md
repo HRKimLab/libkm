@@ -2,8 +2,9 @@
 
 ### The data handling strategy
 
-the results are saved in a text file at the single-session analysis procedure, and later when I do population analysis, I load all and made a big table. 
-- Results can be saved in different files for each animal and analysis. 
+- Analaysis results are saved in a text file at the single-session analysis procedure
+- Results can be saved in different files for each subject and analysis.
+- For population analysis, I set up subjects and results files of interests. The program seeks for individual files, and construct a big 2-dminsional table [# of elements * attributes of analysis].
 - The first column of individual result file should be 'unitname', which is a key identifier to combine different tables.
 - the unitname follows the format 'mNsNrNeNuN', which indicates the subject, session and, run number of the experiment. The next two is reserved for neural data. For example, e can be tetrode number and u can be a unit id for single units. As long as you use a 5-digit numertic format, the program does not care the meaning of it. It is just a key.
 
