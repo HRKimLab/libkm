@@ -1,11 +1,11 @@
 # libtimeseries
-Plot moving average; plot average of them across population
+Plot moving average; plot population time course; analyze multi-dimensional dynamics
 
 ## Examples
-You have spike timestamp (n_signal), event that you want to align (trig), start time (st), end time (et), groups (grp)
-plot_timecourse('timestamp', n_signal, trig, st, et, grp);
+plot spike timestamp (spike_ts) aligned by events (trig), using a time window defined by start time (st) and end time (et). If needed, sort trials by trial conditions (grp).
+plot_timecourse('timestamp', spike_ts, trig, st, et, grp);
 
-## plot_timecourse: Basic arguments
+## plot_timecourse: Basic
 plot_timecourse(data_type, n_signal, trig, st, et, grp);
 - data_type: 'timestamp', 'stream'
 - n_signal: 'timestamp': 1 X n timestamps of events in ms
@@ -15,7 +15,7 @@ plot_timecourse(data_type, n_signal, trig, st, et, grp);
 - et: end time to plot signals. single value for the timing relative to trigger (ms), array (nEvent X 1) for absolute timing.
 -  grp: group information for each trigger (nEvent X 1).
 
-## plot_timecourse: Advanced arguments
+## plot_timecourse: Advanced
 
 | Option   | value        | description         |
 |----------|--------------|---------------------|
@@ -25,11 +25,10 @@ plot_timecourse(data_type, n_signal, trig, st, et, grp);
 ## Save
 [ax, h_psth, psth] = plot_timecourse(...) <br>
 m2034s23r1 = psth; % assign psth to a variale with the dataname <br>
-asave('D:\foo\bar.mat', 'm2034s23r1');     % asave is in [libutil][]
-
-[libutil]: https://github.com/hkim09/libutil/
+asave('D:\foo\bar.mat', 'm2034s23r1');
 
 ## Plot population data
-psths = load('D:\foo\bar.mat'); <br>
+```
+psths = load('D:\foo\bar.mat');
 plot_mpsths(psths);
-
+```
