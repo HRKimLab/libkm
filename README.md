@@ -8,6 +8,6 @@ Load analysis results and plot them with simple stats.
 Plot time course and save the results. Combime the results and plot population time courses.
 
 ## [libutil](https://github.com/hkim09/libkm/tree/master/libutil)
-A collection of misc functions used in the two libraries
+A collection of misc functions
 
 #### dependencies
