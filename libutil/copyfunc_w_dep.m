@@ -14,7 +14,10 @@ end;
 
 % iterate 1-level dependent files
 try
-flist = depfun(func, '-toponly', '-quiet');
+% flist = depfun(func, '-toponly', '-quiet'); % seems to be obsoluted
+[flist pList] = matlab.codetools.requiredFilesAndProducts(func); % , '-toponly'
+% show toolbox info
+pList.Name
 catch ME
     getReport(ME)
     return;

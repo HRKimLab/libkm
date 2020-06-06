@@ -2,7 +2,7 @@ function show_values(cTable, v)
 % show unitname and values in uitable to verify numbers
 % 2020 HRK
 
-assert(all(size(cTable) == size(v)), 'size of cTable and value does not match');
+assert(all(size(cTable, 1) == size(v, 1)), 'size of cTable and value does not match');
 cV = arrayfun(@num2str, v, 'un', false);
 cData  = [cTable cV];
 figure;

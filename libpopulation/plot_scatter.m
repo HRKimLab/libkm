@@ -5,7 +5,7 @@ function [r,p,N,sl,itc,fitdata,hS] = plot_scatter(x,y,grp, varargin)
 xl = []; yl = [];
 show_individual = 1;
 show_grpmean = 0;
-grp_zscore = 0;         % 1: zscore   2: subtract mean
+grp_zscore = 0;         % 1: zscore   2: subtract mean, 'ymean': y mean
 grp_lim = 25;
 show_ci = 0;            % confidence interval for R
 show_regress_ci = 0;    % confidence interval for type 2 regression
@@ -67,6 +67,8 @@ if grp_zscore ~= 0
            case 2 % subtract mean
             x(bVG) = x(bVG) - nanmean(x(bVG));
             y(bVG) = y(bVG) - nanmean(y(bVG));
+           case 'ymean' % y mean only
+            y(bVG) = y(bVG) - nanmean(y(bVG));   
        end
     end
 end
@@ -75,7 +77,7 @@ end
 if ~is_arg('xl'), xl = setlim(x(:)); end
 if ~is_arg('yl'), yl = setlim(y(:)); end
 
-if grp_zscore
+if isnumeric(grp_zscore) &&  grp_zscore == 1
    xl = [-3 3]; yl = [-3 3];
 end
 % compute correlation
@@ -162,7 +164,7 @@ else
 end
 
 % squarize if plotting zscore
-if grp_zscore
+if isnumeric(grp_zscore) && grp_zscore == 1
     axis('square');
 end
 

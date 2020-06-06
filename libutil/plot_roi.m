@@ -1,4 +1,6 @@
 function imdata = plot_roi(imdata, msk)
+% plot ROI of an image 
+% 2017 HRK
 if size(imdata, 3) == 1
     imdata = repmat(imdata, [1 1 3]);
 end

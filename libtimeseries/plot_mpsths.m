@@ -83,7 +83,11 @@ end
 n_psth = numel(cPSTH);
 b_valid_psths = true(n_psth, 1);
 
-stitle('n=%d/nHo=%d/nTot=%d (nS=%d,nG=%d)', n_psth, n_homogenized_psths, n_tot_psths, nSubject, n_grp);
+if isnan(nSubject)
+    stitle('n=%d/nHo=%d/nTot=%d (nG=%d)', n_psth, n_homogenized_psths, n_tot_psths, n_grp);
+else
+    stitle('n=%d/nHo=%d/nTot=%d (nS=%d,nG=%d)', n_psth, n_homogenized_psths, n_tot_psths, nSubject, n_grp);
+end
 
 if n_psth == 0
     return;
