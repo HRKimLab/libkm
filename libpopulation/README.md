@@ -19,7 +19,7 @@
 ```
 data_header = {'CELL', 'MEAN_GROUP_1', 'MEAN_GROUP_2','SEM_GROUP_1', 'SEM_GROUP_2', 'P_DIFF'};
 results = [2.4 5.2 0.2 0.3 0.03];
-StoreResults(folder, text_filename, [], 'm281s18r1', data_header, results);
+StoreResults('Z:\Data\Analysis\281\', 'beh_outcome.dat', [], 'm281s18r1', data_header, results);
 ```
 ### Load and make a big table
 ```
@@ -35,14 +35,15 @@ nResults = 0; ResultsMultipleDelims=[];
 
 % An example registring result files to the big table. You can keep adding result files.
 nResults = nResults + 1;
-ResultsExt{nResults} = 'ep_';
-ResultsHeader{nResults} = {'CELL', 'Date', 'sTime', 'Protocol', 'ParamMethod', 'VStimType', 'nTrial', 'nCorr', 'mDuration', 'mITI', ... % total
-    'nStimCond', 'StimConds', 'nRew', 'nTarDist', 'nVisGain', 'mITIBreak', 'nITIBreak', 'FreeMoveDur'};
-ResultsSummary{nResults} = 'exp_params.dat'
+ResultsExt{nResults} = 'beh_';
+ResultsHeader{nResults} = {'CELL', 'MEAN_GROUP_1', 'MEAN_GROUP_2','SEM_GROUP_1', 'SEM_GROUP_2', 'P_DIFF'};
+ResultsSummary{nResults} = 'beh_outcome.dat'
 ResultsMultipleDelims(nResults) = 0;
 
-% load the data into aPD 2D array
+% load the data into aPD 2D array. 
 LoadPopulationData5Key;
 
+% for example, the above result can be accessed via colunm name variable beh_MEAN_GROUP_1
+aPD(:, beh_MEAN_GROUP_1)
 ```
 ### Perform basic population analysis
