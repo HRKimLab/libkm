@@ -1,7 +1,7 @@
 # A demo of population analysis
 
 # Folder structure
-For integrative data management, libkm toolbox recommend that analysis result files are stored in a hierarchical folder structure.
+For integrative data management, libkm toolbox recommends that analysis result files are stored in a hierarchical folder structure.
 
 Analysis root --- subject id --- result_file.dat
 ```
