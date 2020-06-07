@@ -22,5 +22,28 @@ results = [2.4 5.2 0.2 0.3 0.03];
 StoreResults(folder, text_filename, [], 'm281s18r1', data_header, results);
 ```
 ### Load and make a big table
+```
+% set data root
+DATA_ROOT = ['Z:\Data' filesep];
+% assign subject and session
+% all batch
+MonkOfInterest = [3014 3015 3017 3021 3044 3045 3047 3048 3049 3050 3051 3053 3054]; % 3013 3016 
+CellOfInterest = {1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100};
 
+ResultsExt={}; ResultsHeader={};
+nResults = 0; ResultsMultipleDelims=[];
+
+% register individual result files
+
+nResults = nResults + 1;
+ResultsExt{nResults} = 'ep_';
+ResultsHeader{nResults} = {'CELL', 'Date', 'sTime', 'Protocol', 'ParamMethod', 'VStimType', 'nTrial', 'nCorr', 'mDuration', 'mITI', ... % total
+    'nStimCond', 'StimConds', 'nRew', 'nTarDist', 'nVisGain', 'mITIBreak', 'nITIBreak', 'FreeMoveDur'};
+ResultsSummary{nResults} = 'exp_params.dat'
+ResultsMultipleDelims(nResults) = 0;
+
+% load the data into aPD 2D array
+LoadPopulationData5Key;
+
+```
 ### Perform basic population analysis
