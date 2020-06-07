@@ -1,4 +1,4 @@
-# A demo based on recommended folder structure
+# A demo of population analysis based on folder structure
 
 # Filesystem
 analysis_root/subject_id/<analysis_result>.dat
