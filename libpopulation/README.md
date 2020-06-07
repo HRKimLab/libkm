@@ -33,8 +33,7 @@ CellOfInterest = {1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100,
 ResultsExt={}; ResultsHeader={};
 nResults = 0; ResultsMultipleDelims=[];
 
-% register individual result files
-
+% An example registring result files to the big table. You can keep adding result files.
 nResults = nResults + 1;
 ResultsExt{nResults} = 'ep_';
 ResultsHeader{nResults} = {'CELL', 'Date', 'sTime', 'Protocol', 'ParamMethod', 'VStimType', 'nTrial', 'nCorr', 'mDuration', 'mITI', ... % total
