@@ -1,4 +1,4 @@
-# A demo based on a recommended filesystem structure
+# A demo based on recommended folder structure
 
 # Filesystem
 analysis_root/subject_id/<analysis_result>.dat
