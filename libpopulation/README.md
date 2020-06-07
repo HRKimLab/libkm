@@ -27,15 +27,16 @@ StoreResults('Z:\Data\Analysis\281\', 'beh_outcome.dat', [], 'm281s18r1', data_h
 DATA_ROOT = ['Z:\Data' filesep];
 % assign subject and session
 % all batch
-MonkOfInterest = [281 282 283]; % 3013 3016 
-CellOfInterest = {1:100, 1:100, 1:100};
+MonkOfInterest = [281 282 283];          % subject numbers
+CellOfInterest = {1:100, 1:100, 1:100};  % inclusive session numbers.
 
+% initialize essential variables
 ResultsExt={}; ResultsHeader={};
 nResults = 0; ResultsMultipleDelims=[];
 
 % An example registring result files to the big table. You can keep adding result files.
 nResults = nResults + 1;
-ResultsExt{nResults} = 'beh_';
+ResultsExt{nResults} = 'beh_';         % identifier for this result file
 ResultsHeader{nResults} = {'CELL', 'MEAN_GROUP_1', 'MEAN_GROUP_2','SEM_GROUP_1', 'SEM_GROUP_2', 'P_DIFF'};
 ResultsSummary{nResults} = 'beh_outcome.dat'
 ResultsMultipleDelims(nResults) = 0;
@@ -43,7 +44,7 @@ ResultsMultipleDelims(nResults) = 0;
 % load the data into aPD 2D array. 
 LoadPopulationData5Key;
 
-% for example, the above result can be accessed via colunm name variable beh_MEAN_GROUP_1
-aPD(:, beh_MEAN_GROUP_1)
+% for example, the first column of the above result can be accessed via colunm name variable beh_MEAN_GROUP_1
+hist( aPD(:, beh_MEAN_GROUP_1) )
 ```
 ### Perform basic population analysis
