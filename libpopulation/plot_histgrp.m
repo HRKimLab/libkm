@@ -86,6 +86,13 @@ if ~is_arg('edges')
     hist(data);
     xl = xlim;
 else
+    % check upper boundary
+    bUB = data == edges(end);
+    if nnz(bUB) > 0
+        warning('%d match with the upper boundary of edages. to avoid missing them in the plot, data will be reduce by eps', nnz(bUB) );
+        data(bUB) = data(bUB) - eps;
+    end
+    
     % calculate center
     center = edges + diff(edges(1:2))/2;
     center = center(:);

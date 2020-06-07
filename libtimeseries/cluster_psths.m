@@ -40,6 +40,10 @@ switch(psth_type)
 end
 
 nN = size(pop_data, 1);
+if ndim > nN
+    warning('cluster_psth: ndim > nN. reduce it to nN.');
+    ndim = nN;
+end
 
 if test_diff == 1
     test_diff = 200;

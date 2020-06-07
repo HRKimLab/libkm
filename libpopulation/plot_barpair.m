@@ -5,7 +5,7 @@ function [pPair pRef] = plot_barpair(x, is_sig, y_ref, varargin)
 yl = [];
 show_individual = 1;
 use_star = 0;
-show_mc = 1;
+show_mc = 1;    % show multiple comparisons
 
 process_varargin(varargin);
 
