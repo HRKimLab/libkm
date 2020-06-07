@@ -27,8 +27,8 @@ StoreResults('Z:\Data\Analysis\281\', 'beh_outcome.dat', [], 'm281s18r1', data_h
 DATA_ROOT = ['Z:\Data' filesep];
 % assign subject and session
 % all batch
-MonkOfInterest = [3014 3015 3017 3021 3044 3045 3047 3048 3049 3050 3051 3053 3054]; % 3013 3016 
-CellOfInterest = {1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100};
+MonkOfInterest = [281 282 283]; % 3013 3016 
+CellOfInterest = {1:100, 1:100, 1:100};
 
 ResultsExt={}; ResultsHeader={};
 nResults = 0; ResultsMultipleDelims=[];
