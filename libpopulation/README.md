@@ -5,6 +5,7 @@
 - You save the results of a analysis in a file (e.g., text file) during per-session analysis procedure.
 - Analysis results can be saved in different files for each subject and analysis routine.
 - For population analysis, you set subjects and results files of interests. The program seeks for individual files, and construct a big 2-dminsional table [# of elements * attributes of analysis].
+- Once the big table is loaded, you set various flags to dissect the data, and play with it!
 
 ### Details
 
