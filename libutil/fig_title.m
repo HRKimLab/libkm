@@ -54,12 +54,14 @@ text(pStartOffset, 0.6, sDate, 'fontsize', 8, ...
 % text(pStartOffset, 0.0, sDate, 'fontsize', 8, ...
 %     'fontweight','bold', 'linestyle','none', 'tag','anal_date');
 
-% show the the analysis fuction filename for other people 2019 HRK 
+% show the the analysis fuction filename for other people 
+% such that they know what code to take a look at
 callstack = dbstack;
 func_name = [];
 for iC=1:numel(callstack)
    switch(callstack(iC).name)
        case {'fig_title', 'create_figure','setfig','setpanel'} % skip these function names
+       case {'LiveEditorEvaluationHelperESectionEval','evaluateCode'} % callbacks when evaluated in the editor
        otherwise
            func_name = callstack(iC).name;
            break;

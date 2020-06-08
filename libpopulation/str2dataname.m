@@ -14,7 +14,9 @@ bV = cellfun(@(x) ~isempty(x), cU);
 cU = cU(bV);
 % convert to unitkey5
 uk = str2unitkey5(cU);
-uk(:, 4:5) = [];
+if numel(uk) > 3 % in case cU is ''
+    uk(:, 4:5) = [];
+end
 datanames = unitkey2str(uk);
 % datanames can be redundant if there are multiple neurons
 if iscell(datanames)

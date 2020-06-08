@@ -13,6 +13,7 @@ show_average = 1;
 grp_name = {};
 brighter_order = 3;
 estimator = @nanmean;
+errbar_type = 'patch' ;
 
 process_varargin(varargin);
 
@@ -33,14 +34,14 @@ cla; hold on;
 hInd = []; hAvg = []; cL = {};
 for iG=1:length(uG)
     bVG = grp == uG(iG);
-    cL{iG} = sprintf('%.2f, n=%d', uG(iG), nnz(bVG) );
+    cL{iG} = sprintf('%.2f, n=%d', uG(iG), nnz( any(y(bVG, :), 2) ) );
     if show_individual
         hInd = plot(x, y(bVG ,:)', sline , 'color', brighter(cmap(iG,:), brighter_order) );
         if ~isempty(hInd), hInd = hInd(1); end;
     end
     if show_average
         hAvg = draw_errorbar(x, estimator( y(bVG, :) ), nansem( y(bVG, :)), ...
-            cmap(iG,:), 'patch', gca ) ;
+            cmap(iG,:), errbar_type, gca ) ;
         if ~isempty(hAvg), hInd = hAvg(1); end;
     end
     tmp = [hInd hAvg];

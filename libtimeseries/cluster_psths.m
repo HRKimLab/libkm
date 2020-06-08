@@ -18,6 +18,8 @@ test_diff = 0;
 use_parallel = 1; % 1: use default parallel processing toolbox. delete 2: do not delete
 border = [];        % border for top level subgroups
 border2 = [];       % border 2nd-level subgroups
+image_cmap = '';
+cl = [];            % color range for imagesc
 
 process_varargin(varargin);
 
@@ -154,8 +156,17 @@ draw_refs(0, x_refs, 0);
 draw_refs(0, i_border, NaN);
 set(draw_refs(0, i_border2, NaN), 'linestyle', ':');
 ylim([0.5 size(pop_data, 1)+0.5]);
+axis ij;
 ylabel('Obs. #');
 stitle('%d obs * %d variables data', size(pop_data, 1), size(pop_data, 2) );
+% apply colormap and clim
+if ~isempty(image_cmap), colormap(image_cmap); end
+if ~isempty(cl), set(gca, 'clim', cl); end
+
+% change ref color if needed
+switch(image_cmap)
+    case 'yellowblue', set(findobj(gca,'tag','ref'), 'color', 'w')
+end
 
 ax(2) = p.gna;
 % pop_data_x causes problems in imagesc (see above). ignore x scale
@@ -172,14 +183,24 @@ set(draw_refs(0, i_border2, NaN), 'linestyle', ':');
 xlabel(x_label);
 legend(arrayfun(@(x) sprintf('PC%d', x), 1:ndim_coef_disp, 'un', false)); legend boxoff
 stitle('PCs, nDim = %d', ndim);
-
+% match axis location
+hCB = colorbar; set(hCB,'visible','off');
 linkaxes_ext(ax, 'x');
 
 p.gna;
 est_popdata = pc_score(:, 1:ndim) * pc_coef(:, 1:ndim)';
 imagesc(est_popdata); colorbar;
+axis ij;
 xlim([0.5 size(est_popdata,2)+0.5]); ylim([0.5 size(est_popdata, 1)+0.5]);
 stitle('Reconstructed data using nDim = %d', ndim);
+% apply colormap and clim
+if ~isempty(image_cmap), colormap(image_cmap); end
+% reconstructed prediction is not the same scale. need to fix.
+% if ~isempty(cl), set(gca, 'clim', cl); end  
+% change ref color if needed
+switch(image_cmap)
+    case 'yellowblue', set(findobj(gca,'tag','ref'), 'color', 'w')
+end
 
 p.gna;
 pc_explained = pc_explained(:); tot_explained = tot_explained(:);
@@ -187,6 +208,8 @@ plot([pc_explained(1:min([end 10])) tot_explained(1:min([end 10]))], '-o');
 xlabel('PC'); ylabel('% variance');
 legend('Ind','Accum'); legend boxoff;
 title('% variance explained');
+% match axis location
+hCB = colorbar; set(hCB,'visible','off');
 
 ret.pc_score = pc_score;
 ret.pc_coef = pc_coef;
@@ -242,6 +265,13 @@ plot_continuous_array(1:size(pop_data, 2), pop_data(iS, :), cid_kmeans(iS), fals
 draw_refs(0, x_refs, 0);
 draw_refs(0, i_border, NaN);
 set(draw_refs(0, i_border2, NaN), 'linestyle', ':');
+% apply colormap and clim
+if ~isempty(image_cmap), colormap(image_cmap); end
+if ~isempty(cl), set(gca, 'clim', cl); end
+% change ref color if needed
+switch(image_cmap)
+    case 'yellowblue', set(findobj(gca,'tag','ref'), 'color', 'w')
+end
 
 gna;
 [gnumel gname] = grpstats(ones(size(cid_kmeans)), cid_kmeans, {'sum', 'gname'});
@@ -314,8 +344,15 @@ imagesc(pop_data_x, 1:size(pop_data, 1), flipud(pop_data(perm,:)));
 draw_refs(0, x_refs, NaN);
 xlabel(x_label);
 colorbar('westoutside');
+% apply colormap and clim
+if ~isempty(image_cmap), colormap(image_cmap); end
+if ~isempty(cl), set(gca, 'clim', cl); end
 stitle('N = %d, sb cluster id, nclust = %d', nnz(bV), nclust);
 
+% change ref color if needed
+switch(image_cmap)
+    case 'yellowblue', set(findobj(gca,'tag','ref'), 'color', 'w')
+end
 %% plot t-SNE results sorted by cluters based on hierarchical cluster tree
 if t_sne
     setfig(2,2, 't-SNE');

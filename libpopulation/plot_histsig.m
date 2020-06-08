@@ -43,7 +43,7 @@ else
     % check upper boundary
     bUB = data == edges(end);
     if nnz(bUB) > 0
-        warning('%d match with the upper boundary of edages. to avoid missing them in the plot, data will be reduce by eps', nnz(bUB) );
+        warning('%d data points match with the upper boundary of edages (%.2f). Adjust these data by eps to include them in the rightmost bin', nnz(bUB), edges(end) );
         data(bUB) = data(bUB) - eps;
     end
 

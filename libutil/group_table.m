@@ -38,7 +38,7 @@ for iV = 1:nV
    
    % check if this group has redundant unitnames
    if nVG > nUnqVG
-       warning('group_var %s has redundant unitnames. # of rows (%d) is greater than unique set(%d)', ...
+       fprintf('group_table(): group_var %s has redundant unitnames. # of rows (%d) > unique unitnames (%d)\n', ...
            unq_vals{iV, 1}{1}, nVG, nUnqVG );
    end
 end
@@ -116,13 +116,20 @@ for iC = 1:nV
             % print out rows that cause the redundancy problem.
 %             T(bV, :)
             iVV = find(bV);
-            fprintf(1, 'found %d redundant values in group %s, unitname %s. the last entity will be assigned.\n', ...
-                nnz(bV), unq_vals{iC, 1}{1}, grp_tbl.Properties.RowNames{iR} );
+            if debug
+                fprintf(1, 'found %d redundant values in group %s, unitname %s. the last entity will be assigned.\n', ...
+                    nnz(bV), unq_vals{iC, 1}{1}, grp_tbl.Properties.RowNames{iR} );
+            end
             % assign with the last one
              grp_tbl(iR, unq_vals{iC,1}) = T(iVV(end), y_var);
         end
     end
 end
+
+vv = info_tbl{:,:};
+fprintf(1, 'Found redundancy in %d units, %d groups (%.2f%%). Last entities were assigned.\n', ...
+    nnz(any(vv > 1, 2)), nnz(any(vv > 1, 1)), nnz(vv > 1)/numel(vv)*100);
+if nnz(vv > 1), fprintf(1, 'Use debug=1 option if you want to see detail.\n'); end
 
 if debug
    hT = table2uitable(info_tbl, 'name', sprintf('# of matches for %s. [%d x %d]', y_var, size(info_tbl,1), size(info_tbl,2)), 'mark_zero', 1); 

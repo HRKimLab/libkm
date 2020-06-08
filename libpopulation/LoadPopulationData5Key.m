@@ -337,4 +337,7 @@ aPD = aPD(iSortRow,:);
 bPDBehavior = aPD(:,4) == -1 & aPD(:,5) == -1;
 bPDNeuron = ~bPDBehavior;
 
-fprintf(1, 'Data loading completed!\n');
+% also create a table variable from array.
+tPD = array2table(aPD, 'VariableNames', pcd_colname);
+
+fprintf(1, 'Data loading to aPD and tPD completed!\n');

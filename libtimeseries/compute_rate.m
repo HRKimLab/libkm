@@ -87,11 +87,11 @@ switch(data_type)
         [x array_rsp] = ts2array(ts_resp, trigger, trial_start-off_win_len, trial_end+off_win_len);
         
         % smoothing.
-        % NaN is filled if at least one in the sliding window is NaN
+        % NaNs will be assigned if at least one in the sliding window is NaN
         if length(trial_start) == 1 && length(trial_end) == 1 && (trial_end-trial_start) <= 200
             warning('do not smooth timestamp data for PSTH');
             smooth_window = ones(1,1)/1;
-            rate_rsp = array_rsp;
+            rate_rsp = array_rsp * 1000;
         elseif isnumeric(win_len)
             smooth_window = ones(1,win_len)/win_len; 
             rate_rsp = conv2(array_rsp, smooth_window, 'same') * 1000;

@@ -61,6 +61,14 @@ xlabel(x_label); ylabel(y_label);
 set(ax,'tag','scatter');
 bV = ~isnan(x) & ~isnan(y);
 [b, a, bint, aint, r, p] = regress_perp(x(bV),y(bV));
+% get the size of scatter
+pos_scatter = get(findobj(gcf,'tag','scatter'), 'position');
+% set x same as scatter
+% ax_hists = findobj(gcf,'tag','hist')
+% pos_hist = get(ax_hists(1), 'position');
+% set( ax_hists(1), 'position', [pos_hist(1:2) pos_scatter(3) pos_hist(4)]);
+% pos_hist = get(ax_hists(2), 'position');
+% set( ax_hists(2), 'position', [pos_hist(1:2) pos_scatter(3) pos_hist(4)]);
 axes(axDesc)
 xpos = 0; ypos = 1; 
 if ~isempty(x_label)
