@@ -36,6 +36,8 @@ hT = uitable('Data', table2cell(T(:, bCol)),'ColumnName',T.Properties.VariableNa
 
 if any(any(mark_rows))
     assert(size(mark_rows, 1) == size(T, 1), 'mark_rwo should have the same # of rows as the table');
+    % cool colormap does not have while color. if you happen to change
+    % colormap, make sure that it does not have bright white-ish color
     cmap = brighter(cool(size(mark_rows, 2)),3);
     bg_colors = ones(size(mark_rows, 1), 3) * 0.99;
     for iR = 1:size(mark_rows, 1)

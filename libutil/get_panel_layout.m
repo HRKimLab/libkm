@@ -3,7 +3,7 @@ function [n_row n_col] = get_panel_layout(orient, nPanel)
 % orient = 0 : letter, landscape
 % orient = 1 : letter, portrait
 % orient = 2 : based on figures (to make figures square or for screen view)
-%
+% orient = 3 : force n_row to be 3
 % 2019 HRK
 switch(orient)
     case 0 % landsacpe layout

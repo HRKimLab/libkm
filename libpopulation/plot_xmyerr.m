@@ -7,6 +7,7 @@ function [hPS hPL mY semY] = plot_xmyerr(x,y, varargin)
 color = [];
 ebtype = [];
 individual_style = [];
+show_individual = 1;
 estimator = [];
 
 process_varargin(varargin);
@@ -24,15 +25,15 @@ if isempty(x), x = 1:size(y,2); end;
 
 assert(size(x,2) == size(y,2), '# of column should be matched between x and y');
 
-if strcmp('none', individual_style)
-    hPS = [];
-else
+if show_individual
     if is_arg('c')
         hPS = plot(x, y, individual_style, 'color', brighter(c, 3), 'markersize', 5);
     else
         c = [0 0 0];
         hPS = plot(x, y, individual_style, 'markersize', 5);
     end
+else
+    hPS = [];
 end
 
 % mY = nanmedian(y, 1);

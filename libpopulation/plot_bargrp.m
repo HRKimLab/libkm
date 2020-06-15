@@ -18,6 +18,7 @@ marker_color = [];
 % eb = @nansem;
 estimator = [];
 show_mc = 1; % show multiple comparison results
+bar_x = [];      % bar start position. for now, only accept bar_x from plot_barpair
 
 process_varargin(varargin);
 
@@ -29,6 +30,7 @@ if ~is_arg('y_ref'), y_ref = NaN; end;
 if ~is_arg('show_individual'), show_individual = true; end;
 if ~is_arg('bar_color'), bar_color = [.73 .73 .73]; end;
 if ~is_arg('marker_color'), marker_color = darker(bar_color, 4); end;
+
 
 assert(strcmp(class(is_sig), 'logical'), 'is_sig should be logical');
 % substitute x if given as column idx
@@ -96,8 +98,21 @@ if all(isnan(grp_means))
     return;
 end
 
+if isempty(bar_x) % default. almost all cases fall in here.
+    bar_x = unique(nonnans(x)); bar_x = bar_x(:)';
+    assert(all(bar_x == (1:max(x))), 'bar_x is not increasing integer from 1.');
+else % when bar_x is given from plot_barpair
+    assert(numel(bar_x) == nunique(x));
+    if ~all(bar_x == 1:nunique(x))
+        warning('bar_x is given. make sure the x axis and check if bar positions, x labels are not mixed up!');
+        bar_x
+    end
+end
 
-hB = bar(grp_means);
+% replace x with those using bar_x elments
+x(~isnan(x)) = bar_x(x(~isnan(x)));
+
+hB = bar(bar_x, grp_means);
 hold on;
 
 set(hB,'EdgeColor','none');
@@ -129,7 +144,7 @@ else
 end
 
 % draw errorbar
-hE = errorbar(1:size(grp_names,1), grp_means, grp_sem,'linestyle','none');
+hE = errorbar(bar_x, grp_means, grp_sem,'linestyle','none');
 % ch = get(hB,'child'); set(ch,'facea',.5);
 set(hE, 'linewidth', 1.5,'color','k')
 

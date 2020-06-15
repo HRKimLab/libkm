@@ -21,19 +21,7 @@ if ~is_arg('h') && ~is_arg('v')
 end
 
 if ~is_arg('v')
-    if h <= 3, h=h; v=1; 
-    elseif h == 4, h=2; v=2;
-    elseif h <= 6, h=3; v=2;
-    elseif h <= 8, h=4; v=2;
-    elseif h <= 12, h=4; v=3;
-    elseif h <= 16, h=4; v=4;
-    elseif h <= 20, h=5; v=4;
-    elseif h <= 25, h=5; v=5;
-    elseif h <= 30, h=5; v=6;
-    elseif h <= 36, h=6; v=6;
-    else
-        h=ceil(sqrt(h)); v=h;
-    end
+    [h v] = get_panel_layout(orient_flag, h);
 end
 
 

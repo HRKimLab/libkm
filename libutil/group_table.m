@@ -53,11 +53,14 @@ switch(class(T{:, y_var}))
         grp_tbl = table();
         for iR = 1:nMaxR
             for iC = 1:nV
+                % TODO: I need to change it such that it uses the sample
+                % eneity of the same group
                  tmp = T{1, y_var};
                  assert(numel(tmp) == 1);
                  switch(class(tmp{1}))
                      case 'struct' % GoF
                      case 'double' % optimal fit parameters
+                         
                      otherwise
                          error('Unknown cell{1} type: %s', class(tmp{1}));
                  end

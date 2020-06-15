@@ -19,29 +19,30 @@ if is_arg('orient_f'), orient_flag = orient_f; end;
 if ~is_arg('sTitle'), sTitle = ''; end;
 
 if ~is_arg('v')
-    if orient_flag % old config for portrait layout
-        if h <= 6, h=3; v=2;
-        elseif h <= 8, h=4; v=2;
-        elseif h <= 12, h=4; v=3;
-        elseif h <= 15, h=5; v=3;
-        elseif h <= 20, h=5; v=4;
-        elseif h <= 24, h=6; v=4;
-        elseif h <= 28, h=7; v=4;
-        elseif h <= 32, h=8; v=4;
-        end
-    else % new config for landscape layout
-        if h <= 3, h=h; v=1;
-        elseif h == 4, h=2; v=2;
-        elseif h <= 6, h=2; v=3;
-        elseif h <= 8, h=2; v=4;
-        elseif h <= 12, h=3; v=4;
-        elseif h <= 15, h=3; v=5;
-        elseif h <= 20, h=4; v=5;
-        elseif h <= 24, h=4; v=6;
-        elseif h <= 28, h=4; v=7;
-        elseif h <= 32, h=4; v=8;
-        end
-    end
+    [h v] = get_panel_layout(orient_flag, h);
+%     if orient_flag % old config for portrait layout
+%         if h <= 6, h=3; v=2;
+%         elseif h <= 8, h=4; v=2;
+%         elseif h <= 12, h=4; v=3;
+%         elseif h <= 15, h=5; v=3;
+%         elseif h <= 20, h=5; v=4;
+%         elseif h <= 24, h=6; v=4;
+%         elseif h <= 28, h=7; v=4;
+%         elseif h <= 32, h=8; v=4;
+%         end
+%     else % new config for landscape layout
+%         if h <= 3, h=h; v=1;
+%         elseif h == 4, h=2; v=2;
+%         elseif h <= 6, h=2; v=3;
+%         elseif h <= 8, h=2; v=4;
+%         elseif h <= 12, h=3; v=4;
+%         elseif h <= 15, h=3; v=5;
+%         elseif h <= 20, h=4; v=5;
+%         elseif h <= 24, h=4; v=6;
+%         elseif h <= 28, h=4; v=7;
+%         elseif h <= 32, h=4; v=8;
+%         end
+%     end
 end
 srcsz = get(0, 'screenSize');
 

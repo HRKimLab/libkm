@@ -19,7 +19,6 @@ else, error('tD should be either table or cell array');
 end
 
 tb_val = NaN(size(tb));
-
 % iterate table
 for iC = COL_OFF:size(tb, 2)
     for iR = ROW_OFF:size(tb, 1)
