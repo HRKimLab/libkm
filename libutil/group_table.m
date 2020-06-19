@@ -51,23 +51,26 @@ switch(class(T{:, y_var}))
         grp_tbl = array2table(NaN( nMaxR, nV) );
     case 'cell'
         grp_tbl = table();
-        for iR = 1:nMaxR
-            for iC = 1:nV
-                % TODO: I need to change it such that it uses the sample
-                % eneity of the same group
-                 tmp = T{1, y_var};
-                 assert(numel(tmp) == 1);
-                 switch(class(tmp{1}))
-                     case 'struct' % GoF
-                     case 'double' % optimal fit parameters
-                         
-                     otherwise
-                         error('Unknown cell{1} type: %s', class(tmp{1}));
-                 end
-%                  && isnumeric( tmp{1} ) );
-                tmp_assign{1} = NaN(size(tmp{1}));
-                 grp_tbl{iR, iC} = tmp_assign;
-                 
+        iR = 1;
+        for iC = 1:nV
+            % TODO: I need to change it such that it uses the sample
+            % eneity of the same group
+            tmp = T{1, y_var};
+            assert(numel(tmp) == 1);
+            switch(class(tmp{1}))
+                case 'struct' % GoF
+                case 'double' % optimal fit parameters
+                otherwise
+                    error('Unknown cell{1} type: %s', class(tmp{1}));
+            end
+            %                  && isnumeric( tmp{1} ) );
+            tmp_assign{1} = NaN(size(tmp{1}));
+            grp_tbl{iR, iC} = tmp_assign;
+        end
+        for iR = 2:nMaxR
+            if iR > 1
+                grp_tbl(iR, :) = grp_tbl(1, :);
+                continue;
             end
         end
     case 'struct'  % add to process shuffled_gof

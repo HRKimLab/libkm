@@ -240,7 +240,7 @@ for iG=1:length(grp_numel)
     cL{iG} = [grp_names{iG} ' (N=' num2str(grp_numel(iG)) sprintf(', r=%.2f, p=%.2f)', r2(iG), p2(iG))];
 end
 
-if nGrp > 1 && nGrp < 10 % too many items in the legend is not useful
+if nGrp >= 1 && nGrp < 10 % too many items in the legend is not useful
     % if the correlation is positive, move legend to left top
     if r > 0 && p < .1
         legend(hS, cL, 'location','northwest'); legend boxoff

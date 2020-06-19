@@ -22,6 +22,14 @@ if (ischar(tD) && strcmp(tD, 'NO_FILTER')) || (nargin > 1 && ischar(prot_name) &
     return;
 end
 
+if istable(tD)
+    % make cell array by putting rownames and columna names
+    cD = [tD.Properties.RowNames tD{:,:}];
+    tD = [{'animal'}, tD.Properties.VariableNames; cD];
+    % remove 'm' if contains
+    tD(1,:) = regexprep(tD(1,:), '^m','');
+end
+
 if ~iscell(tD), error('first argument should be cell array of tabular dataset'); end;
 
 % return protocol names if no name is given

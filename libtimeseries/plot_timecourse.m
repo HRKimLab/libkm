@@ -236,6 +236,9 @@ else
             'raster_size', raster_size, 'ax', ax_raster, 'cmap', cmap);
         set(ax_raster, 'xtick',[]);
     case {'stream'}
+        % check if the user tries to smooth stream type and give warning
+        % that it does not work.
+        if any(strcmp(varargin, 'win_len')), warning('plot_timecourse: stream type is not smoothed by win_len.'); end;
         % plot continouse data sorted by group,
 %         axes(ax_raster);
         % response from NaN trigger will have biggest idx_trials, thus be stacked

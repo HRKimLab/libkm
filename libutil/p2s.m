@@ -11,8 +11,10 @@ pstrs = [];
 for iP = 1:length(pvals)
     pval = pvals(iP);
 % print p value smartly
-if pval > .01
+if pval > .1
     pstr = sprintf('%.2f', pval);
+% elseif pval > .01
+%     pstr = sprintf('%.2f', pval);
 elseif pval > .001
     pstr = sprintf('%.3f', pval);
 elseif pval > .0001

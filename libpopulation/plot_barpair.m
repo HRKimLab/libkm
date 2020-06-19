@@ -13,7 +13,9 @@ process_varargin(varargin);
 if ~is_arg('c'), c = [.5 .5 .5];    end;
 if ~is_arg('y_ref'), y_ref = []; end;
 if ~is_arg('is_sig'), is_sig = true(size(x)); end;
-if numel(bar_x) == 1 && size(x, 2) > 1
+if numel(bar_x) == 0 
+    bar_x = 1:size(x, 2);
+elseif (numel(bar_x) == 1 && size(x, 2) > 1)
     bar_x = bar_x:(bar_x+size(x, 2)-1);
 end
 
