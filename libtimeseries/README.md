@@ -1,5 +1,5 @@
 # libtimeseries
-Plot moving average; plot population time course; analyze multi-dimensional dynamics
+libtimeseries provides an integrative way to plot and manage behavioral and neural time course data. It is specialized in handling seconds-scale data in trial structure with multiple conditions. You can do the following things: Plot raster and moving average (PSTH); save PSTH; load data and plot population time course; analyze multi-dimensional dynamics
 
 ## Examples
 plot spike timestamp (spike_ts) aligned by events (trig), using a time window defined by start time (st) and end time (et). If needed, sort trials by trial conditions (grp).
