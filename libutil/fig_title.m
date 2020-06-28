@@ -70,7 +70,7 @@ end
 if ~isempty(func_name)
     func_name = regexprep(func_name,'_','\\_');
     text(pStartOffset, 0.0, func_name, 'fontsize', 8, ...
-        'fontweight','bold', 'linestyle','none');
+        'fontweight','bold', 'linestyle','none','tag','func_name');
 end
 
 % inactivate the axes to avoid plotting on this axes

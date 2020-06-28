@@ -1,6 +1,7 @@
 function [psth_in psth_out] = filter_psth(st, varargin)
-% filter psth structure by unitkey, regular expression, or  explicit list
-% explicit list should be the first argument.
+% filter psth structure by an explicit list of strings, unitkey array, 
+% or regular expression for string-match. % explicit list should be the first argument.
+%
 % 5/20/2018 HRK
 
 verbose = 1;

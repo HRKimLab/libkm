@@ -7,11 +7,11 @@ if isstruct(st) && ~isfield(st, 'x')
    for iF = 1:nF
        [st.(cF{iF}) sBorder] = serialize_single_psth(st.(cF{iF}), start_win, end_win);
    end
+   return;
 elseif iscell(st)
     nF = numel(st);
     for iF = 1:nF
        [st{iF} sBorder] = serialize_single_psth(st{iF}, start_win, end_win);
     end
+   return;
 end
-
-return;

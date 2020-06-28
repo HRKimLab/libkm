@@ -6,6 +6,7 @@ function [ax h_psth psth x rate_rsp h_event_psth h_event_raster array_rsp] = plo
 %   ‘stream’   : continuous data sampled at 1000Hz. the start of data acqusition is 0ms.
 %   'stream_lineplot': use line plot instead of color-coded image.
 %    numeric   : x(t) that covary with responses (e.g., location of animal)
+%
 % nT         : the number of trials or events
 % ts_resp    : responses to plot
 % trigger    : nT X 1 array of event timing from the start of session (SoS) in ms.
@@ -14,7 +15,7 @@ function [ax h_psth psth x rate_rsp h_event_psth h_event_raster array_rsp] = plo
 % grp        : categorical variable (e.g., experimental condition) or 
 %              continuous variable (e.g., movement latency) to group (sort) trials.
 %
-% below are auxiliary arguments 
+% additional options are shown below. (e.g., ..., 'win_len', 200);
 % win_len    : time window for averaging
 % test_diff  : do statistical test for 1) difference between groups 
 %                 2) difference between baseline and after-trigger response.
@@ -74,6 +75,22 @@ ax = [];
 h_psth = NaN(0,2); psth = [];    
 x = []; rate_rsp = [];
 ginfo = [];
+
+% assign dummy variable in case of using provided psth. just use the whole 
+% trial structure for now.
+if ~isempty(use_this_psth)
+    assert(isstruct(use_this_psth) && isfield(use_this_psth, 'x') && ...
+       isfield(use_this_psth, 'rate_rsp') && isfield(use_this_psth, 'grp') , ...
+       'use_this_psth should be a struct w/ fields x, rate_rsp, grp');
+   assert(size(use_this_psth.rate_rsp, 1) == size(use_this_psth.grp, 1), ...
+       '# of rows (trial) in rate_rsp (%d) should match with that of grp (%d)', ...
+       size(use_this_psth.rate_rsp, 1), size(use_this_psth.grp, 1) );
+   n_trial = size(use_this_psth.grp, 1);
+   % assign dummay variables. NaN evokes errors in some routine.
+   [trigger trial_start trial_end] = deal(zeros(n_trial, 1));
+   grp = use_this_psth.grp;
+end
+
 if size(trigger, 2) > 1, error('Use row vector( | ) for trigger'); end
 n_trial = size(trigger, 1);
 if roc == 2
@@ -94,7 +111,7 @@ switch(psth_legend), case 'on', psth_legend = 1; case 'off', psth_legend = 0; en
 switch(show_legend)
     case {'psth','psthoutside'}, psth_legend = 1;
 end
-
+ 
 % check size of arguments
 assert(size(trigger,1) == size(trial_start,1) || numel(trial_start) == 1, '# of triggger and trial_start should match');
 assert(size(trial_start,1) == size(trial_end,1) || numel(trial_start) == 1 || numel(trial_end) == 1, '# of trial_start and trial_end should match');
@@ -105,11 +122,11 @@ grp( isnan(trigger) | isnan(trial_start) | isnan(trial_end) ) = NaN;
 
 % return if any of input argument is just NaN array
 %if all(isnan(trigger)) || all(isnan(trial_start)) || all(isnan(trial_end)) % || all(isnan(grp))
-if all(isnan(trigger)) || all(isnan(trial_start)) || all(isnan(trial_end)) || all(all(isnan(grp)))
+if isempty(use_this_psth) && ( all(isnan(trigger)) || all(isnan(trial_start)) || all(isnan(trial_end)) || all(all(isnan(grp))) )
     switch(plot_type)
         case 'none'
         otherwise
-            % just generate axis to avoid errors
+            % just generate axis to avoid errors in routines that use returned axis
             [ax_raster ax_psth] = generate_axis(parent_panel, split_v);
             ax = [ax_raster ax_psth];
     end
@@ -163,11 +180,17 @@ switch(convert)
 end
 
 % use given psth
-if ~isempty(use_this_psth) && isstruct(use_this_psth)
+if ~isempty(use_this_psth) 
    x = use_this_psth.x;
    rate_rsp = use_this_psth.rate_rsp;
    array_rsp = rate_rsp;
    grp = use_this_psth.grp;
+   
+   % baseline subtraction
+   if ~isempty(base_sub_win) && all(size(base_sub_win) == [1 2])
+       base_rate = mean(array_rsp (:,x >= base_sub_win(1) & x < base_sub_win(2)), 2) ;
+        rate_rsp = rate_rsp - repmat(base_rate, [1 size(rate_rsp, 2)]);
+   end
 end
 
 % compute averaged response and test statistical difference

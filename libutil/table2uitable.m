@@ -43,7 +43,7 @@ if any(any(mark_rows))
     for iR = 1:size(mark_rows, 1)
         if ~any(mark_rows(iR,:), 2), continue; end
         % assgin color specific to coloring column condition
-        idx_color = find(mark_rows(iR, :))
+        idx_color = find(mark_rows(iR, :));
         % in case it has more than one valid condition, mix the color
         bg_colors(iR ,:) = mean(cmap(idx_color,:), 1);
     end

@@ -15,6 +15,7 @@ for iA = 1:2:nargin
     else                % row vector
         this_col = cols;
         this_grp = repmat(grpid, size(cols));
+        assert(size(this_col, 1) == size(this_grp, 1), '# of col and group deos not match for %dth arg',(iA+1)/2);
     end
     
     if iA == 1  % first element. create variable.

@@ -22,6 +22,7 @@ tag_grp = 0;
 marker_size = 2.5;
 mean_crit = 0.5;    % now I check this in compute_rate. this is for psths saved before that.
 auto_filter_x = 1;       % for concatenated psths, it's good to include nans to disconnect each individual one.
+color_event_by_grp = 0;    % color event based on group
 
 if isempty(psth), return; end;
 if ~isstruct(psth) || ~isfield(psth, 'mean')
@@ -192,7 +193,13 @@ if ~isempty(event_header) && isfield(psth, 'event')
         events = psth.event(:, event_header);
     end
     nG = size(events, 1);
-    [h_event] = plot_events_on_psth(ax, table2array(events)*1000, zeros(nG,1), (1:nG)', events.Properties.VariableNames );
+    if color_event_by_grp
+        event_color_grp = cmap;
+    else
+        event_color_grp = [];
+    end
+    [h_event] = plot_events_on_psth(ax, table2array(events)*1000, zeros(nG,1), (1:nG)', ...
+        events.Properties.VariableNames, 'color_grp',  event_color_grp);
 end
 
 % plot legend

@@ -237,7 +237,7 @@ for iG=1:length(grp_numel)
     [r2(iG) p2(iG)] = corr(x(bG), y(bG), 'type','Spearman', 'rows','pairwise');
 
     
-    cL{iG} = [grp_names{iG} ' (N=' num2str(grp_numel(iG)) sprintf(', r=%.2f, p=%.2f)', r2(iG), p2(iG))];
+    cL{iG} = [grp_names{iG} ' (N=' num2str(grp_numel(iG)) sprintf(', r=%.2f, p=%s)', r2(iG), p2s(p2(iG)))];
 end
 
 if nGrp >= 1 && nGrp < 10 % too many items in the legend is not useful

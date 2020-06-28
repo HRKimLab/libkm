@@ -18,6 +18,19 @@ if (ischar(tD) && strcmp(tD, 'NO_FILTER')) || (nargin > 1 && ischar(prot_name) &
 end
 
 if istable(tD)
+%     % make cell array by putting rownames and columna names
+%     if all(strcmp(tD.Properties.RowNames, tD{:,1}))
+%         iVC = 2:size(tD, 2);
+%         cD = [tD.Properties.RowNames tD{:, 2:end}];
+%     else
+%         iVC = 1:size(tD, 2);
+%         cD = [tD.Properties.RowNames tD{:,:}];
+%     end
+    
+%     tD = [{'animal'}, tD.Properties.VariableNames(iVC); cD];
+%     % remove 'm' if contains
+%     tD(1,:) = regexprep(tD(1,:), '^m','');
+%     
     % I am gradually shifting from cell array to table.
     % add header if it is table
     cD = table2cell(tD);

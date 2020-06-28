@@ -10,6 +10,7 @@ bSkipEvents = [];
 n_trial = []; 
 ax = [];
 events_header = {};
+color_grp = [];  % color for each group
 
 process_varargin(varargin);
 
@@ -23,6 +24,15 @@ event = event(:, events_header);
 
 marker_list = {'rx','gx','mx','cx','yx','kx','r+','g+','m+','c+','y+','k+','rv','gv','mv','cv','yv','kv'};
 color_list = {'r','g','m','c','y','k','r','g','m','c','y','k','r','g','m','c','y','k'};
+
+if ~isempty(color_grp)
+    assert(size(color_grp, 1) >= size(event, 1), '# in color_grp (%d) should be no less than the # of groups (%d)', ...
+        size(color_grp, 1), size(event, 1) );
+    n_color_grp = size(color_grp, 1);
+    for iCG = 1:n_color_grp
+        color_list{iCG} = color_grp(iCG, :);
+    end
+end
 
 set(ax,'NextPlot','add');
 if n_trial > 200
@@ -40,11 +50,14 @@ ar_event = table2array(event);
 % iterate events
 for iE = 1:size(ar_event, 2)
     
-    % do not distinguish lines between group by color or
-    % anything for now. it's too much.
+    % for now, either color by group or color by event.
     for iG = 1:size(ar_event, 1)
         x = ar_event(iG, iE);
-        hP(iG, iE) = line([x x], yl, 'color', color_list{iE}, 'parent', ax);
+        if ~isempty(color_grp)
+            hP(iG, iE) = line([x x], yl, 'color', color_list{iG}, 'parent', ax);
+        else
+            hP(iG, iE) = line([x x], yl, 'color', color_list{iE}, 'parent', ax);
+        end
         
         if bSkipEvents(iE)
             set(hP(iG, iE), 'Visible','off');

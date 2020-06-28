@@ -37,6 +37,7 @@ homogenize = 1;         % homogenize psth. you can skip it in certain situation 
 psth_sort_format = [];         % 'unitkey5', 'no_sort'
 legend_gnum = 0;            % show # of groups in legend
 auto_filter_x = 1;       % set 0 if want to disconnect individual psths in concatenated form
+color_event_by_grp = 0;   % color event in PSTH by cmap for each group
 
 % process options
 process_varargin(varargin);
@@ -199,8 +200,10 @@ avg_psth.event = get_mpsths_events(cPSTH, 'event_header', event_header, 'b_valid
 % plot averaged psth
 switch(plot_type)
     case 'line' % plot averaged PSMA
-        [h_avgpsth, hT, hL, h_event]  = plot_psma(avg_psth, 'eb_type', errbar_type, 'cmap', line_color, 'y_sigmark', y_sigmark, 'mark_diff', mark_diff, 'ax', ax, 'show_legend', show_legend, ...
-            'grp_xlim', grp_xlim, 'event_header', event_header, 'tag_grp', tag_grp, 'legend_gnum', legend_gnum, 'auto_filter_x', auto_filter_x);
+        [h_avgpsth, hT, hL, h_event]  = plot_psma(avg_psth, 'eb_type', errbar_type, 'cmap', line_color, 'y_sigmark', y_sigmark, ...
+            'mark_diff', mark_diff, 'ax', ax, 'show_legend', show_legend, ...
+            'grp_xlim', grp_xlim, 'event_header', event_header, 'tag_grp', tag_grp, ...
+            'legend_gnum', legend_gnum, 'auto_filter_x', auto_filter_x, 'color_event_by_grp', color_event_by_grp);
         set(nonnans(h_avgpsth), 'linewidth', 2); % make avg psth line thicker
         draw_refs(0, 0, NaN, ax);
         pct_bnd = prctile(comb_means(:), [1 99]);

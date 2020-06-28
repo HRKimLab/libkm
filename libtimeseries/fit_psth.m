@@ -5,6 +5,7 @@ function [b rstats] = fit_path(y_psth, x_psths, varargin)
 method = {};
 serialize = 0;
 borders = [];
+n_input_disp = 20; % number of sample input psths to show for display purpose
 
 process_varargin(varargin);
 
@@ -44,7 +45,7 @@ for iM = 1:nM
 end
 
 % compute r-square and some basic goodness-of-fit stats
-rstats = compute_rsquare(Y, [predY]);
+rstats = compute_gof(Y, [predY]);
 
 %% plot results
 % find borders and put NaN to cut the line component. somtimes I want to
@@ -52,12 +53,14 @@ rstats = compute_rsquare(Y, [predY]);
 iB = find_closest(sBorder, y_psth.x);
 setfig(4,1, 'Fit psth using psths');
 gna; % plot Xs 
-X(:, iB) = NaN;
-plot(y_psth.x, X);
+X(iB,:) = NaN;
+n_input_disp = min([n_input_disp size(X, 2)]) ;
+iSample = randsample(size(X, 2), n_input_disp);
+plot(y_psth.x, X(:, iSample) );
 draw_refs(0, sBorder, NaN);
-stitle('X: %d psths, ndata = %d (exc. const)', size(X, 2), size(X, 1) );
+stitle('X: %d samples / %d psths, ndata = %d (exc. const)', n_input_disp, size(X, 2), size(X, 1) );
 gna; % plot Y and prediction of Ys
-Y(:, iB) = NaN; predY(:, iB) = NaN;
+Y(iB, :) = NaN; predY(iB, :) = NaN;
 plot(y_psth.x, [Y predY]);
 draw_refs(0, sBorder, NaN);
 legend('Data', method{:});
@@ -68,4 +71,7 @@ stitle('R^2 = %s', sprintf('%.2f ', rs) );
 
 % distribution of betas
 gna;
-plot_barpair([b]',[],[],'show_mc', 0);
+b_tmp = [b]';
+b_tmp(:,1) = NaN; % do not show offset
+plot_barpair(b_tmp,[],[],'show_mc', 0);
+xlabel('Input #'); ylabel('\beta');

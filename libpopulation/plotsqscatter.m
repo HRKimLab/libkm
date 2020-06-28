@@ -63,6 +63,6 @@ if all(isnan(x)|isnan(y))
 else
     pSR = signrank(x,y);
 end
-atitle(sprintf('x<>y (p=%.2f)', pSR));
+atitle(sprintf('x<>y (p=%s)', p2s(pSR)));
 
 return;

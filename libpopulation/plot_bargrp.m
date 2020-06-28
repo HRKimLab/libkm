@@ -221,18 +221,24 @@ if r_with_grp
 	set(hReg,'color','k','linestyle', '--', 'tag','reg');
 end
 
-
+% set y label
 if exist('y_label','var'), ylabel(regexprep(y_label,'_',' ')); end;
-set(gca, 'xticklabel',  grp_names);
 
-dx = unique(diff(nonnan_unique(x)));
-if numel(dx) > 1
-    xl = minmax(x); xl(1) = xl(1) - dx/2; xl(2) = xl(2) + dx/2;
-    set(gca, 'xlim', xl);
-end
+% what does this do? does not really make sense...
+% dx = unique(diff(nonnan_unique(x)));
+% if numel(dx) > 1
+%     xl = minmax(x); xl(1) = xl(1) - dx/2; xl(2) = xl(2) + dx/2;
+%     set(gca, 'xlim', xl);
+% end
 
-if strcmp(class(grp),'cell')
-    cXL = regexprep(get(gca,'xticklabel'), '_', ' ');
-    set(gca,'XTickLabel', cXL, 'XTickLabelRotation', 320);
+% set x axis lables. do it only if tick number matches to lables
+switch ( class(grp) )
+    case 'cell'
+        cXL = regexprep(get(gca,'xticklabel'), '_', ' ');
+        set(gca,'XTickLabel', cXL, 'XTickLabelRotation', 320);
+    otherwise
+        if numel(get(gca,'xtick')) == numel(grp_names) 
+            set(gca, 'xticklabel',  grp_names);
+        end
 end
 return;

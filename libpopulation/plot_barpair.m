@@ -1,4 +1,4 @@
-function [pPair pRef] = plot_barpair(x, is_sig, y_ref, varargin)
+function [grp_means grp_sem pRef pDiff pPair] = plot_barpair(x, is_sig, y_ref, varargin)
 % plot bar plot with paired elements connected with lines
 % 10/28/2017 HRK
 

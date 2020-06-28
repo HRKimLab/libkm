@@ -20,6 +20,8 @@ border = [];        % border for top level subgroups
 border2 = [];       % border 2nd-level subgroups
 image_cmap = '';
 cl = [];            % color range for imagesc
+% methods goes from more conventional to more experimental. 
+cluster_methods = 'kmeans';   % This is just a keyword to decide where to stop
 
 process_varargin(varargin);
 
@@ -242,13 +244,14 @@ cid_kmeans = kmeans(pc_score, nclust, 'Start',seeds);
 % cid_kmeans = relabelClusters(cid_kmeans, jeremiahType);
 % matchrate = sum(cid_kmeans==jeremiahType)/length(jeremiahType) %#ok<NOPTS>
 
-setfig(2,2, ['k-means clustering based on PC scores, nclust = ' num2str(nclust)]);
+setfig(2,3, ['k-means clustering based on PC scores, nclust = ' num2str(nclust)]);
 gna;
 % set color and markersize
 if nN > 1000, markersize = 10;
 elseif nN > 500, markersize = 13;
 elseif nN > 100, markersize = 15;
 elseif nN > 50, markersize = 20;
+else, markersize = 20;
 end
 cmap = get_cmap(max(cid_kmeans));
 scatter(pc_score(:,1), pc_score(:,2), markersize, cmap(cid_kmeans,:), 'filled');
@@ -261,6 +264,24 @@ xlabel('PC1'); ylabel('PC2'); zlabel('PC3');
 gna;
 [~, iS] = sort(cid_kmeans);
 plot_continuous_array(1:size(pop_data, 2), pop_data(iS, :), cid_kmeans(iS), false, gca);
+% draw refs and borders
+draw_refs(0, x_refs, 0);
+draw_refs(0, i_border, NaN);
+set(draw_refs(0, i_border2, NaN), 'linestyle', ':');
+% apply colormap and clim
+if ~isempty(image_cmap), colormap(image_cmap); end
+if ~isempty(cl), set(gca, 'clim', cl); end
+% change ref color if needed
+switch(image_cmap)
+    case 'yellowblue', set(findobj(gca,'tag','ref'), 'color', 'w')
+end
+
+gna;
+this_psth.x = 1:size(pop_data, 2);
+this_psth.rate_rsp = pop_data(iS, :);
+this_psth.grp = cid_kmeans(iS);
+ax = plot_timecourse('stream', [], [], [], [], [], 'use_this_psth', this_psth);
+axes(ax(2));
 % draw refs and borders
 draw_refs(0, x_refs, 0);
 draw_refs(0, i_border, NaN);
@@ -326,9 +347,13 @@ if test_diff
     atitle('Sig. test');
 end
 
+
+
 ret.cid_kmeans = cid_kmeans;
 
-return;
+if strcmp(cluster_methods, 'kmeans')
+    return;
+end
 %% hierarchical cluster tree
 figure;
 fig_title('hierarchical cluster tree');
@@ -340,8 +365,10 @@ thresh = myTree(end-nclust+2,3); %this line is a hack to figure out the threshol
 cid_tree = cluster(myTree, 'MaxClust', nclust );
 set(gca, 'yticklabel',[], 'xtick',[], 'xticklabel', []);
 subplot(1,3,[1 2]);
-imagesc(pop_data_x, 1:size(pop_data, 1), flipud(pop_data(perm,:)));
-draw_refs(0, x_refs, NaN);
+imagesc(1:size(pop_data, 2), 1:size(pop_data, 1), flipud(pop_data(perm,:)));
+% draw_refs(0, x_refs, NaN);
+draw_refs(0, i_border, NaN);
+set(draw_refs(0, i_border2, NaN), 'linestyle', ':');
 xlabel(x_label);
 colorbar('westoutside');
 % apply colormap and clim

@@ -11,6 +11,7 @@ shuffled_pick = 0;
 test_diff = 0;
 debug = 0;
 estimator = 'zscore';
+base_sub_win = [];
 
 process_varargin(varargin);
 
@@ -97,10 +98,11 @@ sum_rsp = nansum(ar_rsp, 3);
 % nansum just make zero for all-NaNs
 sum_rsp(all(isnan(ar_rsp), 3)) = NaN;
 
+
 % plot combined PSTHs
 % z-score responses
 switch(estimator)
-    case 'zscore'
+    case {'zscore'}
         all_psth.rate_rsp = (sum_rsp - nanmean(sum_rsp(:))) / nanstd(sum_rsp(:));
     case 'sum'
         all_psth.rate_rsp = sum_rsp;
@@ -116,7 +118,8 @@ event_tb = get_mpsths_events(stPSTH);
 
 [ax h_psth pop_psth] = plot_timecourse('stream', 1:100, 10*ones(size(all_psth.grp)), 0, 10, all_psth.grp, ...
     'use_this_psth', all_psth, 'test_diff', test_diff, 'parent_panel', ax, 'grp_xlim', grp_xlim, ...
-    'adjust_clim', 0.5, 'mean_crit', 0.98);
+    'adjust_clim', 0.5, 'mean_crit', 0.98, 'base_sub_win', base_sub_win);
+
 atitle(ax(1), sprintf('Resample from %d/%d psths', nnz(bVSession), numel(bVSession) ));
 ylabel(ax(2), estimator);
 
