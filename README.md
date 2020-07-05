@@ -1,5 +1,5 @@
 # libkm
-A very practical matlab toolbox for behavioral and neural data analyses. This toolbox helps you 1) not get into the 'singularity point' of graduate students and postdocs - where you loose the tracks of your code and data 2) code less and focus on science.
+A very practical matlab toolbox for behavioral and neural data analyses. This toolbox helps you focus on science by relieving the burden of coding, debugging, and verifying analysis codes.
 
 ## [libpopulation](https://github.com/hkim09/libkm/tree/master/libpopulation)
 Load analysis results and plot them with simple stats.
