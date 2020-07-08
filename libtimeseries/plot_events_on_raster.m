@@ -34,7 +34,11 @@ for iG = 1:size(grp,2)
     end
 end
 
-aligned_events = bsxfun(@minus, events, trigger);
+if istable(events)
+    aligned_events = bsxfun(@minus, events{:,:}, trigger);
+else
+    aligned_events = bsxfun(@minus, events, trigger);
+end
 
 % sort trials based on group and trial #
 [~, idx_trials] = sortrows([grp (1:n_trial)']);
@@ -46,6 +50,13 @@ nMarker = size(events, 1);
 % keep this same as the ones in plot_events_on_psth()
 marker_list = {'rx','gx','mx','cx','yx','kx','r+','g+','m+','c+','y+','k+','rv','gv','mv','cv','yv','kv'};
 color_list = {'r','g','m','c','y','k','r','g','m','c','y','k','r','g','m','c','y','k'};
+% concatenated events needs long list
+if size(events, 2) > numel(marker_list)
+    n_duplicate = ceil(size(events, 2)/numel(marker_list));
+    marker_list = repmat(color_list, [1 n_duplicate]); 
+    color_list = repmat(color_list, [1 n_duplicate]);
+end
+
 
 sMedEvents = grpstats(aligned_events, grp, 'nanmedian')/1000;
 % skip plotting events if all aligned events are zero (same as trigger)

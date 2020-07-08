@@ -7,6 +7,7 @@ show_individual = 1;
 use_star = 0;
 show_mc = 1;    % show multiple comparisons
 bar_x = 1;      % bar start position. can be a vector (same size as size(x,2))
+test_type = 'nonpar';  % 'nonpar', 'par', 'par_cond'
 
 process_varargin(varargin);
 
@@ -24,14 +25,14 @@ nCond = size(x, 2);
 [is_sig grp] = cols2grp(is_sig, 1:nCond);
 
 [grp_means grp_sem pRef pDiff mc_sig] = plot_bargrp(v, grp, 'is_sig', is_sig, 'y_ref', y_ref, 'yl', yl, ...
-    'show_individual', show_individual, 'use_star', use_star, 'marker_color', c, 'show_mc', 0, 'bar_x', bar_x);
+    'show_individual', show_individual, 'use_star', use_star, 'marker_color', c, 'show_mc', 0, ...
+    'bar_x', bar_x, 'test_type', test_type);
 
 % compute correlation across groups (often group is an ordered variable)
 [rG pG] = corr(grp, v, 'type','Spearman', 'rows','pairwise');
 
 nR = nnz(any(~isnan(x),2));
 atitle(sprintf('nR=%d,rG=%.2f,pG=%s', nR, rG, p2s(pG)), 1);
-
 
 % draw lines to connect corresponding data points
 if show_individual
@@ -46,14 +47,32 @@ if show_individual
     end
 end
 
-% do paired test
-pPair = NaN(nCond, nCond);
-for iR = 1:nCond
-    for iC = iR+1:nCond
-        if all(isnan(x(:,iR)) | isnan(x(:,iC))), continue; end
-        pPair(iR, iC) = signrank(x(:,iR), x(:,iC));
-    end
+% NOTE: this is different from multcompare result, which compensate 
+% for multiple comparisons. This should not be used for judging population 
+% as a whole.
+switch(test_type)
+    case 'nonpar'
+        % do nonparametric paired test (signed rank test)
+        pPair = NaN(nCond, nCond);
+        for iR = 1:nCond
+            for iC = iR+1:nCond
+                if all(isnan(x(:,iR)) | isnan(x(:,iC))), continue; end
+                pPair(iR, iC) = signrank(x(:,iR), x(:,iC));
+            end
+        end
+    case 'par'
+        % do parametric paired test
+        pPair = NaN(nCond, nCond);
+        for iR = 1:nCond
+            for iC = iR+1:nCond
+                if all(isnan(x(:,iR)) | isnan(x(:,iC))), continue; end
+                [~, pPair(iR, iC)] = ttest(x(:,iR), x(:,iC));
+            end
+        end
+    otherwise
+        error('not implemented yet');
 end
+
 if nCond == 2
     atitle(sprintf('pPairD=%s', p2s(pPair(1,2))));
 end
@@ -63,7 +82,7 @@ if ~show_mc
 end
 
 % draw multiple comparison based on pairwise test
-mc_sig2 = [];
+mc_sig2 = NaN(0, 3);
 i_row = 1;
 for iR = 1:numel(unique(grp))
     for iC= (iR+1):(numel(unique(grp)))

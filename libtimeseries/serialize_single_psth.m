@@ -37,7 +37,10 @@ end
 
 comb_mean = []; comb_sem = [];
 comb_x = []; comb_roc = [];
-iBorder = [];
+comb_event = table();
+iBorder = 0;
+dx = psth.x(2) - psth.x(1);
+n_nullified_events = 0;
 % iterate group
 for iG = 1:nG
     % get time of interest
@@ -48,11 +51,41 @@ for iG = 1:nG
     if isfield(psth, 'roc') && ~isempty(psth.roc)
         comb_roc = [comb_roc psth.roc(iG, bV)];
     end
+    
+    % get x range for this group
+    xl = minmax(psth.x(bV));
+    % register event
+    if ~isfield(psth, 'event'), psth.event = table(); end
+    % register group start as an event
+    comb_event{1, {['CC_START' '_G' num2str(iG)]} } = iBorder(end) * dx;
+    % convert existing events
+    for iE = 1:size(psth.event, 2)
+        header = psth.event.Properties.VariableNames{iE};
+        % keep cancatenated events in seconds
+        if psth.event{iG, iE} >= xl(1) && psth.event{iG, iE} <= xl(2)
+            comb_event{1, {[header '_G' num2str(iG)]} } = ...
+                iBorder(end) * dx + (psth.event{iG, iE} - xl(1));
+        else
+            % nullify event that is out of range
+            comb_event{1, {[header '_G' num2str(iG)]} } = NaN;
+            n_nullified_events = n_nullified_events  + 1;
+        end
+        
+    end
+    
+    % accumulate x range information
     comb_x = [comb_x psth.x(bV)];
+    % iBorder is the number of cumulative data points for each group
     iBorder = [iBorder numel(comb_x)];
 end
 
-comb_x = (1:numel(comb_x)) .* (comb_x(2)-comb_x(1));
+% remove the first zero
+iBorder = iBorder(2:end);
+
+if n_nullified_events > 0
+%     fprintf(1, 'total %d events were nullified since they were out of range\n', n_nullified_events);
+end
+comb_x = (0:(numel(comb_x))-1) .* (dx);
 sBorder = comb_x(iBorder);
 nT = nansum(st.n_grp);
 
@@ -70,3 +103,6 @@ st.gname = 1;
 st.idx_sorted_by_num = 1;
 st.gnumel = NaN;
 st.n_grp = sum(st.n_grp);
+if ~isempty(comb_event)
+    st.event = comb_event;
+end

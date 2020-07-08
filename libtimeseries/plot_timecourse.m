@@ -87,6 +87,8 @@ if ~isempty(use_this_psth)
        size(use_this_psth.rate_rsp, 1), size(use_this_psth.grp, 1) );
    n_trial = size(use_this_psth.grp, 1);
    % assign dummay variables. NaN evokes errors in some routine.
+   % setting trigger to zero is important to use the already-aligned event 
+   % information for plot_mpsths
    [trigger trial_start trial_end] = deal(zeros(n_trial, 1));
    grp = use_this_psth.grp;
 end
@@ -204,6 +206,12 @@ end
 
 [xl yl] = get_plot_range(psth, adj_xl);
 
+% assign win_len for timestamp. 
+if strcmp(data_type, 'timestamp') && isempty(use_this_psth)
+    psth.win_len = win_len;
+else    
+    psth.win_len = NaN;
+end
 % assign ginfo for labeing
 psth.ginfo = ginfo;
 n_grp = grpstats( ~isnan(grpid), grpid, {'sum'} );
@@ -216,7 +224,7 @@ if ~isempty(event) && ~isempty(event_header)
     [m_sEvents] = compute_events_on_psth(event, trigger, psth.grpid, event_header);
     psth.event = m_sEvents;
 end
-        
+
 % return if not plotting graphs
 if strcmp(plot_type, 'none')
     ax = []; h_psth = []; % psth x rate_rsp
@@ -372,7 +380,7 @@ draw_refs(0, 0, NaN, ax_psth);
 ax = [ax_raster; ax_psth];
 linkaxes(ax, 'x'); set(ax, 'xlim', xl); 
 
-% plot events
+% plot events. event can be double array, table array or struct 
 if ~isempty(event)
     % extract event header from table or struct
     if ~is_arg('event_header') 

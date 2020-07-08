@@ -1,5 +1,5 @@
-function [event] = get_mpsths_events(cPSTH, varargin)
-% get averaged psth event from PSTHs
+function [event total_event] = get_mpsths_events(cPSTH, varargin)
+% get averaged psth event as well as combined event table from PSTHs
 % 1/2/2019 HRK
 
 event_header = {};        % event headers to show on the psth (e.g., {'VSTIM_ON_CD', 'RewOn'}
@@ -21,7 +21,7 @@ total_event = table(); total_event_grp = [];
 if isempty(b_valid_psths)
     b_valid_psths = true(n_psth, 1);
 end
-
+b_cols_intersect = 0;
 for iR = 1:n_psth
     % put together events
     if b_valid_psths(iR) && isfield(cPSTH{iR}, 'event') && ~isempty( cPSTH{iR}.event )
@@ -29,12 +29,16 @@ for iR = 1:n_psth
         if size(total_event,2) == 0 || set_equal(total_event.Properties.VariableNames, cPSTH{iR}.event.Properties.VariableNames)
             total_event = [total_event; cPSTH{iR}.event(:,:)];
             total_event_grp = [total_event_grp; (1:size(cPSTH{iR}.event,1))'];
-        else
+        else % if columns does not match. take interesect
+            b_cols_intersect = 1;
             inters_cols = intersect(total_event.Properties.VariableNames, cPSTH{iR}.event.Properties.VariableNames);
             total_event = [total_event(:,inters_cols); cPSTH{iR}.event(:,inters_cols)];
             total_event_grp = [total_event_grp; (1:size(cPSTH{iR}.event,1))'];
         end
     end
+end
+if b_cols_intersect
+    warning('event Columns are not the same. Some events are missing in the population PSTH.');
 end
 
 % assign event

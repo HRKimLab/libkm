@@ -17,7 +17,7 @@ pct_basediff = 0;       % show % of significant baseline difference
 individual_psths = 0;   % show individual PSTHs
 individual_events = [];    % show individual events. will follow individual_psths if empty
 line_color = [];
-smooth_win = [];
+smooth_win = [];        % re-smooth if necessary
 h_psth = [];
 ax = [];
 errbar_type = 'patch';
@@ -195,7 +195,7 @@ for iP = 1:n_psth
 end
 
 % get event header for PSTHs
-avg_psth.event = get_mpsths_events(cPSTH, 'event_header', event_header, 'b_valid_psths', b_valid_psths);
+[avg_psth.event avg_psth.individual_event] = get_mpsths_events(cPSTH, 'event_header', event_header, 'b_valid_psths', b_valid_psths);
 
 % plot averaged psth
 switch(plot_type)

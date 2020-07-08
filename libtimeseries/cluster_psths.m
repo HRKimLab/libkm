@@ -16,12 +16,13 @@ tutorial = 0;   % make a simple, tutorial version data
 preproc = 'none';
 test_diff = 0;
 use_parallel = 1; % 1: use default parallel processing toolbox. delete 2: do not delete
-border = [];        % border for top level subgroups
-border2 = [];       % border 2nd-level subgroups
+border = [];        % border for top level subgroups (unit of x)
+border2 = [];       % border 2nd-level subgroups (unit of x)
 image_cmap = '';
 cl = [];            % color range for imagesc
 % methods goes from more conventional to more experimental. 
 cluster_methods = 'kmeans';   % This is just a keyword to decide where to stop
+event_header = 'all';    % show all cancatenated events
 
 process_varargin(varargin);
 
@@ -32,6 +33,7 @@ switch(psth_type)
             pop_data = comb_psth.rate_rsp;
             pop_data_x = comb_psth.x;
             bVGrp = ~isnan(comb_psth.grp);
+            dx = comb_psth.x(2) - comb_psth.x(1);
         else
             error('struct but not psth');
         end
@@ -39,6 +41,7 @@ switch(psth_type)
         pop_data = comb_psth;
         pop_data_x = 1:size(pop_data, 2);
         bVGrp = true(size(pop_data,1), 1);
+        dx = 1;
     otherwise
         error('Unkonw type: %s', psth_type)
 end
@@ -79,15 +82,15 @@ if auto_crop_x
     pop_data = pop_data(:, bVX);
     pop_data_x = pop_data_x(bVX);
     
-    if ~isempty(border)
-        i_border = find_closest( border, pop_data_x );
-    else, i_border = []; end
-    if ~isempty(border2)
-        i_border2 = find_closest( border2, pop_data_x );
-    else, i_border2 = []; end
-    
     fprintf(1, 'remove %d data points that contain NaNs => %d valid data points\n', nnz(~bVX), nnz(bVX));
 end
+
+if ~isempty(border)
+    i_border = find_closest( border, pop_data_x );
+else, i_border = []; end
+if ~isempty(border2)
+    i_border2 = find_closest( border2, pop_data_x );
+else, i_border2 = []; end
 
 bV = bVGrp & ~any(isnan(pop_data), 2);
 fprintf(1, 'exclude %d/%d neurons whose grp or data contain NaN\n', nnz(~bV), numel(bV));
@@ -104,6 +107,9 @@ switch(preproc)
     otherwise
         error('Unknown norm method: %s', preproc)
 end
+
+% first, assign pop_data
+ret.pop_data = pop_data;
 
 if ndim > size(pop_data, 1)
     ndim = size(pop_data, 1);
@@ -244,8 +250,12 @@ cid_kmeans = kmeans(pc_score, nclust, 'Start',seeds);
 % cid_kmeans = relabelClusters(cid_kmeans, jeremiahType);
 % matchrate = sum(cid_kmeans==jeremiahType)/length(jeremiahType) %#ok<NOPTS>
 
-setfig(2,3, ['k-means clustering based on PC scores, nclust = ' num2str(nclust)]);
-gna;
+p = setpanel(1, 1, ['k-means clustering based on PC scores, nclust = ' num2str(nclust)]);
+p1 = p(1,1);
+p1.pack('h', {1/4 1/4 1/2});
+mp = p1(1);
+mp.pack('v', {1/2 1/2});
+mp(1).select();
 % set color and markersize
 if nN > 1000, markersize = 10;
 elseif nN > 500, markersize = 13;
@@ -257,11 +267,15 @@ cmap = get_cmap(max(cid_kmeans));
 scatter(pc_score(:,1), pc_score(:,2), markersize, cmap(cid_kmeans,:), 'filled');
 title('Projection on a 2D plane');
 xlabel('PC1'); ylabel('PC2');
-gna;
+
+mp(2).select();
 scatter3(pc_score(:,1), pc_score(:,2), pc_score(:,3), markersize, cmap(cid_kmeans,:), 'filled');
 title('Projection on a 3D space');
 xlabel('PC1'); ylabel('PC2'); zlabel('PC3');
-gna;
+
+mp = p1(2);
+mp.pack('v', {1/2 1/2});
+mp(1).select();
 [~, iS] = sort(cid_kmeans);
 plot_continuous_array(1:size(pop_data, 2), pop_data(iS, :), cid_kmeans(iS), false, gca);
 % draw refs and borders
@@ -276,25 +290,7 @@ switch(image_cmap)
     case 'yellowblue', set(findobj(gca,'tag','ref'), 'color', 'w')
 end
 
-gna;
-this_psth.x = 1:size(pop_data, 2);
-this_psth.rate_rsp = pop_data(iS, :);
-this_psth.grp = cid_kmeans(iS);
-ax = plot_timecourse('stream', [], [], [], [], [], 'use_this_psth', this_psth);
-axes(ax(2));
-% draw refs and borders
-draw_refs(0, x_refs, 0);
-draw_refs(0, i_border, NaN);
-set(draw_refs(0, i_border2, NaN), 'linestyle', ':');
-% apply colormap and clim
-if ~isempty(image_cmap), colormap(image_cmap); end
-if ~isempty(cl), set(gca, 'clim', cl); end
-% change ref color if needed
-switch(image_cmap)
-    case 'yellowblue', set(findobj(gca,'tag','ref'), 'color', 'w')
-end
-
-gna;
+mp(2).select();
 [gnumel gname] = grpstats(ones(size(cid_kmeans)), cid_kmeans, {'sum', 'gname'});
 assert(numel(gnumel) == max(cid_kmeans))
 bar(gnumel);
@@ -347,7 +343,30 @@ if test_diff
     atitle('Sig. test');
 end
 
+mp = p1(3);
 
+this_psth.x = pop_data_x;
+this_psth.rate_rsp = pop_data(iS, :);
+this_psth.grp = cid_kmeans(iS);
+this_psth.event = comb_psth.event;
+ax = plot_timecourse('stream', [], [], [], [], [], 'use_this_psth', this_psth, ...
+    'event', comb_psth.individual_event{:,:} * 1000, 'event_header', comb_psth.individual_event.Properties.VariableNames, ...
+    'parent_panel', mp);
+
+axes(ax(2));
+% draw refs and borders
+draw_refs(0, x_refs, 0);
+draw_refs(0, border, NaN);
+set(draw_refs(0, border2, NaN), 'linestyle', ':');
+% apply colormap and clim
+if ~isempty(image_cmap), colormap(image_cmap); end
+if ~isempty(cl), set(gca, 'clim', cl); end
+% change ref color if needed
+switch(image_cmap)
+    case 'yellowblue', set(findobj(gca,'tag','ref'), 'color', 'w')
+end
+
+p.margin = 8;
 
 ret.cid_kmeans = cid_kmeans;
 

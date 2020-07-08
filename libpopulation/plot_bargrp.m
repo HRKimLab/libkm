@@ -19,6 +19,7 @@ marker_color = [];
 estimator = [];
 show_mc = 1; % show multiple comparison results
 bar_x = [];      % bar start position. for now, only accept bar_x from plot_barpair
+test_type = 'nonpar';  % 'nonpar', 'par', 'par_cond'
 
 process_varargin(varargin);
 
@@ -158,13 +159,13 @@ end
 nOL = nnz( y < yl(1) | y > yl(2) );
 
 % test same dist 
-[pDiff bNonEqualVar mc_comparison] = test_same_dist(y, grp2idx(grp));
+[pDiff bNonEqualVar mc_comparison] = test_same_dist(y, grp2idx(grp), 'test_type', test_type);
 
 % show multiple comparison results
 if ~isempty(mc_comparison)
     % mc_sig has three columns. [group 1, group 2, diff_is_significant(0/1)]
-    mc_sig = mc_comparison(:, [1 2]);
-    mc_sig(:,3) = mc_comparison(:, 3) .* mc_comparison(:, 5) > 0;
+    mc_sig = mc_comparison(:, [1 2 3]);
+%   mc_sig(:,3) = mc_comparison(:, 3) .* mc_comparison(:, 5) > 0;
     
     if show_mc
         disp_multiple_comparison_results(mc_sig, yl);    
@@ -181,7 +182,14 @@ if ~isnan(y_ref)
        if nnum(y(bV)) == 0
            pRef(iX) = NaN;
        else
-           pRef(iX) = signrank( y(bV) - y_ref );
+           switch(test_type)
+               case 'nonpar'
+                    pRef(iX) = signrank( y(bV) - y_ref );
+               case 'par'
+                    [~, pRef(iX)] = ttest( y(bV) - y_ref );
+               otherwise
+                   error('not implemented yet');
+           end
        end
        if use_star % use star mark
             if pRef(iX) < 0.01

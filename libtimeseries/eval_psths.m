@@ -1,5 +1,5 @@
 function psths = eval_psths(psths, expr)
-% loop and evaluate psths
+% loop a struct composed of psths and evaluate expression for individual psths
 % eval_psths(ft_neuron, 'psth.event.TELEPORT_CD(3) = psth.event.TELEPORT_CD(2)');
 %
 % 2020 HRK

@@ -30,7 +30,11 @@ assert(size(trigger,1) == size(events,1), 'trigger and events must have the same
 % It is the first group with group # < 10
 grpid = grp;
 
-aligned_events = bsxfun(@minus, events, trigger);
+if istable(events)
+    aligned_events = bsxfun(@minus, events{:,:}, trigger);
+else
+    aligned_events = bsxfun(@minus, events, trigger);
+end
 
 % sort trials based on group and trial #
 % [~, idx_trials] = sortrows([grp (1:n_trial)']);
