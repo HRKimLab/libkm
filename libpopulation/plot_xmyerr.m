@@ -13,7 +13,7 @@ estimator = [];
 process_varargin(varargin);
 
 if ~is_arg('estimator'), estimator = @nanmean;end
-% color is reserved keyword. change variable name.
+% color is a reserved keyword. change variable name.
 c = color; clear('color');
 if ~is_arg('c'), c = [0 0 0]; end
 if ~is_arg('ebtype'), ebtype = 'line'; end;

@@ -13,6 +13,7 @@ function grp_tbl = group_table(T, group_var, y_var, varargin)
 % 2020 HRK
 
 debug = 0;
+group_val = {};  % values of group_variable. not implemented yet.
 
 process_varargin(varargin);
 
