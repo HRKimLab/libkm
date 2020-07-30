@@ -11,3 +11,6 @@ Plot time course and save the results. Combime the results and plot population t
 A collection of misc functions
 
 #### dependencies
+
+process_varargin
+panel
