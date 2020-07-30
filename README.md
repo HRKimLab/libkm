@@ -13,4 +13,4 @@ A collection of misc functions
 #### dependencies
 
 process_varargin
-panel
+[panel](https://www.mathworks.com/matlabcentral/fileexchange/20003-panel)
