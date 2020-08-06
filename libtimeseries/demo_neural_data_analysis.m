@@ -46,7 +46,7 @@ title('Session data example');
 % but let's call it PSTH.
 % create figure. This returns a figure with 2 X 2 axis. 
 % use setpanel(2,2) for more advanced options
-setfig(2,2); 
+setfig(3,2); 
 % Plot raster and averaged timecourse (PSTH) aligned by an event of interest
 gna; % get the next axis. 
 % plot_timecourse split the current axis and draw raster plot (top) 
@@ -70,6 +70,11 @@ gna;
 % also, do statiscal test
 plot_timecourse('stream', DAsensor, event.VSTIM_ON_CD, -2000, event.REWARD_CD+3000, expcond);
 atitle('Sorted by exp. condition (speed)');
+
+gna;
+% proide metadata about trial condition
+tb_cond = table(expcond, 'VariableName', {'Speed'});
+[ax h_psth psth ] = plot_timecourse('stream', DAsensor, event.VSTIM_ON_CD, -2000, event.REWARD_CD+3000, tb_cond);
 %% Plot timecouse with advanced options
 p = setpanel(3,2);
 p.gnp;
@@ -174,13 +179,15 @@ plot_psma(psth_only);
 p = setpanel(1,2);
 p1 = p.gnp;
 [pp h_psths psths] = plot_mtimecourses(ms_time, event.REWARD_CD, event.TRIAL_START_CD, event.TRIAL_END_CD, expcond, ...
-    lick, speed, DAsensor, 'n_row', 3, 'pp', p1, 'labels', {'Lick','Speed','DA'}, 'titles',{'Lick','Speed','DA'} );
+    lick, speed, DAsensor, 'n_row', 3, 'pp', p1, 'y_labels', {'Lick','Speed','DA'}, 'titles',{'Lick','Speed','DA'} );
 
 %% for plotting simultaneously recorded large-scale neural data 
 % such as Neuropixels or 2-photon microscopy
 d = load('probe_recording_sample.mat', 'cSpikes', 'trial_start', 'rew_on');
 [ax avg_psths pop_psths] = plot_neuron_psths('timestamp', d.cSpikes , d.trial_start, -2000, 10000, [], ...
-    'n_row',2,'n_col', 3); % 'save_fpath', 'exp1',
+    'n_row',2,'n_col', 3,'event', d.rew_on,'event_header','RewOn'); % 'save_fpath', 'exp1',
+% call cluster psths separately to do statistcal test
+cluster_psths(avg_psths.rate_rsp, 'test_diff', 1)
 
 %% advanced functionality to manipulate psth data
 % these functions also process multiple PSTHs if the psth data is saved
@@ -205,9 +212,9 @@ title('serialized PSTH');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Plot population PSTHs in in separate panels
 % load example PSTHs. multiple psth structures were saved in one file.
-d = load('sample_pop_psth.mat');
+d = load('GCaMP_TrialOn.mat');
 % plot population psths across neurons 
-plot_mpsth_xneuron(d);
+plot_mpsth_xneuron(d, 'event_header','RewOn');
 
 %% plot PSTHs together in one panel
 setfig(3,2);
@@ -236,7 +243,7 @@ plot_mpsths(d, 'base_lim', [-1 0])
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Quantify results
 % quantify using the time window
-DA_bef_rew = mpsths2rate(d, 0, [-1 0]);
+DA_bef_rew = mpsths2rate(d, 'RewOn', [-1 0]);
 
 % plot population results
 figure;
@@ -257,7 +264,7 @@ SaveResults('sample_data_summary2.dat', cF, {'CELL', 'V1','V2','V3'}, DA_bef_rew
 % Load a big table array of [# of neuron X # of quantifications]
 tb = readtable('sample_data_summary2.dat')
 
-setfig(3,2);
+setfig(3,3, 'population analysis', 0);
 % Scatter plots on square axes for two-variable pairwise comparisons
 gna;
 plotsqscatter(tb.V1, tb.V2);
@@ -279,6 +286,11 @@ plot_histgrp([tb.V1 - tb.V2], [], -1:.2:1, 0);
 gna;
 plot_barpair([tb.V1 tb.V2 tb.V3]);
 
+% Bar plots for N-variable pairwise comparisons. 
+% parametric test shows warning if normality condition is not satisfied
+gna;
+plot_barpair([tb.V1 tb.V2 tb.V3], [],  0, 'test_type','par');
+
 % Bar plots for N-variable unpaired comparisons
 % serialize array data into value and group
 [vals grp] = cols2grp([tb.V1 tb.V2 tb.V3], [1 2 3]);
@@ -287,6 +299,9 @@ plot_bargrp(vals, grp);
 
 %% format and save it to pdf
 % foramt figure to use it for presentation or paper
+global gP
+gP.show_title = 0; % do not show title
+
 formatfig
 
 % save it to pdf. it requres APPEND_PDFS and ghostscript installation

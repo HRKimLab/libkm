@@ -1,4 +1,6 @@
 function h_psth = draw_errorbar(x, mean_rsp, sem_rsp, cmap, errbar_type, ax)
+% draw errorbars of various types
+% 2014 HRK
 
 if isempty(mean_rsp)
     h_psth = []; 
@@ -20,6 +22,9 @@ switch(errbar_type)
         h_psth = plot(ax, x, mean_rsp, 'color', cmap);
       case 'patch'
         % draw patch for sem. 
+        if any(isnan(sem_rsp))
+            warning('sem contains NaN. it may not be shown or may not be accurate.');
+        end
         h_psth = errorbar_patch_opaque(x, mean_rsp, sem_rsp, cmap, ax);
         set(h_psth(1), 'tag','eb'); set(h_psth(2), 'tag','m');
       case 'patch_tp' % transparent

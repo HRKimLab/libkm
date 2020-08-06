@@ -1,6 +1,11 @@
 function [grp_means grp_sem pRef pDiff pPair] = plot_barpair(x, is_sig, y_ref, varargin)
 % plot bar plot with paired elements connected with lines
 % 10/28/2017 HRK
+%
+% from PMC153434: As a rule, nonparametric methods, particularly when used in small samples, 
+% have rather less power (i.e. less chance of detecting a true effect where one exists) than 
+% their parametric equivalents, and this is particularly true of the sign test (see Siegel and Castellan [3] 
+% for further details).
 
 yl = [];
 show_individual = 1;
@@ -47,11 +52,46 @@ if show_individual
     end
 end
 
+% get valid rows
+bVX = ~isnan(x);
+% valid rows
+bVR = all(bVX, 2);
+% check if there are rows that partially contain NaNs
+if any(any(bVX(~bVR,:)))
+    warning('some non-NaN values have paired NaNs. will be excluded in repeated measures ANOVA and Friedman''s test');
+end
+
 % NOTE: this is different from multcompare result, which compensate 
 % for multiple comparisons. This should not be used for judging population 
 % as a whole.
 switch(test_type)
     case 'nonpar'
+        % do Friedman's test.
+        % The Friedman test is a non-parametric statistical test developed by Milton Friedman.[1][2][3] 
+        % Similar to the parametric repeated measures ANOVA, it is used to detect differences in treatments 
+        % across multiple test attempts.
+        % NOTE: I noticed that Friedman's test sometimes gives higher
+        % P-vale than Kruskal–Wallis test. 
+        % NOTE 2: P value using signed rank test with group # two is not
+        % same as Friedman's test. something seems to be different.
+        
+        if nCond > 1 && nnz(bVR) < 2
+            pDiff_friedman = NaN;
+        elseif nCond > 1
+            pDiff_friedman = friedman(x(bVR,:), 1, 'off');
+            
+            if pDiff < pDiff_friedman && (pDiff_friedman > 0.01 && pDiff > 0.01)
+            fprintf('plot_barpair: P value using Kruskal–Wallis test(%.3f) > Friedman''s test(%.3f)\n', ...
+                pDiff, pDiff_friedman );
+            
+            end
+        else
+            pDiff_friedman = NaN;
+        end
+        
+        % overwrite for now
+        pDiff = pDiff_friedman;
+        
         % do nonparametric paired test (signed rank test)
         pPair = NaN(nCond, nCond);
         for iR = 1:nCond
@@ -61,6 +101,13 @@ switch(test_type)
             end
         end
     case 'par'
+        % do repeated measures ANOVA instead of ANOVA
+        if nCond > 1
+            pDiff_ANOVA_RM = anova_rm(x(bVR,:), 'off');
+        else
+            pDiff_ANOVA_RM = NaN;
+        end
+        pDiff = pDiff_ANOVA_RM(1);
         % do parametric paired test
         pPair = NaN(nCond, nCond);
         for iR = 1:nCond
@@ -74,7 +121,9 @@ switch(test_type)
 end
 
 if nCond == 2
-    atitle(sprintf('pPairD=%s', p2s(pPair(1,2))));
+    atitle(sprintf('pPairD=%s,pRepD=%s', p2s(pPair(1,2)), p2s(pDiff)) );
+else
+    atitle(sprintf('pRepD=%s', p2s(pDiff)) );
 end
 
 if ~show_mc

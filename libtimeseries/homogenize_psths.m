@@ -27,6 +27,11 @@ b_x_match = false(n_psth, 1);
 b_valid_psths = false(n_psth, 1);
 n_hashs = NaN(n_psth, 1);    % hash for unq_grp_lable
 
+if check_ginfo && all( ~cellfun(@(x) isfield(x, 'ginfo') && ~isempty(x.ginfo), cPSTH) )
+    fprintf(1, 'all ginfo is not valid. turn off check_ginfo\n');
+    check_ginfo = 0;
+end
+
 % expand to multiple data points if given by range
 if ~isempty(x) && numel(x) == 2
     x = x(1):(cPSTH{1}.resample_bin/1000):x(2); 
@@ -127,7 +132,7 @@ for iR = 1:n_psth
 end
 
 if check_ginfo
-    assert(~isempty(ref_ginfo), 'ref_ginfo is somehow empty. cannot check ginfo');
+    assert(~isempty(ref_ginfo), 'ref_ginfo is empty. ginfo will not be checked.');
 end
 
 % print info about excluded psths

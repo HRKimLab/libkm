@@ -98,16 +98,31 @@ n_trial = size(trigger, 1);
 if roc == 2
     split_v = [.5 .5];
 end
+
 % if grp is not specified, use increasing trial number
 if ~is_arg('grp'), grp = ones(n_trial,1); 
 elseif islogical(grp), grp = double(grp); 
-elseif isstruct(grp) % grp is ginfo structure from params2grp() function
+elseif isstruct(grp) && isfield(grp, 'grp_idx') % grp is ginfo structure from params2grp() function
     ginfo = grp;
     % in this case, all the internel ordering follows the index of label,
     % which is grp_idx. And the order of grpstat() in compute_avggrp should
     % be matched to the order of label both is in the ascending order.
-    grp = ginfo2grp(grp, trial_start);
+    grp = ginfo2grp(ginfo, trial_start);
+elseif isstruct(grp) % grp is structure of conditions
+    n_trials = structfun( @(x) numel(x), grp);
+    assert( numel(unique(n_trials)) == 1, '# of trial differ in grp struct');
+    ginfo = params2grp(grp);
+    grp = ginfo2grp(ginfo, trial_start);
+elseif istable(grp)
+    tb = grp;
+    % generate param struct
+    for iC = 1:size(tb, 2)
+        tmp_params.(tb.Properties.VariableNames{iC}) = tb{:, iC};
+    end
+    ginfo = params2grp(tmp_params);
+    grp = ginfo2grp(ginfo, trial_start);
 end
+
 % psth_legend
 switch(psth_legend), case 'on', psth_legend = 1; case 'off', psth_legend = 0; end
 switch(show_legend)

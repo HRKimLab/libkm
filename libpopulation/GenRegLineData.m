@@ -1,5 +1,6 @@
 function data = GenRegLineData(slope, intercept, xl,yl)
-
+% generate line data points for linear regression
+% 2015 HRK
 if ~is_arg('yl'), yl = xl; end;
 
 xl_by_yl = sort( (yl - intercept) / slope );

@@ -10,6 +10,7 @@ grp_lim = 25;
 show_ci = 0;            % confidence interval for R
 show_regress_ci = 0;    % confidence interval for type 2 regression
 marker_size = [];
+regress_type = 'type2';       % 'none', 'type1' or 'type2' regression
 
 process_varargin(varargin);
 
@@ -175,22 +176,36 @@ iV = find(bV);
 if nnz(bV) == 0
     title('N=0'); r = NaN; p= NaN; N= NaN; sl= NaN; itc= NaN; fitdata= NaN; return;
 end
+
 % can do regression only if more than one values on each axis
-if length(unique(x(bV))) > 1 && length(unique(y(bV))) > 1
-    try
-        if show_regress_ci % take time. 
-            [sl, itc, sl_ci, itc_ci] = regress_perp(x(bV),y(bV));
-            fprintf(1, 'slope: %.2f [%.2f %.2f], intercept: %.2f [%.2f %.2f]\n', ...
-                sl, sl_ci(1), sl_ci(2), itc, itc_ci(1), itc_ci(2) );
-        else
-            [sl, itc] = regress_perp(x(bV),y(bV));
-        end
-    catch ME
-        getReport(ME)
+if length(unique(x(bV))) <= 1 || length(unique(y(bV))) <= 1
+    regress_type = 'none';
+end
+
+switch(regress_type)
+    case 'none'
         sl=NaN; itc=NaN;
-    end
-else
-    sl=NaN; itc=NaN;
+    case 'type1'
+        [b1 b1_int] = regress(y(bV), [ones(size(x(bV))) x(bV)]);
+        
+        sl = b1(2); itc = b1(1);
+        itc_ci = b1_int(1,:);
+        sl_ci  = b1_int(2,:);
+    case 'type2'
+        try
+            if show_regress_ci % take time.
+                [sl, itc, sl_ci, itc_ci] = regress_perp(x(bV),y(bV));
+                fprintf(1, 'slope: %.2f [%.2f %.2f], intercept: %.2f [%.2f %.2f]\n', ...
+                    sl, sl_ci(1), sl_ci(2), itc, itc_ci(1), itc_ci(2) );
+            else
+                [sl, itc] = regress_perp(x(bV),y(bV));
+            end
+        catch ME
+            getReport(ME)
+            sl=NaN; itc=NaN;
+        end
+    otherwise
+        error('Unknown regress_type: %s', regress_type);
 end
 
 % plot global regression line

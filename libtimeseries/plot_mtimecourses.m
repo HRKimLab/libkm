@@ -49,7 +49,7 @@ time_lim = minmax(ms_time);
 % TODO; make it faster by active scanning and separate param=value pairs
 process_varargin(cPV_orig);
 % check label number
-if is_arg('labels'), y_labels = lables; end   % for backward compatibility
+if is_arg('labels'), y_labels = labels; end   % for backward compatibility
 if is_arg('y_labels'), assert(numel(y_labels) == nV, '# of label should be same as # of data'); end
 % make sure varargin variables are numeric unless they are name/value pairs
 for iV = 1:nV

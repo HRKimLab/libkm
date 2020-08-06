@@ -8,6 +8,7 @@ grp_zscore = 0;     % 1: zscore 2: subtract mean
 xl = [];
 show_regress_ci = 0;
 marker_size = [];
+regress_type = 'type2';
 
 process_varargin(varargin);
 
@@ -46,7 +47,8 @@ if grp_zscore == 1
 end
 
 [r,p,N,sl,itc,fitdata,hS] = plot_scatter(x,y,grp,'xl',xl,'yl',yl, 'show_individual', show_individual, ...
-    'show_grpmean', show_grpmean, 'grp_zscore', grp_zscore, 'show_regress_ci', show_regress_ci, 'marker_size', marker_size);
+    'show_grpmean', show_grpmean, 'grp_zscore', grp_zscore, 'show_regress_ci', show_regress_ci, 'marker_size', marker_size, ...
+    'regress_type', regress_type);
 
 if ~is_arg('yl') || all(xl == yl)
     yl=xl;

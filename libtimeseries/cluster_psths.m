@@ -14,10 +14,11 @@ t_sne = 0;
 auto_crop_x = 1;        % crop x to remove NaNs
 tutorial = 0;   % make a simple, tutorial version data
 preproc = 'none';
-test_diff = 0;
+test_diff = 0; % perform pairwise tests if two pairs of cluster are significantly different
 use_parallel = 1; % 1: use default parallel processing toolbox. delete 2: do not delete
 border = [];        % border for top level subgroups (unit of x)
 border2 = [];       % border 2nd-level subgroups (unit of x)
+separate_psth_plot = 0; % keep concatenated responses separated in plot by NaNs
 image_cmap = '';
 cl = [];            % color range for imagesc
 % methods goes from more conventional to more experimental. 
@@ -35,7 +36,7 @@ switch(psth_type)
             bVGrp = ~isnan(comb_psth.grp);
             dx = comb_psth.x(2) - comb_psth.x(1);
         else
-            error('struct but not psth');
+            error('struct, but not avg. psth struct');
         end
     case 'double' 
         pop_data = comb_psth;
@@ -196,7 +197,8 @@ hCB = colorbar; set(hCB,'visible','off');
 linkaxes_ext(ax, 'x');
 
 p.gna;
-est_popdata = pc_score(:, 1:ndim) * pc_coef(:, 1:ndim)';
+% size(pc_score, 2) can be less than ndim
+est_popdata = pc_score(:, 1:min([end ndim])) * pc_coef(:, 1:min([end ndim]))'; 
 imagesc(est_popdata); colorbar;
 axis ij;
 xlim([0.5 size(est_popdata,2)+0.5]); ylim([0.5 size(est_popdata, 1)+0.5]);
@@ -221,6 +223,9 @@ hCB = colorbar; set(hCB,'visible','off');
 
 ret.pc_score = pc_score;
 ret.pc_coef = pc_coef;
+
+%% Pol 07/28/2020 save individual PCs in ret
+ret.sm_pc_coef = sm_pc_coef;
 %% k-means clustering based on PCs
 % Kmeans clustering on data projections onto PCs
 % perform on pc_score
@@ -348,10 +353,22 @@ mp = p1(3);
 this_psth.x = pop_data_x;
 this_psth.rate_rsp = pop_data(iS, :);
 this_psth.grp = cid_kmeans(iS);
-this_psth.event = comb_psth.event;
-ax = plot_timecourse('stream', [], [], [], [], [], 'use_this_psth', this_psth, ...
-    'event', comb_psth.individual_event{:,:} * 1000, 'event_header', comb_psth.individual_event.Properties.VariableNames, ...
-    'parent_panel', mp);
+if isfield(comb_psth, 'event')
+    this_psth.event = comb_psth.event;
+end
+if separate_psth_plot % separate concatenated psth to use individual-condition responses
+    this_psth.rate_rsp(:, i_border) = NaN;
+    this_psth.rate_rsp(:, i_border2) = NaN;
+end
+switch(psth_type)
+    case 'struct'
+        ax = plot_timecourse('stream', [], [], [], [], [], 'use_this_psth', this_psth, ...
+            'event', comb_psth.individual_event{:,:} * 1000, 'event_header', comb_psth.individual_event.Properties.VariableNames, ...
+            'parent_panel', mp);
+    case 'double'
+        ax = plot_timecourse('stream', [], [], [], [], [], 'use_this_psth', this_psth, ...
+            'parent_panel', mp);
+end
 
 axes(ax(2));
 % draw refs and borders

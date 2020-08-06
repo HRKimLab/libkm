@@ -8,6 +8,11 @@ function [pDiff bNonEqualVar mc_comparison, mc_means] = test_same_dist(x, grp, v
 %
 % revamped 2020; 2017 separated from plot_histgrp HRK
 
+% from PMC153434: As a rule, nonparametric methods, particularly when used in small samples, 
+% have rather less power (i.e. less chance of detecting a true effect where one exists) than 
+% their parametric equivalents, and this is particularly true of the sign test (see Siegel and Castellan [3] 
+% for further details).
+
 % nonpar: non-parametric; par: parametric
 % par_cond: parameteric if conditions are met (not implemented yet)
 test_type = 'nonpar';  % 'nonpar', 'par', 'par_cond'
