@@ -9,6 +9,8 @@ xl = [];
 show_regress_ci = 0;
 marker_size = [];
 regress_type = 'type2';
+% TODO: need to implement test_type in plot_scatter stats
+test_type = 'nonpar';  % 'nonpar', 'par', 'par_cond' 
 
 process_varargin(varargin);
 
@@ -63,8 +65,14 @@ end
 if all(isnan(x)|isnan(y))
     pSR = NaN;
 else
-    pSR = signrank(x,y);
+    switch(test_type)
+        case 'nonpar'
+            pSR = signrank(x,y);
+        case 'par'
+            [~, pSR] = ttest(x,y);
+    end
 end
+
 atitle(sprintf('x<>y (p=%s)', p2s(pSR)));
 
 return;
