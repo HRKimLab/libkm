@@ -47,4 +47,4 @@ hist( aPD(:, beh_MEAN_GROUP_1) )
 ```
 ### Perform basic population analysis
 
-Now, individual features of the data can be accessed by a column vector indexed from aPD table. libpopulation has a variety of basic plotting functions that works well with data in a column vector shape.
+Now, individual features of the data can be accessed by a column vector indexed from aPD table. [libpopulation](https://github.com/hkim09/libkm/edit/master/libpopulation/)  has a variety of basic plotting functions that works well with data in a column vector shape.
