@@ -16,3 +16,4 @@ see demo_timecourse_data_analysis.m for a demo with detailed comments.
 # Examples
 
 ![Fig1](demo_Fig1.png)
+![Fig2](demo_Fig2.png)
