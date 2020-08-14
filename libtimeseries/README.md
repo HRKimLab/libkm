@@ -14,3 +14,5 @@ see demo_timecourse_data_analysis.m for a demo with detailed comments.
 - perform multi-dimensional population analyses
 
 # Examples
+
+![Fig1](demo_Fig1.png)
