@@ -1,52 +1,18 @@
 # libpopulation
 
-### The framework
+In the exploratory data analysis phase, you want to visualize data in many different ways and also want to know whether the patterns you observe are statistically significant. libpopulation provides an integrative way of visualizing data, check missing values, and perform relevant statistical tests. You write less, debug less, but get rich results. 
+What that practically means is, in a meeting, you have less chances to say "I am sorry but actually that was not significant...". In other words, these functions can potentially make the scientific decision-making process efficient.
 
-- You save the results of a analysis in a file (e.g., text file) during per-session analysis procedure.
-- Analysis results can be saved in different files for each subject and analysis routine.
-- For population analysis, you set subjects and results files of interests. The program seeks for individual files, and construct a big 2-dminsional table [# of elements * attributes of analysis].
-- Once the big table is loaded, you set various flags to dissect the data, and play with it!
+see demo_population_analysis.m for a demo with detailed comments.
 
-### Details
+# What you can do
 
-- The first column of individual result file should be 'unitname', which is a key identifier to combine different tables.
-- The unitname follows the format 'mNsNrNeNuN', which indicates the subject, session and, run number of the experiment. The next two is reserved for neural data. For example, e can be tetrode number and u can be a unit id for single units. As long as you use a 5-digit numertic format, the program does not care the meaning of it. It is just a key.
-- When there are multiple results with the same unitname, always the last ones are loaded.
-- The first five column of a big table is the five unitname key values.
-- As in some Matlab functions, plotting functions in the toolbox treat NaNs as missing values and print out accordingly.
+plot scatter with relevant stats
+plot histogram with relevant stats
+plot bar graph with relevant stats
 
-### Store analysis results in a one-line text format in the per-session analysis
-```
-data_header = {'CELL', 'MEAN_GROUP_1', 'MEAN_GROUP_2','SEM_GROUP_1', 'SEM_GROUP_2', 'P_DIFF'};
-results = [2.4 5.2 0.2 0.3 0.03];
-StoreResults('Z:\Data\Analysis\281\', 'beh_outcome.dat', [], 'm281s18r1', data_header, results);
-```
-### Load and make a big table
-```
-% set data root
-DATA_ROOT = ['Z:\Data' filesep];
-% assign subject and session
-% all batch
-MonkOfInterest = [281 282 283];          % subject numbers
-CellOfInterest = {1:100, 1:100, 1:100};  % inclusive session numbers.
+# Examples
 
-% initialize essential variables
-ResultsExt={}; ResultsHeader={};
-nResults = 0; ResultsMultipleDelims=[];
-
-% An example registring result files to the big table. You can keep adding result files.
-nResults = nResults + 1;
-ResultsExt{nResults} = 'beh_';         % identifier for this result file
-ResultsHeader{nResults} = {'CELL', 'MEAN_GROUP_1', 'MEAN_GROUP_2','SEM_GROUP_1', 'SEM_GROUP_2', 'P_DIFF'};
-ResultsSummary{nResults} = 'beh_outcome.dat'
-ResultsMultipleDelims(nResults) = 0;
-
-% load the data into aPD 2D array. 
-LoadPopulationData5Key;
-
-% for example, the first column of the above result can be accessed via colunm name variable beh_MEAN_GROUP_1
-hist( aPD(:, beh_MEAN_GROUP_1) )
-```
-### Perform basic population analysis
-
-Now, individual features of the data can be accessed by a column vector indexed from aPD table. libpopulation has a variety of basic plotting functions that works well with data in a column vector shape.
+![Fig1](https://github.com/hkim09/libkm/edit/master/libpopulation/demo_Fig1.png)
+![Fig2](https://github.com/hkim09/libkm/edit/master/libpopulation/demo_Fig2.png)
+![Fig3](https://github.com/hkim09/libkm/edit/master/libpopulation/demo_Fig3.png)
