@@ -221,10 +221,14 @@ title('serialized PSTH');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Plot population PSTHs in in separate panels
 % load example PSTHs. multiple psth structures were saved in one file.
+% load_psth_files() load PSTHs from multiple files and combine them,
+% assuming the standard folder structure.
 d = load('GCaMP_TrialOn.mat');
 % plot population psths across neurons 
 plot_mpsth_xneuron(d, 'event_header','RewOn');
 
+% TODO: demo of loading (currently not working on demo)
+% lick_VStimOn = load_psth_files('lick_ab_VStimOn.mat', ANIMAL_ID, all_dataname, neuron_behavior_filt); 
 %% plot PSTHs together in one panel
 setfig(3,2);
 ax = gna;
