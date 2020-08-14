@@ -13,6 +13,6 @@ plot bar graph with relevant stats
 
 # Examples
 
-![Fig1](https://github.com/hkim09/libkm/edit/master/libpopulation/demo_Fig1.png)
-![Fig2](https://github.com/hkim09/libkm/edit/master/libpopulation/demo_Fig2.png)
-![Fig3](https://github.com/hkim09/libkm/edit/master/libpopulation/demo_Fig3.png)
+![Fig1](https://github.com/hkim09/libkm/tree/master/libpopulation/demo_Fig1.png)
+![Fig2](https://github.com/hkim09/libkm/tree/master/libpopulation/demo_Fig2.png)
+![Fig3](https://github.com/hkim09/libkm/tree/master/libpopulation/demo_Fig3.png)
