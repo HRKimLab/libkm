@@ -17,3 +17,7 @@ A collection of misc functions
 
 process_varargin
 [panel](https://www.mathworks.com/matlabcentral/fileexchange/20003-panel)
+
+#### CHANGELOG (major changes)
+
+8/13/2020 separated data loading and saving related functions into libbigtable 
