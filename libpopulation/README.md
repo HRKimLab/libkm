@@ -7,9 +7,10 @@ see demo_population_analysis.m for a demo with detailed comments.
 
 # What you can do
 
-plot scatter with relevant stats
-plot histogram with relevant stats
-plot bar graph with relevant stats
+- plot a scatter with relevant stats
+- plot a histogram with relevant stats
+- plot a bar graph with relevant stats
+- plot population tuning curces
 
 # Examples
 
