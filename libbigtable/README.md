@@ -6,7 +6,7 @@ See demo_save_results_load_bigtable.m
 
 # What you can do
 
-- save your time
+- construct a fast and efficient analysis pipeline from individual analysis and population analysis
 
 ### The framework
 
