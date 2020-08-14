@@ -1,11 +1,11 @@
 # libtimeseries
-libtimeseries provides an integrative way to plot and manage behavioral and neural time course data. It is specialized in handling seconds-scale data in trial structure with multiple conditions. You can do the following things: Plot raster and moving average (PSTH); save PSTH; load data and plot population time course; analyze multi-dimensional dynamics
+libtimeseries provides an integrative way to plot and manage behavioral and neural time course data. It is specialized in handling seconds-scale data in trial structure with multiple conditions.
 
 see demo_timecourse_data_analysis.m for a demo with detailed comments.
 
 # What you can do
 
-- plot a PSTH
+- plot a PSTH (show raster + average across trials for each condition)
 - save a PSTH
 - load multiple PSTHs
 - filter PSTHs
