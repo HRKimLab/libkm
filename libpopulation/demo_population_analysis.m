@@ -45,7 +45,7 @@ gna; [r,p,N,sl,itc,fitdata,pSR, hS] = plotsqscatter(x,y, grp, 'regress_type', 't
 %% histograms
 a = x + 1; b = y + 1; c = b + 2;
 
-setfig(2,2);
+setfig(1, 2);
 % significance
 gna; plot_histsig(a, abs(a)>2);
 % groups
