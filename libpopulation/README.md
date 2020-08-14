@@ -10,6 +10,7 @@ see demo_population_analysis.m for a demo with detailed comments.
 - plot a scatter with relevant stats
 - plot a histogram with relevant stats
 - plot a bar graph with relevant stats
+- plot multiple line plots and averages
 - plot population tuning curces
 
 # Examples
