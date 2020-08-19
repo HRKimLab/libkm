@@ -13,6 +13,10 @@ see demo_population_analysis.m for a demo with detailed comments.
 - plot multiple line plots and averages
 - plot population tuning curces
 
+# Statistical tests
+
+By default, it performs nonparametric tests (e.g., Wilcoxon rank-sum test; Wilcoxon signed-rank test; Significance test for Spearman correlation). Some functions support options to use parametric tests ('test_type' option). Please be aware that all statistical tests are 'first-step' results. If you want to use it in the journal article, you need to make sure that the right statistical tests are performed in the correct manner by digging in the code or perform tests on your own.
+
 # Examples
 
 ![Fig1](https://github.com/hkim09/libkm/blob/master/libpopulation/demo_Fig1.png)
