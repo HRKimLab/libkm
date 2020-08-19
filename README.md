@@ -1,6 +1,9 @@
 # libkm
 A very practical matlab toolbox for behavioral and neural data analyses. This toolbox helps you code less and focus on science.
 
+# How to use
+The simplest way is to download the .zip file, uncompress, add folders to Matlab path, and use it. As you understand the code more, you may want to add new functions or modify existing functions. The best way is to fork the master to your repository and modify the code. Since the codes in the master branch constantly change, having your own branch ensures that your results are consistent, the most important thinig in the world. If you would like to incorporate new functionalities, you can compare the difference between your version and the master branch, and incorporate (pull) changes with your awareness.
+ 
 ## [libpopulation](https://github.com/hkim09/libkm/tree/master/libpopulation)
 Plot data with relevant statistical tests.
 
