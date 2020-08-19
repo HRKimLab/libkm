@@ -13,11 +13,6 @@ Save individual-session analysis results. Load population data into a big table.
 ## [libutil](https://github.com/hkim09/libkm/tree/master/libutil)
 A collection of misc functions
 
-#### dependencies
-
-process_varargin
-[panel](https://www.mathworks.com/matlabcentral/fileexchange/20003-panel)
-
 #### CHANGELOG (major changes)
 
 8/13/2020 separated data loading and saving related functions into libbigtable 
