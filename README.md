@@ -11,7 +11,7 @@ Plot time course and save the results. Combime the results and plot population t
 Save individual-session analysis results. Load population data into a big table.
 
 ## [libutil](https://github.com/hkim09/libkm/tree/master/libutil)
-A collection of misc functions
+A collection of misc functions.
 
 #### CHANGELOG (major changes)
 
