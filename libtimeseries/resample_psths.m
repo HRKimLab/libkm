@@ -119,7 +119,7 @@ event_tb = get_mpsths_events(stPSTH);
 
 [ax h_psth pop_psth] = plot_timecourse('stream', 1:100, 10*ones(size(all_psth.grp)), 0, 10, all_psth.grp, ...
     'use_this_psth', all_psth, 'test_diff', test_diff, 'parent_panel', ax, 'grp_xlim', grp_xlim, ...
-    'adjust_clim', 0.5, 'mean_crit', 0.98, 'base_sub_win', base_sub_win, 'split_v', split_v);
+    'adjust_clim', 0.5, 'valid_x_crit', 0.98, 'base_sub_win', base_sub_win, 'split_v', split_v);
 
 atitle(ax(1), sprintf('Resample from %d/%d psths', nnz(bVSession), numel(bVSession) ));
 ylabel(ax(2), estimator);

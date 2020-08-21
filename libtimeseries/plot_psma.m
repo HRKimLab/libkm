@@ -20,9 +20,10 @@ base_lim = [];       % for baseline subtraction
 event_header = {};
 tag_grp = 0;
 marker_size = 2.5;
-mean_crit = 0.5;    % now I check this in compute_rate. this is for psths saved before that.
+valid_x_crit = 0.5;        % criterion to determine how many trials should be at the time point to consider it valid. now I check this in compute_rate. this is for psths saved before that.
 auto_filter_x = 1;       % for concatenated psths, it's good to include nans to disconnect each individual one.
-color_event_by_grp = 0;    % color event based on group
+color_event_by_grp = 0;    % color event based on group, not by event type
+subsample_x = 1;           % subsample x for plotting. the data size becomes roughly inversly proportional to this ratio
 
 if isempty(psth), return; end;
 if ~isstruct(psth) || ~isfield(psth, 'mean')
@@ -38,7 +39,7 @@ if ~is_arg('eb_type'), eb_type = 'patch'; end
 if ~is_arg('cmap'), cmap = get_cmap(nColor); end
 if ~isempty(base_lim), assert(size(base_lim,2) == 2, 'base_lim should be (1,2)'); end
 if isempty(ax), ax = gca; end;
-
+    
 if isempty(psth.gname), return; end;
 
 if ~isfield(psth, 'gnumel')
@@ -88,18 +89,24 @@ for iG = psth.idx_sorted_by_num'
        is_valid = ~isnan(mean_rate(iG,:))& ~isnan(psth.sem(iG,:)); 
        % to avoid larger error bars, show data point with # of trials > (total # of trials) / 3
         % now I examine this in compute_rate. this is for psth saved before that.
-        is_valid  = is_valid & psth.numel(iG,:) > psth.n_grp(iG)*mean_crit; % numel(iG,:) > 10;
+        is_valid  = is_valid & psth.numel(iG,:) > psth.n_grp(iG)*valid_x_crit; % numel(iG,:) > 10;
   else
       is_valid = true(size(psth.x));
   end
-  
-  
+    
   % apply grp_xlim
   if ~isempty(grp_xlim)
       is_valid = is_valid & ( grp_xlim(iG,1) <= psth.x & psth.x < grp_xlim(iG,2) );
   end
   if nnz(is_valid) == 0, continue; end;
 
+  % create subsampling mask
+  resample_mask = false(size(is_valid));
+  resample_mask(1:subsample_x:end) = true;
+  
+  % get subsamped mask
+  is_valid = is_valid & resample_mask;
+  
   h_psth(iG, :) = draw_errorbar( psth.x(is_valid), mean_rate(iG, is_valid), psth.sem(iG, is_valid), cmap(iG,:), eb_type, ax);
   
   if tag_grp

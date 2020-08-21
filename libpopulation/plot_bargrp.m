@@ -20,6 +20,8 @@ estimator = [];
 show_mc = 1; % show multiple comparison results
 bar_x = [];      % bar start position. for now, only accept bar_x from plot_barpair
 test_type = 'nonpar';  % 'nonpar', 'par', 'par_cond'
+convert_col_idx = 1;     % treat x as a aPD column index if it's a scalar value
+eb_type = 'sem';        % 'sem','std'
 
 process_varargin(varargin);
 
@@ -35,7 +37,7 @@ if ~is_arg('marker_color'), marker_color = darker(bar_color, 4); end;
 
 assert(strcmp(class(is_sig), 'logical'), 'is_sig should be logical');
 % substitute x if given as column idx
-if length(y) == 1
+if numel(y) == 1 && convert_col_idx 
     y_label = evalin('caller', ['pcd_colname{' num2str(y) '}']); 
     y = evalin('caller', ['aPD(:,' num2str(y) ');']);
 elseif ~isempty(inputname(1))
@@ -50,15 +52,18 @@ if size(y,1) > 1 && size(y,2) > 1
 end
 
 % substitute grp if given as column idx
-if ~is_arg('grp')
-    grp = zeros(size(y)); 
-elseif length(grp) == 1
-    grp = evalin('caller', ['aPD(:,' num2str(grp) ');']);
+if is_arg('grp')
+    % automatically convert it to aPD vector
+    if numel(grp) == 1 && convert_col_idx == 1
+        grp = evalin('caller', ['aPD(:,' num2str(grp) ');']);
+    end
+else
+    grp = zeros(size(y));
 end
 
 % see if group variable have two columns (usually, subject x conditions)
 grp_names = grpstats(ones([size(grp,1) 1]), grp, 'gname');
-[grp_means grp_sem gnumel] = grpstats(y, grp, {'mean', 'sem','numel'});
+[grp_means grp_sem grp_std gnumel] = grpstats(y, grp, {'mean', 'sem','std','numel'});
 if ~isempty(estimator)
     grp_means = grpstats(y, grp, estimator);
 end
@@ -144,8 +149,16 @@ else
     hS = [];
 end
 
+switch(eb_type)
+    case 'sem'
+        grp_eb = grp_sem;
+    case 'std'
+        grp_eb = grp_std;
+    otherwise
+        error('Unknown errorbar type: %s', eb_type);
+end
 % draw errorbar
-hE = errorbar(bar_x, grp_means, grp_sem,'linestyle','none');
+hE = errorbar(bar_x, grp_means, grp_eb,'linestyle','none');
 % ch = get(hB,'child'); set(ch,'facea',.5);
 set(hE, 'linewidth', 1.5,'color','k')
 

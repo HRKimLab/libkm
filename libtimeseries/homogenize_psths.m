@@ -4,14 +4,17 @@ function [psths x n_grp flist b_valid_psths] = homogenize_psths(cPSTH, varargin)
 % caution: psths are reordered by sort_psth_structs(). use b_valid_psths only for flist
 % 2020 HRK
 
-x = [];
+x = [];                 % if x is not explicitly given, get the proper x range as an intersect of valid x data points (see valid_x_crit)
 n_grp = [];
 adjust_x_anyway = 0;     % allow adjusting x eveen if x is not a subset of psth.x, by expending elements of psth
 check_ginfo = 1;         % 1: check string-level ginfo 0: do not evoke error but warning. -1: don't do anything
 psth_sort_format = [];         % 'unitkey5', 'no_sort'
 repack = 1;                   % remove invalid PSTHs and repack psths. set to 0 to keep the order.
+valid_x_crit = 0.5;      % use valid x if # of trial > (total # * valid_x_crit)
 
 process_varargin(varargin);
+
+assert(valid_x_crit < 1, 'valid_x_crit should be less than 1'); % b/c I do > below
 
 psth_type = class(cPSTH);
 switch(psth_type)
@@ -54,7 +57,16 @@ for iR = 1:n_psth
     
     % intersect x if not explicitly given by argument
     if auto_x
-        x = intersect(x, cPSTH{iR}.x);
+        nG = size(cPSTH{iR}.mean, 1);
+        valid_rsp = false(nG, size(cPSTH{iR}.mean, 2));
+        % iterate groups
+        for iG = 1:nG
+            valid_rsp(iG,:) = cPSTH{iR}.numel(iG,:) > cPSTH{iR}.gnumel(iG) * valid_x_crit;
+        end
+        % take x range with at least one valid data points
+        b_valid_x = any(valid_rsp, 1);
+        % interect with the valid x data points
+        x = intersect(x, cPSTH{iR}.x(b_valid_x) );
     end
     
     % generate grp label hashs regardless of check_ginfo option
@@ -103,7 +115,7 @@ for iR = 1:n_psth
         continue;
     end
 
-    % update x range of PSTH if necessary
+    % update the x ranges of PSTH fields if necessary
     [cPSTH{iR} b_x_match(iR)] = adjust_psth_range(x, cPSTH{iR}, adjust_x_anyway);
     
     % only select psths with the same # of groups

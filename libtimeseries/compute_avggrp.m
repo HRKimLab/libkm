@@ -13,13 +13,13 @@ base_rsp = [];         % directly provide baseline rsp
 resample_bin = 10;
 roc = 0;
 roc_base_grpid = [];   % compute auROC based on the specified two groups
-mean_crit = 0.5; % criterion (trial ratio) to compute estimators at each time point (mean, std, sem, etc)
+valid_x_crit = 0.5; % criterion (trial ratio) to compute estimators at each time point (mean, std, sem, etc)
 
 % array_rsp = [];  % do not use array_rsp. timestamp will be dropped due to subsampling
 
 process_varargin(varargin);
 
-assert(mean_crit < 1, 'mean_crit should be less than 1'); % b/c I do > below
+assert(valid_x_crit < 1, 'valid_x_crit should be less than 1'); % b/c I do > below
 
 [cmap nColor grpid gname gnumel] = grp2coloridx(grp, grp_lim);
 n_trial = size(rate_rsp, 1);
@@ -47,7 +47,7 @@ else
         numel_rsp(iG,:) = sum(~isnan(rate_rsp( grpid == unq_gid(iG),:) ), 1);
         % the number of trials in at each time point should be greater than
         % criterion to compute estimators. use '>' such that ignore 1/2 case.
-        valid_rsp(iG,:) = numel_rsp(iG,:) > max( numel_rsp(iG,:) ) * mean_crit;
+        valid_rsp(iG,:) = numel_rsp(iG,:) > max( numel_rsp(iG,:) ) * valid_x_crit;
         % compute estimators in the valid range. Otherwise leave it as NaNs
         mean_rsp(iG, valid_rsp(iG,:) ) = nanmean(rate_rsp( grpid == unq_gid(iG), valid_rsp(iG,:) ), 1);
         std_rsp(iG, valid_rsp(iG,:) ) = nanstd(rate_rsp( grpid == unq_gid(iG), valid_rsp(iG,:) ), [], 1);

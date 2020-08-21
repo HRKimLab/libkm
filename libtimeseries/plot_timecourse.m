@@ -67,7 +67,7 @@ grp_xlim = [];
 cmap = [];
 show_colorbar = 1;
 distance_edge = [];           % bin for z(t) (e.g., distance(t))
-mean_crit = 0.5;              % criterion (trials in the condition) to compute valid estimator
+valid_x_crit = 0.5;              % criterion (trials in the condition) to compute valid estimator
 
 process_varargin(varargin);
 
@@ -213,7 +213,7 @@ end
 % compute averaged response and test statistical difference
 psth = compute_avggrp(x, rate_rsp, grp, 'test_diff', test_diff, 'grp_lim', grp_lim, ...
     'test_bin', test_bin, 'resample_bin', resample_bin, 'roc', roc, 'x_base', x_base, ...
-    'base_rsp', base_rsp, 'roc_base_grpid', roc_base_grpid, 'mean_crit', mean_crit);
+    'base_rsp', base_rsp, 'roc_base_grpid', roc_base_grpid, 'valid_x_crit', valid_x_crit);
 
 if strcmp(psth_type, 'hist') % output: hist_edges, nHist
     [nHist hist_edges] = compute_psth(ts_resp, trigger, trial_start, trial_end, hist_bin);

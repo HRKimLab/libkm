@@ -16,6 +16,7 @@ filter_grp = [];
 check_ginfo = 1;
 homogenize = 1;
 y_labels = [];
+subsample_x = 1;
 
 % get PSTH structures from varargin
 bStr = cellfun(@isstruct, varargin);
@@ -81,11 +82,11 @@ for iT = 1:nTag
         % plot averaged psth
         plot_mpsths(filt_psth, 'individual_psths', individual_psths, 'errbar_type', errbar_type, ...
             'x', x, 'ax', ax(iP, iT), 'show_legend', iP == 1, 'event_header', event_header, 'base_lim', basewin, ...
-            'mark_diff', mark_diff, 'check_ginfo', check_ginfo, 'homogenize', homogenize);
+            'mark_diff', mark_diff, 'check_ginfo', check_ginfo, 'homogenize', homogenize, 'subsample_x', subsample_x);
         % show data tag
         if iP == 1
             sT = regexprep( data_tags{iT}, '_', '\\_');
-            add_title([sT '\n'], 1);
+            atitle([sT '\n'], 1);
         end
         % remove common x tick lables
         if iP == nPlots
