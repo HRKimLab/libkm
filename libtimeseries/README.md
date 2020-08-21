@@ -1,5 +1,5 @@
 # libtimeseries
-libtimeseries provides an integrative way to plot and manage behavioral and neural time course data. It is specialized in handling seconds-scale data in trial structure with multiple conditions.
+libtimeseries provides an integrative way to plot and manage behavioral and neural time course data. It is specialized in handling trial structure with multiple conditions and differen events.
 
 see demo_timecourse_data_analysis.m for a demo with detailed comments.
 
@@ -17,3 +17,7 @@ see demo_timecourse_data_analysis.m for a demo with detailed comments.
 
 ![Fig1](demo_Fig1.png)
 ![Fig2](demo_Fig2.png)
+
+# Tips
+
+use [panel](https://www.mathworks.com/matlabcentral/fileexchange/20003-panel) for more packed plots
