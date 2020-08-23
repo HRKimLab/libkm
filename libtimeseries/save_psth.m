@@ -1,4 +1,5 @@
 function save_psth(key, psth, varargin)
+% SAVE_PATH is an old way to save psth. use asave_psth instead
 % save data based on key - data pair. data with the same key will be
 % overwritten.
 % key: 1 * n array of keys
@@ -9,6 +10,7 @@ function save_psth(key, psth, varargin)
 % saving operation since it load all the data every time it saves (not
 % DB-like operation).
 
+warning('save_psth is an old way to save psth. use asave_psth instead');
 bSaveRaw = 0;
 bAppend = 0;
 

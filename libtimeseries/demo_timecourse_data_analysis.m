@@ -74,7 +74,7 @@ atitle('Sorted by exp. condition (speed)');
 gna;
 % proide metadata about trial condition
 tb_cond = table(expcond, 'VariableName', {'Speed'});
-[ax h_psth psth ] = plot_timecourse('stream', DAsensor, event.VSTIM_ON_CD, -2000, event.REWARD_CD+3000, tb_cond);
+[ax psth ] = plot_timecourse('stream', DAsensor, event.VSTIM_ON_CD, -2000, event.REWARD_CD+3000, tb_cond);
 % psth.ginfo contains metadata about experimental conditions (group info)
 % this is useful e.g., population plotting function can check whether experimental
 % conditions are identical across multiple PSTHs
@@ -106,14 +106,14 @@ p.gnp; %
 % gP.cmap can be a function handle or cell array (gP.cmap{2} = hsv(2), used when group # = 2)
 global gP, gP.cmap = @copper;
 % 3rd return argument (psth) contains a detailed information about the PSTH (e.g., x, y, yerr)
-[~,~,psth] = plot_timecourse('stream', speed, event.REWARD_CD, event.TRIAL_START_CD, event.TRIAL_END_CD, ...
+[~, psth] = plot_timecourse('stream', speed, event.REWARD_CD, event.TRIAL_START_CD, event.TRIAL_END_CD, ...
     expcond, 'event', [event.VSTIM_ON_CD event.TRIAL_END_CD], 'event_header', {'VStimOn', 'TrialEnd'} );
 gP.cmap = [];
 atitle('Change colormap');
 
 p.gnp;
 % trials sorted by expcond and trial duration => can be motor latency, etc.
-[ax1,~,psth] = plot_timecourse('stream', speed, event.REWARD_CD, event.TRIAL_START_CD, event.TRIAL_END_CD, ...
+[ax1, psth] = plot_timecourse('stream', speed, event.REWARD_CD, event.TRIAL_START_CD, event.TRIAL_END_CD, ...
     [expcond event.VSTIM_ON_CD-event.REWARD_CD], 'event', event.VSTIM_ON_CD, 'event_header', {'VStimOn'} );
 atitle('Sort by another variable');
 
@@ -174,7 +174,7 @@ gna; % adjust range of color code in the image map (low 10% - high 10%).
 plot_timecourse('stream', DAsensor, ab, -3000, 3000, expcond, 'adjust_clim', 10);
 
 % if you just want to compute psth without plotting (faster)
-[~,~,psth_only] = plot_timecourse('stream', DAsensor, ab, -3000, 3000, expcond, 'plot_type','none');
+[~, psth_only] = plot_timecourse('stream', DAsensor, ab, -3000, 3000, expcond, 'plot_type','none');
 gna;
 plot_psma(psth_only);
 

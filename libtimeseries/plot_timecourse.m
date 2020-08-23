@@ -1,4 +1,5 @@
-function [ax h_psth psth x rate_rsp h_event_psth h_event_raster array_rsp] = plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end, grp, varargin)
+function [ax psth h_pt] = plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end, grp, varargin)
+% function [ax h_psth psth x rate_rsp h_event_psth h_event_raster array_rsp] = plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end, grp, varargin)
 %PLOT_TIMECOURSE plot averaged timecourse of neural or behavioral responses.
 % plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end, grp, varargin)
 % data_type:
@@ -32,49 +33,51 @@ function [ax h_psth psth x rate_rsp h_event_psth h_event_raster array_rsp] = plo
 % convert     : 'dF/F' , etc
 %
 bPlotRawCh = false;
-win_len = 100;   % 50 to 60. 1/20/2016 HRK 60 to 100 11/18/2018 HRK
-plot_type = 'both'; % both, none , (raw, psth: not implemented yet)
+win_len = 100;          % 50 to 60. 1/20/2016 HRK 60 to 100 11/18/2018 HRK
+plot_type = 'both';     % both, none , (raw, psth: not implemented yet)
 test_diff = 0;
 grp_lim = 10;
 test_bin = [];
-adjust_clim = 1; % adjust clim for imagesc to be 1-99% to exclude outliers in the color range
+adjust_clim = 1;        % adjust clim for imagesc to be 1-99% to exclude outliers
 clim = [];
-psth_type = 'mavg'; % mavg : moving average, hist: histogram
+psth_type = 'mavg';     % mavg : moving average, hist: histogram
 hist_bin = 200;
 errbar_type = 'patch';
-errbar_crit = 5;    % do not show error if n_grp is greater than this
-psth_legend = 1;  % 1/0 of 'on','off'
-show_legend = ''; % 'psth', 'raster', 'rastertop' this can overwrite psth_legend setting
+errbar_crit = 5;        % do not show error if n_grp is greater than this
+psth_legend = 1;        % 1/0 of 'on','off'
+show_legend = '';       % 'psth', 'raster', 'rastertop' this can overwrite psth_legend setting
 adj_xl = 1;
-parent_panel = [];
-split_v = [.7 .3];
+parent_panel = [];      % 
+split_v = [.7 .3];      % vertical split proportion for the raster and psth
 lick = [];
 legend_gnum = 0;
-use_this_psth = [];
+use_this_psth = [];     % pass an pre-computed trial structure for the plot
 base_sub_win = [];  % baseline subtraction for rate computation (compute_rate)
 x_base = [-1 0];    % baseline for statistical analysis (e.g., ROC; compute_avggrp)
 base_rsp = [];      % directly provide baseline rate (e.g., ROC; compute_avggrp)
-raster_size = [];
-event = [];
-event_header = {};
+raster_size = [];   % size of raster dots
+event = [];         % 2D array of [nT X # event] containing timestamps of events
+event_header = {};  % name of evenets. size should match with the # of event above
 convert = '';
-resample_bin = 10; % downsample every 10 points for psth structure (1000Hz->100Hz)
+resample_bin = 10;  % downsample 1/10 for fields in psth structure to reduce data size (1000Hz->100Hz)
 event_on_raster = 'dot'; % 'dot' or 'line'
 set_lim = 1;
-roc = 0;                % 1: do ROC analysis  2: plot ROC results by splitting psth
-roc_base_grpid = [];      % compute auROC based on the specified two groups
+roc = 0;                    % 1: do ROC analysis  2: plot ROC results by splitting psth
+roc_base_grpid = [];        % compute auROC based on the specified two groups
 grp_xlim = [];
-cmap = [];
+cmap = [];                  % color map. see get_cmap()
 show_colorbar = 1;
-distance_edge = [];           % bin for z(t) (e.g., distance(t))
-valid_x_crit = 0.5;              % criterion (trials in the condition) to compute valid estimator
+distance_edge = [];         % bin for z(t) (e.g., distance(t))
+valid_x_crit = 0.5;         % criterion (trials in the condition) to compute valid estimator
 
 process_varargin(varargin);
 
 ax = [];
-h_psth = NaN(0,2); psth = [];    
+psth = [];    
 x = []; rate_rsp = [];
 ginfo = [];
+h_pt.psth = []; h_pt.event_raster = []; h_pt.event = [];
+h_psth = NaN(0,2); h_event_raster = []; h_event_psth = [];
 
 % assign dummy variable in case of using provided psth. just use the whole 
 % trial structure for now.
@@ -165,7 +168,7 @@ if ~isempty(ginfo) && isstruct(ginfo)
        warning('group # plotted is different from ginfo. Use data_params2grp() to generate proper ginfo');
        keyboard;
    end
-   % stronger sacity check would be save used trials and compare whether
+   % stronger sanity check would be save used trials and compare whether
    % the seed trials are identical.
    %
    % automatic re-gererating ginfo is a bit tricky as grp is assigned from
@@ -215,6 +218,9 @@ psth = compute_avggrp(x, rate_rsp, grp, 'test_diff', test_diff, 'grp_lim', grp_l
     'test_bin', test_bin, 'resample_bin', resample_bin, 'roc', roc, 'x_base', x_base, ...
     'base_rsp', base_rsp, 'roc_base_grpid', roc_base_grpid, 'valid_x_crit', valid_x_crit);
 
+% assign array_rsp (unaveraged raw trial structure). This won't be saved
+psth.array_rsp = array_rsp;
+
 if strcmp(psth_type, 'hist') % output: hist_edges, nHist
     [nHist hist_edges] = compute_psth(ts_resp, trigger, trial_start, trial_end, hist_bin);
 end
@@ -242,7 +248,7 @@ end
 
 % return if not plotting graphs
 if strcmp(plot_type, 'none')
-    ax = []; h_psth = []; % psth x rate_rsp
+    ax = [];
     return; 
 end
 
@@ -355,7 +361,7 @@ end
 % plot psth
 switch(psth_type)
     case 'mavg' % peri-stimulus moving average
-        [h_psth hT hL] = plot_psma(psth, 'eb_type', errbar_type, 'cmap', cmap, 'legend_gnum', ...
+        [h_pt.psth hT hL] = plot_psma(psth, 'eb_type', errbar_type, 'cmap', cmap, 'legend_gnum', ...
             legend_gnum,'ax',ax_psth, 'set_lim', set_lim, 'grp_xlim', grp_xlim);
     case 'hist'        
         bar(ax_psth, hist_edges, nHist, 'histc');
@@ -415,25 +421,24 @@ if ~isempty(event)
 
     % show events in psth
     if ~isempty(ax_psth)
-        [h_event_psth m_sEvents] = plot_events_on_psth(ax_psth, event, trigger, psth.grpid, event_header);
+        [h_pt.event m_sEvents] = plot_events_on_psth(ax_psth, event, trigger, psth.grpid, event_header);
         psth.event = m_sEvents;
     end
     % show events in raster
     if ~isempty(ax_raster)
         switch(event_on_raster)
             case 'dot'
-%                 h_event_raster = plot_events_on_raster(ax_raster, event, trigger, grp, event_header);
-                h_event_raster = plot_events_on_raster(ax_raster, event(idx_trials,:), trigger(idx_trials,:), grpid(idx_trials,:), event_header);
+%                 h_pt.event_raster = plot_events_on_raster(ax_raster, event, trigger, grp, event_header);
+                h_pt.event_raster = plot_events_on_raster(ax_raster, event(idx_trials,:), trigger(idx_trials,:), grpid(idx_trials,:), event_header);
             case 'line'
                 if isa(psth.event, 'table')
-%                 h_event_raster = plot_line_events_on_raster(ax_raster, psth.event, trigger, grp, event_header);
-                h_event_raster = plot_line_events_on_raster(ax_raster, psth.event, trigger, grpid, event_header);
+%                 h_pt.event_raster = plot_line_events_on_raster(ax_raster, psth.event, trigger, grp, event_header);
+                h_pt.event_raster = plot_line_events_on_raster(ax_raster, psth.event, trigger, grpid, event_header);
                 end
         end
     end
 else
     psth.event = [];
-    h_event_raster = []; h_event_psth = [];
 end
 
 % plot roc if roc == 2
@@ -450,61 +455,4 @@ end
 % I tried some tweaks but did not work. make it explicit here.
 set(get(ax_raster,'parent'), 'CurrentAxes', ax_raster);
     
-return;
-
-function [ax_raster ax_psth] = generate_axis(parent_panel, split_v)
-
-
-if numel(split_v) == 1 
-    split_v(2) = 1 - split_v;
-end
-assert((numel(split_v) == 2 )); %% && sum(split_v) == 1)); cmtted out for outside legend
-
-% parent panel is designated
-if ~isempty(parent_panel) && ismember(class(parent_panel), {'panel'});
-    % if axis already exist, clear and reuse them
-    if numel(parent_panel.de) > 0 && numel(parent_panel.de.axis) == 2
-        ax_raster = parent_panel.de.axis(1);
-        ax_psth = parent_panel.de.axis(2);
-        % clear the axis
-        cla(ax_raster);
-        cla(ax_psth);
-        return;
-    end
-    
-    p = parent_panel;
-    p.pack('h', {8.3/10 []});
-    p(1).pack('v', {split_v(1) split_v(2)});
-    ax_psth = p(1,2).select();
-    ax_raster = p(1,1).select();
-    p.ch.margin = 1;
-    return;
-end
-
-% figure is generated using setpanel()
-if strcmp(class(get(gcf,'UserData')), 'panel') || strcmp(class(get(gcf,'UserData')), 'panel_ext')
-    p = get(gcf,'UserData');
-    p.pack('h', {8.3/10 []});
-    p(1).pack('v', {split_v(1) split_v(2)});
-    ax_psth = p(1,2).select();
-    ax_raster = p(1,1).select();
-    p.ch.margin = 1;
-    return;
-end
-
-% conventional Matlab figure axes
-if ~isempty(parent_panel)
-    ax_psth = parent_panel;
-else
-    ax_psth = gca;
-end
-
-% get axis for raster and psth
-pAx = get(ax_psth, 'position');
-% push down raster
-set(ax_psth, 'position', [pAx(1), pAx(2), pAx(3) * 0.92, pAx(4) * 0.24]);
-% axes for raster
-ax_raster = axes('position', [pAx(1), pAx(2) + pAx(4) * 0.25, pAx(3) * 0.92, pAx(4) * 0.7]);
-
-
 return;

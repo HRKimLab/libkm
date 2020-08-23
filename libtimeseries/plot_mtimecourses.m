@@ -145,18 +145,18 @@ for iV = 1:nV
     end
     
     if ~isempty(xdist)
-        [ax, h_psth, psth] = plot_timecourse(xdist, cV{iV}, trigger, start_time, end_time, grp, ...
+        [ax, psth h_pt] = plot_timecourse(xdist, cV{iV}, trigger, start_time, end_time, grp, ...
             'parent_panel', parent_panel, 'win_len', win_len, cPV{:});
     elseif numel(cV{iV}) == numel(ms_time) % stream
-        [ax, h_psth, psth] = plot_timecourse('stream', cV{iV}, trigger, start_time, end_time, grp, ...
+        [ax, psth h_pt] = plot_timecourse('stream', cV{iV}, trigger, start_time, end_time, grp, ...
             'parent_panel', parent_panel, cPV{:});
     else % timestamp
-        [ax, h_psth, psth] = plot_timecourse('timestamp', cV{iV}, trigger, start_time, end_time, grp, ...
+        [ax, psth h_pt] = plot_timecourse('timestamp', cV{iV}, trigger, start_time, end_time, grp, ...
             'parent_panel', parent_panel, 'win_len', win_len, cPV{:});
     end
     
     tot_ax(:, iV) = ax;
-    tot_h_psth(:, :, iV) = h_psth;
+    tot_h_psth(:, :, iV) = h_pt.psth;
     tot_psth{iV} = psth;
     
     

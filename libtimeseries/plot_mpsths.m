@@ -1,4 +1,4 @@
-function [avg_psth psths h_avgpsth h_psth h_event] = plot_mpsths(cPSTH, varargin)
+function [avg_psth psths h_psth] = plot_mpsths(cPSTH, varargin)
 % superimpose cell array of multiple PSTHs in one axis and plot average of them
 %  or draw image array with each row representing individual PSTHs.
 % changed filename from plot_TC_psth to plot_multiple_psths
@@ -43,7 +43,7 @@ subsample_x = 1;        % subsample x to reduce plot size
 % process options
 process_varargin(varargin);
 
-avg_psth = []; comb_means = []; h_avgpsth = []; h_psth = []; h_event = [];
+avg_psth = []; comb_means = []; h_psth.avg_psth = []; h_psth.ind_psth = []; h_psth.event = [];
 if isempty(cPSTH) || (isstruct(cPSTH) && numel(fieldnames(cPSTH)) == 0)
     return; 
 end
@@ -132,7 +132,7 @@ for iR = 1:n_psth
         tmp = plot_psma(cPSTH{iR}, 'eb_type','none', 'cmap', brighter(brighter(brighter(line_color))), 'mark_diff', mark_diff, ...
             'show_legend', 0, 'ax', ax, 'grp_xlim', grp_xlim, 'base_lim', base_lim, 'event_header', tmp_header, 'tag_grp', tag_grp, ...
             'auto_filter_x', auto_filter_x, 'subsample_x', subsample_x);
-        h_psth = [h_psth; tmp];
+        h_psth.ind_psth = [h_psth.ind_psth; tmp];
         
         % if avg_grp is set, color the line according to the avg_grp
         if ~isempty(avg_grp)
@@ -201,16 +201,16 @@ end
 % plot averaged psth
 switch(plot_type)
     case 'line' % plot averaged PSMA
-        [h_avgpsth, hT, hL, h_event]  = plot_psma(avg_psth, 'eb_type', errbar_type, 'cmap', line_color, 'y_sigmark', y_sigmark, ...
+        [h_psth.avg_psth, hT, hL, h_psth.event]  = plot_psma(avg_psth, 'eb_type', errbar_type, 'cmap', line_color, 'y_sigmark', y_sigmark, ...
             'mark_diff', mark_diff, 'ax', ax, 'show_legend', show_legend, ...
             'grp_xlim', grp_xlim, 'event_header', event_header, 'tag_grp', tag_grp, ...
             'legend_gnum', legend_gnum, 'auto_filter_x', auto_filter_x, 'color_event_by_grp', color_event_by_grp, 'subsample_x', subsample_x);
-        set(nonnans(h_avgpsth), 'linewidth', 2); % make avg psth line thicker
+        set(nonnans(h_psth.avg_psth), 'linewidth', 2); % make avg psth line thicker
         draw_refs(0, 0, NaN, ax);
         pct_bnd = prctile(comb_means(:), [1 99]);
         yl = [pct_bnd(1) - range(pct_bnd) * 0.1 pct_bnd(2) + range(pct_bnd) * 0.1];
         if nunique(yl) == 2, ylim(yl); end
-%         set(h_avgpsth, 'linewidth', 2,'linestyle',':');
+%         set(h_psth.avg_psth, 'linewidth', 2,'linestyle',':');
         
     case 'image' % draw image plot with rows for individual PSTHs
         [~,~,grp_idx] = grp2coloridx(avg_psth.grp);
@@ -235,7 +235,7 @@ switch(plot_type)
                 events = avg_psth.event(:, event_header);
             end
             nG = size(events, 1);
-            [h_event] = plot_events_on_psth(ax, table2array(events)*1000, zeros(nG,1), (1:nG)', events.Properties.VariableNames );
+            [h_psth.event] = plot_events_on_psth(ax, table2array(events)*1000, zeros(nG,1), (1:nG)', events.Properties.VariableNames );
         end
 
         ylabel('Neuron #')
@@ -247,3 +247,4 @@ if pct_basediff
     ax = superimpose_axes();
     plot(x, sum( comb_pBaseDiff < .05 ) / size(comb_pBaseDiff, 1) );
 end
+
