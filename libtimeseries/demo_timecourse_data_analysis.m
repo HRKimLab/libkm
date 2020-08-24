@@ -193,8 +193,13 @@ p1 = p.gnp;
 %% for plotting simultaneously recorded large-scale neural data 
 % such as Neuropixels or 2-photon microscopy
 d = load('probe_recording_sample.mat', 'cSpikes', 'trial_start', 'rew_on');
+% one plot per neuron
 [ax avg_psths pop_psths] = plot_neuron_psths('timestamp', d.cSpikes , d.trial_start, -2000, 10000, [], ...
     'n_row',2,'n_col', 3,'event', d.rew_on,'event_header','RewOn'); % 'save_fpath', 'exp1',
+% 3 neurons superimposed together. need to implement different colors
+[ax avg_psths pop_psths] = plot_neuron_psths('timestamp', d.cSpikes , d.trial_start, -2000, 10000, [], ...
+    'n_row', 2, 'n_col', 3,'event', d.rew_on,'event_header','RewOn', 'n_per_plot', 3); % 
+
 % call cluster psths separately to do statistcal test
 cluster_psths(avg_psths.rate_rsp, 'test_diff', 0)
 

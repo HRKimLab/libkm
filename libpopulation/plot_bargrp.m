@@ -9,6 +9,7 @@ is_sig = [];
 y_ref = [];
 yl = [];
 show_individual = 1;
+individual_x_width = 0.3; % spread the x range of individual dots
 individual_size = 20;
 r_with_grp = 0;
 use_star = 0;
@@ -136,11 +137,12 @@ xl = setlim(x);
 
 % show individual data points
 if show_individual
+    x_offset = rand(size(is_sig)) * individual_x_width - individual_x_width/2;
     % data points with significance
-    hS1 = scatter(x(is_sig), y(is_sig), individual_size, marker_color, 'o', 'filled');
+    hS1 = scatter(x(is_sig) + x_offset(is_sig), y(is_sig), individual_size, marker_color, 'o', 'filled');
     hold on;
     % data points without significance
-    hS2 = scatter(x(~is_sig), y(~is_sig), individual_size, marker_color, 'o');
+    hS2 = scatter(x(~is_sig) + x_offset(~is_sig), y(~is_sig), individual_size, marker_color, 'o');
     hS = [hS1; hS2];
     if isfield(get(hS), 'MarkerFaceAlpha') % new graphic engine
         set(hS, 'MarkerFaceAlpha',0.25, 'MarkerEdgeAlpha', 0.25)

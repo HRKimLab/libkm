@@ -9,6 +9,7 @@ event_header = {};
 n_row = 3;
 n_col = 4;
 save_fpath = '';
+n_per_plot = 1;  % # of neurons supermiposed per plot
 
 process_varargin(varargin);
 
@@ -23,7 +24,7 @@ end
 
 [pp, ax, tot_h_psth, tot_psth] = plot_mtimecourses(motor_time, ab, st, ed, grp, ...
     cNeurons{:}, 'event', event, 'event_header', event_header, ...
-    'n_row', n_row, 'n_col', n_col, 'titles', unit_name, 'large_scale', 1);
+    'n_row', n_row, 'n_col', n_col, 'titles', unit_name, 'large_scale', 1, 'n_per_plot', n_per_plot);
 
 pop_psths = struct();
 for iN = 1:numel(tot_psth)

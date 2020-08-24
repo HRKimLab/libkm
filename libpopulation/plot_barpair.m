@@ -31,7 +31,7 @@ nCond = size(x, 2);
 
 [grp_means grp_sem pRef pDiff mc_sig] = plot_bargrp(v, grp, 'is_sig', is_sig, 'y_ref', y_ref, 'yl', yl, ...
     'show_individual', show_individual, 'use_star', use_star, 'marker_color', c, 'show_mc', 0, ...
-    'bar_x', bar_x, 'test_type', test_type);
+    'bar_x', bar_x, 'test_type', test_type, 'individual_x_width', 0);
 
 % compute correlation across groups (often group is an ordered variable)
 [rG pG] = corr(grp, v, 'type','Spearman', 'rows','pairwise');

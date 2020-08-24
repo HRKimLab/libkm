@@ -1,5 +1,4 @@
 function [ax psth h_pt] = plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end, grp, varargin)
-% function [ax h_psth psth x rate_rsp h_event_psth h_event_raster array_rsp] = plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end, grp, varargin)
 %PLOT_TIMECOURSE plot averaged timecourse of neural or behavioral responses.
 % plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end, grp, varargin)
 % data_type:
@@ -32,6 +31,7 @@ function [ax psth h_pt] = plot_timecourse(data_type, ts_resp, trigger, trial_sta
 % base_sub_win: window for baseline subtraction (e.g, [-1.5 -0.5] ) or rates
 % convert     : 'dF/F' , etc
 %
+% previous output args: [ax h_psth psth x rate_rsp h_event_psth h_event_raster array_rsp] 
 bPlotRawCh = false;
 win_len = 100;          % 50 to 60. 1/20/2016 HRK 60 to 100 11/18/2018 HRK
 plot_type = 'both';     % both, none , (raw, psth: not implemented yet)
@@ -272,6 +272,7 @@ end
 set(ax_raster, 'tag', 'raster');
 set(ax_psth, 'tag', 'psth'); 
 
+%% now, plot results
 % plot trial-by-trial responses
 if isnumeric(data_type) 
 % ts_resp is stream
@@ -402,7 +403,7 @@ ax = [ax_raster; ax_psth];
 linkaxes(ax, 'x'); set(ax, 'xlim', xl); 
 
 % plot events. event can be double array, table array or struct 
-if ~isempty(event)
+if isfield(psth, 'event') && ~isempty(psth.event)
     % extract event header from table or struct
     if ~is_arg('event_header') 
         if istable(event)

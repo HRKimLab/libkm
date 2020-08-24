@@ -25,6 +25,7 @@ show_legend = '';
 grp_lim = 10;
 errbar_crit = 5;
 large_scale = 0; % large-scale recording. automatically generate next figures.
+n_per_plot = 1;  % # of neurons supermiposed per plot. only works when large_scale = 1
 
 % recognize ('param', value) pair to separate it from a set of data
 iA = 1; iPV = [];
@@ -139,7 +140,16 @@ for iV = 1:nV
         cPV = cPV_orig;
     end
     if large_scale
-        parent_panel = gnp;
+        if n_per_plot == 1
+            parent_panel = gnp;
+        else
+            if mod(iV, n_per_plot) == 1
+                parent_panel = gnp;
+            else
+                % reuse previous axis
+                parent_panel = ax;
+            end
+        end
     else
         parent_panel = pp(iR, iC);
     end

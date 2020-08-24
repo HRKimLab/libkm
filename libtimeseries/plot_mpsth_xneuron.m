@@ -66,7 +66,7 @@ if is_arg('parent_ax')
                 if ~isempty(hA)
                     ax(iF) = hA;
                 end
-            case 'attach'
+            case 'attach' % superimpose a new axes
                 % generate axes for neural data
                 pos = get(hA, 'position');
                 ax(iF) = axes('position', pos);
@@ -120,6 +120,7 @@ for iF = 1:nF
     %     keyboard
 end
 
+% plot-plot processing
 switch(axis_type)
     case 'attach'
         % make axis transparent
