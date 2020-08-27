@@ -15,8 +15,19 @@ see demo_timecourse_data_analysis.m for a demo with detailed comments.
 
 # Examples
 
-![Fig1](demo_Fig1.png)
-![Fig2](demo_Fig2.png)
+<img src=demo_Fig1.png alt="Fig1" width="400"> <img src=demo_Fig2.png alt="Fig2" width="400"> 
+
+# Details
+### psth struct
+The table below describes select fields of psth struct, which is the main output of plot_timecourse.
+
+| name |  size | description |
+|------|-------|-------------|
+| x    |[1 * # of timepoints]             | time point of PSTHs |
+| mean | [# of groups * # of timepoints]  | average activity for each group |
+| sem  | [# of groups * # of timepoints]  | standard error of mean for each group |
+| ginfo.grp_idx |   [# of trials * 1] |   group index |
+| ginfo.unq_grp_label |  [# of groups * 1] |  string label for the group index |
 
 # Tips
 
