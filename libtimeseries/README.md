@@ -19,8 +19,16 @@ see demo_timecourse_data_analysis.m for a demo with detailed comments.
 
 # psth struct description
 | name |  size | description |
-------------------------------
+|------|-------|-------------|
 | x    |[1 * # of timepoints] | time point of PSTHs
+
+
+ff
+
+| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
 
 - psth.x [1 * # of timepoints]: x time point of PSTHs
 - psth.mean [# of groups * # of timepoints]: average activity for each group
