@@ -19,7 +19,7 @@ see demo_timecourse_data_analysis.m for a demo with detailed comments.
 
 # Details
 ### psth struct
-The table below describes fields of psth struct, which is the main output of plot_timecourse.
+The table below describes select fields of psth struct, which is the main output of plot_timecourse.
 
 | name |  size | description |
 |------|-------|-------------|
