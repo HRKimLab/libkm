@@ -15,8 +15,14 @@ see demo_timecourse_data_analysis.m for a demo with detailed comments.
 
 # Examples
 
-![Fig1](demo_Fig1.png)
-![Fig2](demo_Fig2.png)
+![Fig1](demo_Fig1.png) [Fig2](demo_Fig2.png)
+
+# psth struct description
+- psth.x [1 * # of timepoints]: x time point of PSTHs
+- psth.mean [# of groups * # of timepoints]: average activity for each group
+- psth.sem [# of groups * # of timepoints]: standard error of mean for each group
+- psth.ginfo.grp_idx [# of trials * 1]: group index
+- psth.ginfo.unq_grp_label [# of groups * 1] : string label for the group index
 
 # Tips
 
