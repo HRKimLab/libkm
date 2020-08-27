@@ -235,7 +235,7 @@ plot_mpsth_xneuron(d, 'event_header','RewOn');
 % TODO: demo of loading (currently not working on demo)
 % lick_VStimOn = load_psth_files('lick_ab_VStimOn.mat', ANIMAL_ID, all_dataname, neuron_behavior_filt); 
 %% plot PSTHs together in one panel
-setfig(3,2);
+setfig(2,2);
 ax = gna;
 % Plotting population timecouses (PSTHs). 
 % shading is the stdandard error of the mean PSTHs.

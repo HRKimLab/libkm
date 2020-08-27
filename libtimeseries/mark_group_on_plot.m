@@ -3,6 +3,7 @@ function [hG ax_grp] = mark_group_on_plot(ax, grp_idx, cmap, mode)
 % 2016 HRK, made separate function 2018
 assert(max(grp_idx) <= size(cmap,1) );
 ax_pos = get(ax,'position');
+parent_fig = get(ax, 'parent');
 xl = get(ax,'xlim'); yl = get(ax,'ylim');
 if ~is_arg('mode'), mode = 'adddot'; end;
 n_trial = size(grp_idx,1);
@@ -39,7 +40,7 @@ switch(mode)
 
         % inside raster axis
         ax_grp = axes('position', [ax_pos(1)+ax_pos(3)*0.985 ax_pos(2) ax_pos(3)*0.015 ax_pos(4)], ...
-            'handlevisibility','off');
+            'handlevisibility','off','parent', parent_fig);
         set(ax_grp,'xtick',[],'ytick',[], 'xlim', [x_off_marker-.5 x_off_marker], ...
             'ylim', get(ax, 'ylim'), 'nextplot', 'add', ...
             'ydir', 'reverse', 'xcolor','w','linewidth',0.01, 'handlevisibility','off')
@@ -47,7 +48,7 @@ switch(mode)
     case 'outside'
         % outside raster axis
         ax_grp = axes('position', [ax_pos(1)+ax_pos(3)*1.01 ax_pos(2) ax_pos(3)*0.01 ax_pos(4)], ...
-            'handlevisibility','off');        
+            'handlevisibility','off','parent', parent_fig);        
         set(ax_grp,'xtick',[],'ytick',[], 'xlim', [x_off_marker-.1 x_off_marker+0.1], ...
             'ylim', get(ax, 'ylim'), 'nextplot', 'add', ...
             'ydir', 'reverse','ycolor','w', 'xcolor','w','linewidth',0.01, 'handlevisibility','off')

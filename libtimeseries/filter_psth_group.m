@@ -1,5 +1,5 @@
 function psths = filter_psth_group(psths, filter_grp_func)
-% filter psth groups
+% filter specific groups for each psth
 % 2019 HRK
 psth_type = class(psths);
 switch(psth_type)

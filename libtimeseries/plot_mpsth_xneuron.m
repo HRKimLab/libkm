@@ -12,6 +12,9 @@ smooth_win = [];        % re-smooth origianl mean if necessary (too much jiter t
 event_header = {};
 x_ref = 0; y_ref = NaN;
 fig_title = '';
+plot_type = 'psth';     % both, psth
+n_row = [];
+n_col = [];
 
 process_varargin(varargin);
 
@@ -44,14 +47,19 @@ end
 
 % create a panel unless specified
 if isempty(parent_ax)
-    p = setpanel(nF, [], fig_title); % ['m' num2str(mid) ' / ' fn]);
+    if isempty(n_row) && isempty(n_col)
+        n_row = nF;
+    end
+    p = setpanel(n_row, n_col, fig_title); % ['m' num2str(mid) ' / ' fn]);
     p.margin = 12;
     for iF = 1:nF
-        ax(iF, 1) = p.gna;
+        pp = gnp;
+        ax(iF, 1) = pp.select();
     end
 else
 end
 
+% add to existing axis or attach a new axes
 if is_arg('parent_ax')
     nCol = size(parent_ax, 2);
     for iF = 1:nF
@@ -86,9 +94,18 @@ data_title = set_mpsth_titles(flist);
 for iF = 1:nF
     psth = cPSTH{iF};
 %     axes(ax(iF));
-    % plot peri-stimulus moving average
-    [~,~,hL] = plot_psma(psth, errbar_type, cmap, 'smooth_win', smooth_win,'ax', ax(iF), ...
-        'event_header', event_header); 
+    switch(plot_type)
+        case 'both' % plot both individual trials and psth
+            assert( isfield(psth, 'rate_rsp') && ~isempty(psth.rate_rsp), 'psth.rate_rsp is not valid');
+            ax_pt = plot_timecourse('stream', [], [], [], [], [], 'use_this_psth', psth,'parent_panel', ax(iF));
+            ax(iF) = ax_pt(1);
+            hL = legend(ax_pt(2));
+        case 'psth'
+            % plot peri-stimulus moving average
+            [~,~,hL] = plot_psma(psth, errbar_type, cmap, 'smooth_win', smooth_win,'ax', ax(iF), ...
+                'event_header', event_header);
+    end
+    
     % delete legend
     if iF ~= 1 && iF ~= nF
         delete(hL);
