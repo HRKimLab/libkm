@@ -20,21 +20,11 @@ see demo_timecourse_data_analysis.m for a demo with detailed comments.
 # psth struct description
 | name |  size | description |
 |------|-------|-------------|
-| x    |[1 * # of timepoints] | time point of PSTHs
-
-
-ff
-
-| First Header  | Second Header |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
-
-- psth.x [1 * # of timepoints]: x time point of PSTHs
-- psth.mean [# of groups * # of timepoints]: average activity for each group
-- psth.sem [# of groups * # of timepoints]: standard error of mean for each group
-- psth.ginfo.grp_idx [# of trials * 1]: group index
-- psth.ginfo.unq_grp_label [# of groups * 1] : string label for the group index
+| x    |[1 * # of timepoints]             | time point of PSTHs |
+| mean | [# of groups * # of timepoints]  | average activity for each group |
+| sem  | [# of groups * # of timepoints]  | standard error of mean for each group |
+| ginfo.grp_idx |   [# of trials * 1] |   group index |
+| ginfo.unq_grp_label |  [# of groups * 1] |  string label for the group index |
 
 # Tips
 
