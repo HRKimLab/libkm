@@ -16,6 +16,7 @@ see demo_timecourse_data_analysis.m for a demo with detailed comments.
 # Examples
 
 ![Fig1](demo_Fig1.png =300x) ![Fig2](demo_Fig2.png =300x)
+<img src=demo_Fig1.png width="300">
 
 # psth struct description
 - psth.x [1 * # of timepoints]: x time point of PSTHs
