@@ -18,6 +18,10 @@ see demo_timecourse_data_analysis.m for a demo with detailed comments.
 <img src=demo_Fig1.png alt="Fig1" width="400"> <img src=demo_Fig2.png alt="Fig2" width="400"> 
 
 # psth struct description
+| name |  size | description |
+------------------------------
+| x    |[1 * # of timepoints] | time point of PSTHs
+
 - psth.x [1 * # of timepoints]: x time point of PSTHs
 - psth.mean [# of groups * # of timepoints]: average activity for each group
 - psth.sem [# of groups * # of timepoints]: standard error of mean for each group
