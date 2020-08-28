@@ -31,6 +31,3 @@ The table below describes select fields of psth struct, which is the main output
 | ginfo.grp_idx |   [# of trials * 1] |   group index |
 | ginfo.unq_grp_label |  [# of groups * 1] |  string label for the group index |
 
-# Tips
-
-use [panel](https://www.mathworks.com/matlabcentral/fileexchange/20003-panel) for more packed plots
