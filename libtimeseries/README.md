@@ -14,8 +14,10 @@ see demo_timecourse_data_analysis.m for a demo with detailed comments.
 - perform multi-dimensional population analyses
 
 # Examples
-
+### Sinle-session time courses
 <img src=demo_Fig1.png alt="Fig1" width="400"> <img src=demo_Fig2.png alt="Fig2" width="400"> 
+### Population time courses
+<img src=demo_lick_xsession.png alt="xsession" width="400"> <img src=demo_lick_mpsths.png alt="mpsths" width="400"> 
 
 # Details
 ### psth struct
@@ -29,6 +31,3 @@ The table below describes select fields of psth struct, which is the main output
 | ginfo.grp_idx |   [# of trials * 1] |   group index |
 | ginfo.unq_grp_label |  [# of groups * 1] |  string label for the group index |
 
-# Tips
-
-use [panel](https://www.mathworks.com/matlabcentral/fileexchange/20003-panel) for more packed plots

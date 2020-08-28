@@ -16,6 +16,13 @@ Save individual-session analysis results. Load population data into a big table.
 ## [libutil](https://github.com/hkim09/libkm/tree/master/libutil)
 A collection of misc functions.
 
+# Dependencies
+
+- Many functions use process_varargin.m from [MClust](http://redishlab.neuroscience.umn.edu/mclust/MClust.html)
+- If opted, plot_timecourse use [panel](https://www.mathworks.com/matlabcentral/fileexchange/20003-panel) for more packed plots
+- If opted, bar plots use [sigstar](https://github.com/raacampbell/sigstar) to show nice star marks
+
+
 #### CHANGELOG (major changes)
 
 8/13/2020 separated data loading and saving related functions into libbigtable 
