@@ -1,4 +1,4 @@
-function [pDiff bNonEqualVar mc_comparison, mc_means] = test_same_dist(x, grp, varargin)
+function [pDiff bNonEqualVar mc_comparison, mc_means, pPair] = test_same_dist(x, grp, varargin)
 % TEST_same_dist tests two hypotheses for one-way layout
 % 1) if x is from the same distribution (pDiff)
 % 2) multiple comparisons between pairs of groups (mc_comparison)
@@ -31,6 +31,8 @@ gnumel = grpstats(x, grp, 'numel');
 bNonEqualVar = false;
 mc_comparison = []; mc_means = [];
 pDiff = NaN;
+nCond = max(grpid);
+pPair = NaN(nCond, nCond);
 
 % check if we have proper numbers of data for each group
 if length(gname) == 2 && length(gnumel) == 2 % for two groups
@@ -106,8 +108,6 @@ switch (test_type)
         % do nonparametric test for multiple comparisons (rank sum test)
         % NOTE: this is slight different from parametric results
         % comparison as I do not compensate for multiple comparisons.
-        nCond = max(grpid);
-        pPair = NaN(nCond, nCond);
         for iR = 1:nCond
             for iC = iR+1:nCond
                 if all(isnan(x(grpid == iR))) || all(isnan(x(grpid == iC)))

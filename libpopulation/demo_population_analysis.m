@@ -56,7 +56,7 @@ setfig(2,2);
 
 [v g] = cols2grp(a, 1, b, 2, c, 3);
 % unpaird bar plots
-gna; plot_bargrp(v, g);
+gna; plot_bargrp(v, g, 'show_mc', 3);
 % paired bar plots
 gna; plot_barpair([a b], [abs(a)>2 abs(b)>2.5]);
 % show referenc line and stats

@@ -10,7 +10,7 @@ function [grp_means grp_sem pRef pDiff pPair] = plot_barpair(x, is_sig, y_ref, v
 yl = [];
 show_individual = 1;
 use_star = 0;
-show_mc = 1;    % show multiple comparisons
+show_mc = 3; % 1: horiznotal bar 2: stars, 3: start, only sig.
 bar_x = 1;      % bar start position. can be a vector (same size as size(x,2))
 test_type = 'nonpar';  % 'nonpar', 'par', 'par_cond'
 
@@ -146,7 +146,30 @@ if ~isempty(mc_sig)
 end
 
 if all(bar_x == (1:size(x, 2)) )
-    disp_multiple_comparison_results(mc_sig2, get(gca,'ylim'));
+    switch show_mc
+        case 0
+        case 1
+            disp_multiple_comparison_results(mc_sig2, get(gca,'ylim'));
+        case {2,3}
+            nCond = size(pPair, 1);
+            ss_grps = {}; iSSG = 0;
+            ss_stats = [];
+            for iR = 1:nCond
+                for iC = iR+1:nCond
+                    if show_mc == 2 || (show_mc == 3 && pPair(iR, iC) < 0.05)
+                        ss_grps = { ss_grps{:}, [iR iC]};
+                        ss_stats = [ss_stats pPair(iR, iC)];
+                    end
+                end
+            end
+            % draw significant star
+            sigstar(ss_grps, ss_stats);
+        otherwise
+            error('Unknown show_mc mode: %d', show_mc);
+    end
+
+
+
 else
     warning('multiple compairson only supports the standard bar_x for now');
 end
