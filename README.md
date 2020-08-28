@@ -18,9 +18,9 @@ A collection of misc functions.
 
 # Dependencies
 
-Many functions use process_varargin.m from [MClust](http://redishlab.neuroscience.umn.edu/mclust/MClust.html)
-If opted, plot_timecourse use [panel](https://www.mathworks.com/matlabcentral/fileexchange/20003-panel) for more packed plots
-If opted, bar plots use [sigstar](https://github.com/raacampbell/sigstar) to show nice star marks
+- Many functions use process_varargin.m from [MClust](http://redishlab.neuroscience.umn.edu/mclust/MClust.html)
+- If opted, plot_timecourse use [panel](https://www.mathworks.com/matlabcentral/fileexchange/20003-panel) for more packed plots
+- If opted, bar plots use [sigstar](https://github.com/raacampbell/sigstar) to show nice star marks
 
 
 #### CHANGELOG (major changes)
