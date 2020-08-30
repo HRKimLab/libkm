@@ -11,7 +11,7 @@ Plot data with relevant statistical tests.
 Plot time course and save the results. Combime the results and plot population time courses.
 
 ## [libbigtable](https://github.com/hkim09/libkm/tree/master/libbigtable)
-Save individual-session analysis results. Load population data into a big table.
+Save individual-session analysis results. Load discrete population data into a big table.
 
 ## [libutil](https://github.com/hkim09/libkm/tree/master/libutil)
 A collection of misc functions.
