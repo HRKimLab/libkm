@@ -1,6 +1,6 @@
 # libbigtable
 
-libbigtable loads numeric data distributed in different files, combine the results into one big 2D array, where rows are individual entities and columns are different features. It checkes the ID of each entity and load the last results and overwrite the current eneity with the latest eneity. You keep appending your analysis results to the files without manually organizing the results. It stuffs unloaded data with NaNs. This big table then goes well with [libpopulation](https://github.com/hkim09/libkm/tree/master/libpopulation/). Note that the loading function works based on some assumptions (see  below). You may need to change the way you save the analysis results. 
+libbigtable loads numeric data distributed in different files, combine the results into one big 2D array, where rows are individual entities and columns are different features. It checkes the ID of each entity and load the last results. So you just append your analysis results to the files without manually organizing the results. Missing data values are NaNs. This big table then goes well with [libpopulation](https://github.com/hkim09/libkm/tree/master/libpopulation/). Note that the loading function works based on some assumptions (see  below). You may need to change the way you save the analysis results. 
 
 See [this](https://github.com/hkim09/libkm/tree/master/demo) for a working example.
 
