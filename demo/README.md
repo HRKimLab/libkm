@@ -1,6 +1,8 @@
-# An working example of the framework
+# A working example of the framework
 
-# result files
+See demo_analysis_framework.m for examples of loading data using [libbigtable](https://github.com/hkim09/libkm/tree/master/libbigtable), load psths using [libtimeseries](https://github.com/hkim09/libkm/tree/master/libtimeseries), and plot population analysis results using [libpopulation](https://github.com/hkim09/libkm/tree/master/libpopulation).
+
+### result files
 
 | Filename        |    description      |
 |-----------------|---------------------|
@@ -8,17 +10,14 @@
 | beh.dat         |   behaviors (average lick and running speed quantified by different time windows) |
 | fr_norm.dat     |   neural response (fluorometry quantified using different time windows) |
 
-
-# Folder structure
+### Folder structure
 For integrative data management, libkm toolbox recommends that analysis result files are stored in a hierarchical folder structure.
 
-Analysis root --- subject id --- result_file.dat
+Analysis root --- subject id --- {result_files}.dat
 ```
-D:/Analysis   ---  201/      --- behavior_outcome.dat, regression_results.dat, neuons_rates.dat
-               |-- 202/       --- behavior_outcome.dat, regression_results.dat, neuons_rates.dat
-               |-- 203/       --- behavior_outcome.dat, regression_results.dat, neuons_rates.dat
+D:/Analysis   ---  241/      ---  exp_param.dat, beh.dat, fr_norm.dat
+               |-- 243/       --- exp_param.dat, beh.dat, fr_norm.dat
+               |-- 244/       --- exp_param.dat, beh.dat, fr_norm.dat
 ```
 
-
-
-
+### 
