@@ -1,4 +1,4 @@
-function leftoverV = process_varargin(V)
+function [leftoverV] = process_varargin(V)
 
 % leftoverV = process_varargin(V)
 %
@@ -17,10 +17,11 @@ function leftoverV = process_varargin(V)
 %
 % ADR 2011
 
-leftoverV = {};
+leftoverV = {}; 
+
 for iV = 1:2:length(V)
 	
-	if evalin('caller',['exist(''', V{iV}, ''',''var'' )'])
+ 	if evalin('caller',['exist(''', V{iV}, ''',''var'' )'])
 		assignin('caller', V{iV}, V{iV+1});
 	else
 		leftoverV = cat(1, leftoverV, V(iV), V(iV+1));

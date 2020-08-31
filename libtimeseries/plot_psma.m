@@ -197,6 +197,7 @@ if ~isempty(event_header) && isfield(psth, 'event')
     if strcmp(event_header{1}, 'all')
         events = psth.event;
     else
+        assert(all(ismember(event_header, psth.event.Properties.VariableNames)), 'event header is not a valid one')
         events = psth.event(:, event_header);
     end
     nG = size(events, 1);

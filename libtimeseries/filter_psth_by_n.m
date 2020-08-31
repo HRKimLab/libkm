@@ -15,7 +15,11 @@ bV = true(size(flist));
 % filter by group number
 if ~isnan(n_grp)
     for iF = 1:numel(bV)
-       bV(iF) = bV(iF) & size(cPSTH{iF}.mean, 1) == n_grp; 
+        if isfield(cPSTH{iF}, 'mean')
+            bV(iF) = bV(iF) & size(cPSTH{iF}.mean, 1) == n_grp; 
+        else
+            bV(iF) = false;
+        end
     end
 end
 flist = flist(bV); 

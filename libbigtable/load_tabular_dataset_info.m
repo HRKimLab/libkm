@@ -12,7 +12,7 @@ debug = 0;  % 1: open only uitable  2: open both tsv file and uitable
 num_skip_lines = 0; % data to ignore 'before' the real header (simply skip lines)
 num_header = 0; % data to ignore 'after' the real header
 
-a=process_varargin(varargin);
+a = process_varargin(varargin);
 
 if ~isempty(a)
     error('Please use param, value method for argument passing');
@@ -94,7 +94,10 @@ nRow = size(cD, 1);
 fprintf('Loaded %d rows (protocols), %d columns (subjects) data table\n', nRow, nCol);
 
 % erase rows whose names start with comment (%)
-bElmRows = cellfun(@(x) isempty(x) || ismember(x(1), '%-'), cD(:,1));
+% previous method. eliminate if the first column is empty
+% bElmRows = cellfun(@(x) isempty(x) || ismember(x(1), '%-'), cD(:,1));
+% 8/31/2020. only eliminate if the first column contains '%-'
+bElmRows = cellfun(@(x) ~isempty(x) && ismember(x(1), '%-'), cD(:,1));
 % do not erase first row
 bElmRows(1) = false;
 tmp = cD(bElmRows, 1); fprintf(1, 'Eliminate %d rows (starting with ''%''): %s\n', nnz(bElmRows), sprintf('%s ', tmp{:}));

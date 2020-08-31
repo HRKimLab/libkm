@@ -43,6 +43,7 @@ subsample_x = 1;        % subsample x to reduce plot size
 % process options
 process_varargin(varargin);
 
+if isempty(ax), ax = gca; end;
 avg_psth = []; comb_means = []; h_psth.avg_psth = []; h_psth.ind_psth = []; h_psth.event = [];
 if isempty(cPSTH) || (isstruct(cPSTH) && numel(fieldnames(cPSTH)) == 0)
     return; 
@@ -86,9 +87,9 @@ n_psth = numel(cPSTH);
 b_valid_psths = true(n_psth, 1);
 
 if isnan(nSubject)
-    stitle('n=%d/nHo=%d/nTot=%d (nG=%d)', n_psth, n_homogenized_psths, n_tot_psths, n_grp);
+    stitle(ax, 'n=%d/nHo=%d/nTot=%d (nG=%d)', n_psth, n_homogenized_psths, n_tot_psths, n_grp);
 else
-    stitle('n=%d/nHo=%d/nTot=%d (nS=%d,nG=%d)', n_psth, n_homogenized_psths, n_tot_psths, nSubject, n_grp);
+    stitle(ax, 'n=%d/nHo=%d/nTot=%d (nS=%d,nG=%d)', n_psth, n_homogenized_psths, n_tot_psths, nSubject, n_grp);
 end
 
 if n_psth == 0
