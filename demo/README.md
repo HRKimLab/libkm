@@ -1,6 +1,6 @@
 # A working example of the libkm framework
 
-See demo_analysis_framework.m for examples of loading data using [libbigtable](https://github.com/hkim09/libkm/tree/master/libbigtable), plot population analysis results using [libpopulation](https://github.com/hkim09/libkm/tree/master/libpopulation), and plot time courses using [libtimeseries](https://github.com/hkim09/libkm/tree/master/libtimeseries).
+See demo_analysis_framework.m for examples of population analysis framework. The demo shows examples of loading data using [libbigtable](https://github.com/hkim09/libkm/tree/master/libbigtable), plot population analysis results using [libpopulation](https://github.com/hkim09/libkm/tree/master/libpopulation), and plot time courses using [libtimeseries](https://github.com/hkim09/libkm/tree/master/libtimeseries).
 
 ### result files
 
