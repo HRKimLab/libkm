@@ -1,13 +1,13 @@
 # An working example of the framework
 
 # result files
------------------------------------------
+
 | Filename        |    description      |
------------------------------------------
+|-----------------|---------------------|
 | exp_param.dat   |   task parameters   | 
 | beh.dat         |   behaviors (average lick and running speed quantified by different time windows) |
 | fr_norm.dat     |   neural response (fluorometry quantified using different time windows) |
------------------------------------------
+
 
 # Folder structure
 For integrative data management, libkm toolbox recommends that analysis result files are stored in a hierarchical folder structure.
