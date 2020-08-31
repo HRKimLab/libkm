@@ -4,8 +4,9 @@
 % In the second part, it shows some examples of population analyses
 %
 % 2020 HRK
-%
-ANALYSIS_ROOT  = 'C:\D\data\DemoAnalysisRoot\'; % for HyungGoo
+
+% ANALYSIS_ROOT  = 'C:\D\data\DemoAnalysisRoot\'; % for HyungGoo
+ANALYSIS_ROOT  = pwd;
 
 % set cell numbers of interest for each monkey
 MonkOfInterest = [159	209	210	211	213	214	215	217	218	219]; % 248 is missing
