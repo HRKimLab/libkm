@@ -11,7 +11,7 @@ Plot data with relevant statistical tests.
 Plot time course and save the results. Combime the results and plot population time courses.
 
 ## [libbigtable](https://github.com/hkim09/libkm/tree/master/libbigtable)
-Save individual-session analysis results. Load population data into a big table.
+Save individual-session analysis results. Load discrete population data into a big table.
 
 ## [libutil](https://github.com/hkim09/libkm/tree/master/libutil)
 A collection of misc functions.
@@ -20,7 +20,7 @@ A collection of misc functions.
 
 - Many functions use process_varargin.m from [MClust](http://redishlab.neuroscience.umn.edu/mclust/MClust.html)
 - If opted, plot_timecourse use [panel](https://www.mathworks.com/matlabcentral/fileexchange/20003-panel) for more packed plots
-- If opted, bar plots use [sigstar](https://github.com/raacampbell/sigstar) to show nice star marks
+- If opted, bar plots use [sigstar](https://github.com/raacampbell/sigstar) to show nice star marks (show_mc = 2 or 3)
 
 
 #### CHANGELOG (major changes)

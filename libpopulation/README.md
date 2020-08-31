@@ -7,10 +7,9 @@ see demo_population_analysis.m for a demo with detailed comments.
 
 # What you can do
 
-- plot a scatter with relevant stats
-- plot a histogram with relevant stats
-- plot a bar graph with relevant stats
-- plot multiple line plots and averages
+- plot a scatter with a correlation coefficient
+- plot a histogram with relevant statistical tests (difference from a constant value and/or differece between groups)
+- plot a bar graph with relevant statistical stats (difference from a constant value and/or differece between groups)
 - plot population tuning curces
 
 # Statistical tests

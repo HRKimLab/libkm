@@ -36,7 +36,7 @@ hold on;
 plot(lick, yl(2) * 0.9 * ones(size(lick)), 'r.');
 legend('Speed','DASensor', 'lick');
 hold off;
-title('Session data example');
+title('an example single-session data');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% plotting a signle PSTH
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -51,25 +51,29 @@ setfig(3,2);
 gna; % get the next axis. 
 % plot_timecourse split the current axis and draw raster plot (top) 
 % and PSTH (bottom)
-plot_timecourse('timestamp', lick, event.REWARD_CD, -5000, 4000);
-atitle('lick aligned by Reward');
-
+ax = plot_timecourse('timestamp', lick, event.REWARD_CD, -5000, 4000);
+atitle(ax(1), 'lick aligned by Reward');
+ylabel(ax(2), 'lick rate (licks/s)');
 gna;
 % Plot raster and PSTH, use time windows as vector variables
-plot_timecourse('timestamp', lick, event.REWARD_CD, event.TRIAL_START_CD, event.TRIAL_END_CD);
+ax = plot_timecourse('timestamp', lick, event.REWARD_CD, event.TRIAL_START_CD, event.TRIAL_END_CD);
 atitle('Using variable time window');
+ylabel(ax(2), 'lick rate (licks/s)');
 
 gna;
 % Plot stream and averaged timecourse
-plot_timecourse('stream', speed, event.REWARD_CD, -5000, 4000);
+ax = plot_timecourse('stream', speed, event.REWARD_CD, -5000, 4000);
 atitle('Continuous data');
+ylabel(ax(2), 'Running speed (cm/s)');
 
 gna;
 % Plot sorted by experimental condition. 
 % 6th parameter is a group variable (vector, size should be same as trigger)
 % also, do statiscal test
-plot_timecourse('stream', DAsensor, event.VSTIM_ON_CD, -2000, event.REWARD_CD+3000, expcond);
+ax = plot_timecourse('stream', DAsensor, event.VSTIM_ON_CD, -2000, event.REWARD_CD+3000, expcond);
 atitle('Sorted by exp. condition (speed)');
+ylabel(ax(2), 'Response (z-score)');
+
 
 gna;
 % proide metadata about trial condition
@@ -96,6 +100,7 @@ p.gnp;
 % different between groups
 ax = plot_timecourse('stream', DAsensor, event.VSTIM_ON_CD, -2000, event.REWARD_CD+3000, expcond, 'test_diff', 1);
 atitle(ax(1), 'test stats');
+ylabel(ax(2), 'Response (z-score)');
 
 p.gnp; % 
 % Plot timecourse, sorted by condition, with other other events superimposed
