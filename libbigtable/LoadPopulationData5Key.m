@@ -48,9 +48,9 @@ for iR=1:nResults
     % parse space-seperated header into cell array
     if ischar(ResultsHeader{iR})
         new_header = {};
-        [new_header{1} rem] = strtok(ResultsHeader{iR})
+        [new_header{1} rem] = strtok(ResultsHeader{iR});
         while ~isempty(rem)
-            [new_header{end+1} rem] = strtok(rem)
+            [new_header{end+1} rem] = strtok(rem);
         end
         ResultsHeader{iR} = new_header;
     end
@@ -231,13 +231,13 @@ for iR=1:nResults
         end
         % accumulated data file for each subject
     elseif iscell(ResultsSummary{iR}) || ...
-            ( isstr(ResultsSummary{iR}) && ~exist(ResultsSummary{iR}, 'file') && isempty(findstr(ResultsSummary{iR}, ':')) )
+            ( isstr(ResultsSummary{iR}) && ~exist([ANALYSIS_ROOT ResultsSummary{iR}], 'file') && isempty(findstr(ResultsSummary{iR}, ':')) )
         
         
         for iM=1:length(MonkOfInterest)
             
             % relative path
-            if ( isstr(ResultsSummary{iR}) && ~exist(ResultsSummary{iR}, 'file') && isempty(findstr(ResultsSummary{iR}, ':')) )
+            if ( isstr(ResultsSummary{iR}) && ~exist([ANALYSIS_ROOT ResultsSummary{iR}], 'file') && isempty(findstr(ResultsSummary{iR}, ':')) )
                 fpath = [ANALYSIS_ROOT filesep num2str(MonkOfInterest(iM)) filesep ResultsSummary{iR}];
             else
                 fpath = ResultsSummary{iR}{iM};

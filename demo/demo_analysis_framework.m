@@ -5,8 +5,18 @@
 %
 % 2020 HRK
 
+% add paths
+CURR_DIR = pwd();
+KM_DIR = fileparts(fileparts(fileparts(CURR_DIR)));
+addpath([KM_DIR filesep 'km_export_essential']);
+addpath([KM_DIR filesep 'km_public\libkm\libbigtable\']);
+addpath([KM_DIR filesep 'km_public\libkm\libtimeseries\']);
+addpath([KM_DIR filesep 'km_public\libkm\libpopulation\']);
+addpath([KM_DIR filesep 'km_public\libkm\libutil\']);
+
+
 % ANALYSIS_ROOT  = 'C:\D\data\DemoAnalysisRoot\'; % for HyungGoo
-ANALYSIS_ROOT  = pwd;
+ANALYSIS_ROOT  = [CURR_DIR filesep 'DemoAnalysisRoot' filesep];
 
 % set cell numbers of interest for each monkey
 MonkOfInterest = [159	209	210	211	213	214	215	217	218	219]; % 248 is missing
@@ -79,6 +89,9 @@ aPD = aPD(~bElim,:);
 bALL = true(size(aPD,1),1);
 bSomeSubjects = ismember(aPD(:,1), [241 243 244]);
 bNeuron = aPD(:,4) == 0 & aPD(:,5) == 1;
+bBeh = (aPD(:,4) == -1 & aPD(:,5) == -1);
+
+transfer_beh_to_neurons;
 %% load psths
 MICE = MonkOfInterest;
 
@@ -99,17 +112,18 @@ IND_PSTH = 0;
 %%
 setfig(2,2, 'Examples of analyses on task variable and behaviors');
 gna;
-plot_bargrp(aPD(:, ep2_nTrial), aPD(:, 1));
+plot_bargrp(aPD(:, ep2_nTrial), aPD(:, 1), 'show_mc', 0);
 xlabel('Animal #'); ylabel('# of trials');
 gna;
-plot_bargrp(aPD(:, ep2_mDuration)/1000, aPD(:, 1), 'show_mc', 0);
+plot_bargrp(aPD(:, ep2_mDuration)/1000, aPD(:, 1));
 xlabel('Animal #'); ylabel('trial duration (s)');
 gna;
-sdata = pd2sessiondata([], aPD(:, 1:5), [aPD(:, beh_antLick)-aPD(:, beh_impLick)  aPD(:,[beh_postLick beh_impLick])]);
-hPL = plotm_xsession(sdata(:, 1:13, :), 'individual_style', '.', 'ebtype', 'bar', 'varname', {'AntLick'});
-xlabel('Days of training'); ylabel('Lick (licks/s)');
-legend(hPL(:,1), 'Net anticipatory','Post-rew','Impulsive');
-
+plot_scatter( aPD(:, beh_avgSpd_TI), aPD(:, beh_antLick), aPD(:,1) );
+xlabel('Avg. speed (cm/s)'); ylabel('Ant. lick (lick/s)');
+gna;
+plot_barpair(aPD(:, [beh_impLick beh_antLick beh_postLick]));
+set(gca,'xticklabel', {'Baseline', 'Ant. lick','Post-rew lick'});
+ylabel('Lick (lick/s)');
 %%
 setfig(2,2, 'Examples of analyses on neural responses');
 gna;
@@ -120,6 +134,9 @@ xlabel('Task events'); ylabel('DA (zscore)');
 gna;
 plotsqscatter(aPD(bNeuron, [fr_Rew2000	]), aPD(bNeuron, [fr_UnexpRew2000]) )   
 xlabel('DA, Exp rew (z)');ylabel('DA, Unexp rew (z)');
+
+gna;
+plot_scatter(aPD(bNeuron, beh_antLick),  aPD(bNeuron, [fr_UnexpRew2000]) - aPD(bNeuron, [fr_Rew2000	]) )   
 
 %% plot population time courses
 % lick_RewOn = lick_TS;
