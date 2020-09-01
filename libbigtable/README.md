@@ -24,6 +24,7 @@ See [this](https://github.com/hkim09/libkm/tree/master/demo) for a working examp
 - As in some Matlab functions, plotting functions in the toolbox treat NaNs as missing values and print out accordingly.
 
 ### Store analysis results in a one-line text format in the per-session analysis
+In the analysis function for single session dataset, you save the analysis results
 ```
 data_header = {'CELL', 'MEAN_GROUP_1', 'MEAN_GROUP_2','SEM_GROUP_1', 'SEM_GROUP_2', 'P_DIFF'};
 results = [2.4 5.2 0.2 0.3 0.03];
