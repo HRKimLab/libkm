@@ -43,6 +43,10 @@ pcd_colname{nCol} = 'UnitID';
 
 nPreDefinedColumns = nCol;
 
+% make sure that analysis folder is not in the Matlab search path. it
+% messes up exist( ) and just find out files given as relative path.
+assert(isempty(findstr(c_path, ANALYSIS_ROOT)), ...
+    'ANALYSIS_ROOT and subfolders should not be in Matlab search path. do rmpath');
 %% iterate result formats and generate column index for all loaded variables
 for iR=1:nResults
     % parse space-seperated header into cell array
@@ -231,13 +235,13 @@ for iR=1:nResults
         end
         % accumulated data file for each subject
     elseif iscell(ResultsSummary{iR}) || ...
-            ( isstr(ResultsSummary{iR}) && ~exist([ANALYSIS_ROOT ResultsSummary{iR}], 'file') && isempty(findstr(ResultsSummary{iR}, ':')) )
+            ( isstr(ResultsSummary{iR}) && ~exist([ResultsSummary{iR}], 'file') && isempty(findstr(ResultsSummary{iR}, ':')) )
         
         
         for iM=1:length(MonkOfInterest)
             
             % relative path
-            if ( isstr(ResultsSummary{iR}) && ~exist([ANALYSIS_ROOT ResultsSummary{iR}], 'file') && isempty(findstr(ResultsSummary{iR}, ':')) )
+            if ( isstr(ResultsSummary{iR}) && ~exist([ResultsSummary{iR}], 'file') && isempty(findstr(ResultsSummary{iR}, ':')) )
                 fpath = [ANALYSIS_ROOT filesep num2str(MonkOfInterest(iM)) filesep ResultsSummary{iR}];
             else
                 fpath = ResultsSummary{iR}{iM};
