@@ -1,6 +1,7 @@
 function struct2var(st)
-% assign fields of a strucure as variables
-% see var2struct for the opposite operation
+% STRUCT2VAR assign fields of a strucure as variables
+% see also SCRIPTVAR2STRUCT, VAR2STRUCT
+%
 % 1/27/2017 HRK
 if isempty(st)
     warning('struct2var: empty');
