@@ -1,7 +1,8 @@
 function st = var2struct(cF)
-% create structure from a list of variables
+% VAR2STRUCT create structure from a list of variables
 % name_value__name_value
-% see struct2var for opposite operation
+% see also STRUCT2VAR
+%
 % 2020 HRK
 st = struct();
 for iF = 1:numel(cF)
