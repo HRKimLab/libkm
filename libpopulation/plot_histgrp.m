@@ -3,6 +3,7 @@ function [n, center, median_x, pDiff, pMedian, hB] = plot_histgrp(x, grp, edges,
 % 2012 HRK
 
 type = 'bar';
+estimator = @median;
 
 process_varargin(varargin);
 
@@ -48,11 +49,11 @@ end;
 % basic statistical analysis
 % CAUTION: all stats includes outliers!
 % calculate medians for each group
-gmedian = grpstats(x, grp, 'median');
+gmedian = grpstats(x, grp, estimator);
 gnumel = grpstats(x, grp, 'numel');
 median_x = gmedian;
 % compute total mean
-tot_median = nanmedian(x);
+tot_median = estimator(nonnans(x));
 % appand it to the end
 median_x(end+1) = tot_median;
 
