@@ -109,7 +109,7 @@ gP.cmap = @autumn;
 
 IND_PSTH = 0;   
 
-%%
+%% task parameters and behaviors
 setfig(2,2, 'Examples of analyses on task variable and behaviors');
 gna;
 plot_bargrp(aPD(:, ep2_nTrial), aPD(:, 1), 'show_mc', 0);
@@ -124,7 +124,7 @@ gna;
 plot_barpair(aPD(:, [beh_impLick beh_antLick beh_postLick]));
 set(gca,'xticklabel', {'Baseline', 'Ant. lick','Post-rew lick'});
 ylabel('Lick (lick/s)');
-%%
+%% neural responses
 setfig(2,2, 'Examples of analyses on neural responses');
 gna;
 plot_barpair( aPD(bNeuron, [fr_Cue2000	fr_Rew2000	fr_UnexpRew2000]) );
@@ -137,7 +137,7 @@ xlabel('DA, Exp rew (z)');ylabel('DA, Unexp rew (z)');
 
 gna;
 plot_scatter(aPD(bNeuron, beh_antLick),  aPD(bNeuron, [fr_UnexpRew2000]) - aPD(bNeuron, [fr_Rew2000	]) )   
-
+xlabel('Ant. lick (lick/s)'); ylabel('DA(z), Unexp rew - Exp rew');
 %% plot population time courses
 % lick_RewOn = lick_TS;
 % loc_RewOn = loc_TS;

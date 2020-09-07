@@ -17,11 +17,11 @@ bLoaded = false(size(cD));
 if is_arg('repo')
     cD = add_repo(repo, cD)
 end
-    
+
+n_file_loaded = 0;
+% iterate cell array of datanames or unitnames
 for iD = 1:numel(cD)
     repo_dname = cD{iD};
-    
-    fprintf(1, 'process %s\n', repo_dname);
     
     % parse repo id, mid, dataname
     [repo_curr dname] = strtok(repo_dname, '_');
@@ -29,6 +29,9 @@ for iD = 1:numel(cD)
         warning('Cannot process repo_dname %s', cD{iD});
         continue;
     end
+    
+    fprintf(1, '[%s] ', repo_dname);
+    
     if is_arg('repo')
         repo_curr = repo;
     end
@@ -50,8 +53,11 @@ for iD = 1:numel(cD)
     
     % load only if the psth path is different from previous load
     if ~strcmp(psth_fpath, prev_psth_fpath)
-        fprintf(1, 'Load %s...\n', psth_fpath);
+        fprintf(1, 'load  %s  ', psth_fpath);
         d = load(psth_fpath, '-mat');
+        n_file_loaded = n_file_loaded + 1;
+    else
+        fprintf(1, 'reuse %s  ', psth_fpath);
     end
     
     % filter in based on string match with dataname
@@ -60,9 +66,12 @@ for iD = 1:numel(cD)
     iVs = find(bV);
 
     if isempty(iVs)
-        fprintf(1, 'cannot find %s in %s\n', dname, psth_fpath);
+        fprintf(1, 'cannot find %s\n', dname);
         dataname_torun{end+1} = dname;
         continue;
+    else
+        found_names = cF(bV);
+        fprintf(1, 'found %d psths ( %s)\n', numel(iVs), sprintf('%s ', found_names{:}) );
     end
         
     % TODO I need to use across-repository unitname
@@ -78,3 +87,4 @@ for iD = 1:numel(cD)
     prev_psth_fpath = psth_fpath;
 end
 
+fprintf(1, 'total %d psths loaded from %d files\n', nfields(st), n_file_loaded);
