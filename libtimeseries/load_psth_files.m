@@ -2,8 +2,10 @@ function [comb, mid_list, cMissing, cInvPSTH] = load_psth_files(filename, mids, 
 % combine mat results files saved using save_key() function
 % varargin are filters. psths are filtered for each file during iteration
 % to save memory
-% see load_all_psths() for another version
-%  7/9/2015
+% see LOAD_ALL_PSTHS() for another version
+%
+%  7/9/2015 HRK
+
 verbose = 0;
 analysis_root = '';
 
@@ -29,6 +31,7 @@ global gC; % ANALYSIS_ROOT
 if ~isempty(gC) && isfield(gC, 'ANALYSIS_ROOT')
     ANALYSIS_ROOT = gC.ANALYSIS_ROOT; 
 end
+
 comb = struct;
 mid_list = [];
 fpaths = {};

@@ -25,8 +25,14 @@ for iF = 1:length(fpaths)
     
     % load psth mat file
     if ~exist(filepath,'file'), continue; end;
+    try
     d = load(filepath);
-
+    catch ME
+        ME
+        errordlg(['loading file failed: ' filepath ])
+        continue;
+    end
+    
     % skip loading uncecessary fields
     if isfield(d, 'key_list'), d = rmfield(d, 'key_list');    end
     if isfield(d, 'data_list'), d = rmfield(d, 'data_list');   end
