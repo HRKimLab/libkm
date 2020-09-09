@@ -19,7 +19,8 @@ end
 
 % double check that unitname is not weird
 if isempty(regexp(unitname,'m[0-9].*s[0-9].*r[0-9].*') ) && ...
-        isempty(regexp(unitname,'m[0-9].*s[0-9].*r[0-9].*e[0-9].*u[0-9].*') )
+        isempty(regexp(unitname,'m[0-9].*s[0-9].*r[0-9].*e[0-9].*u[0-9].*') ) && ...
+        isempty(regexp(unitname,'m[0-9].*c[0-9].*r[0-9]') ) && isempty(regexp(unitname,'m[0-9].*c[0-9].*') ) 
     error('unitname is not right: %s', unitname);
 end
 

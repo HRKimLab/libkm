@@ -1,5 +1,5 @@
 function color_legend(hL)
-% color legend based on the line/symbol color
+% color legend text based on the color of line/symbol 
 % 12/14/2017 HRK
 ch = get(hL, 'child');
 iG = 1;
