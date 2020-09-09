@@ -39,14 +39,21 @@ for iG=1:length(uG)
         hInd = plot(x, y(bVG ,:)', sline , 'color', brighter(cmap(iG,:), brighter_order) );
         if ~isempty(hInd), hInd = hInd(1); end;
     end
+    hP(iG,:) = hInd;
+end
+
+tmp_hP = [];
+for iG = 1:length(uG)
+    bVG = grp == uG(iG);
     if show_average
         hAvg = draw_errorbar(x, estimator( y(bVG, :) ), nansem( y(bVG, :)), ...
             cmap(iG,:), errbar_type, gca ) ;
         if ~isempty(hAvg), hInd = hAvg(1); end;
     end
-    tmp = [hInd hAvg];
-    hP(iG,:) = tmp;
+    tmp_hP(iG, :) = hAvg;
 end
+hP = [hP tmp_hP];
+
 hold off;
 
 if ~isempty(grp_name)

@@ -51,7 +51,7 @@ parent_panel = [];      %
 split_v = [.7 .3];      % vertical split proportion for the raster and psth
 lick = [];
 legend_gnum = 0;
-use_this_psth = [];     % pass an pre-computed trial structure for the plot
+use_this_psth = [];     % pass an pre-computed trial structure for the plot (rate_rsp or array_rsp)
 base_sub_win = [];  % baseline subtraction for rate computation (compute_rate)
 x_base = [-1 0];    % baseline for statistical analysis (e.g., ROC; compute_avggrp)
 base_rsp = [];      % directly provide baseline rate (e.g., ROC; compute_avggrp)
@@ -83,12 +83,25 @@ h_psth = NaN(0,2); h_event_raster = []; h_event_psth = [];
 % trial structure for now.
 if ~isempty(use_this_psth)
     assert(isstruct(use_this_psth) && isfield(use_this_psth, 'x') && ...
-       isfield(use_this_psth, 'rate_rsp') && isfield(use_this_psth, 'grp') , ...
-       'use_this_psth should be a struct w/ fields x, rate_rsp, grp');
-   assert(size(use_this_psth.rate_rsp, 1) == size(use_this_psth.grp, 1), ...
-       '# of rows (trial) in rate_rsp (%d) should match with that of grp (%d)', ...
-       size(use_this_psth.rate_rsp, 1), size(use_this_psth.grp, 1) );
-   n_trial = size(use_this_psth.grp, 1);
+       (isfield(use_this_psth, 'rate_rsp') || isfield(use_this_psth, 'array_rsp') ) && isfield(use_this_psth, 'grp') , ...
+       'use_this_psth should be a struct w/ fields x, [rate_rsp or array_rsp], and grp');
+   
+   if isstruct(use_this_psth.grp)
+       n_trial = size(use_this_psth.grp.grp_idx, 1);
+   elseif isnumeric(use_this_psth.grp)
+       n_trial = size(use_this_psth.grp, 1);
+   else, error('Unknown grp type: %s', class(use_this_psth.grp) ); end
+   
+   if isfield(use_this_psth, 'rate_rsp') && isnumeric(use_this_psth.grp)
+       assert(size(use_this_psth.rate_rsp, 1) == n_trial, ...
+           '# of rows (trial) in rate_rsp (%d) should match with that of grp (%d)', ...
+           size(use_this_psth.rate_rsp, 1), n_trial );
+   elseif isfield(use_this_psth, 'array_rsp') && isnumeric(use_this_psth.grp)
+       assert(size(use_this_psth.array_rsp, 1) == n_trial, ...
+           '# of rows (trial) in array_rsp (%d) should match with that of grp (%d)', ...
+           size(use_this_psth.array_rsp, 1), n_trial );
+   end
+   
    % assign dummay variables. NaN evokes errors in some routine.
    % setting trigger to zero is important to use the already-aligned event 
    % information for plot_mpsths
@@ -202,9 +215,20 @@ end
 % use given psth
 if ~isempty(use_this_psth) 
    x = use_this_psth.x;
-   rate_rsp = use_this_psth.rate_rsp;
-   array_rsp = rate_rsp;
-   grp = use_this_psth.grp;
+   if isfield(use_this_psth, 'rate_rsp')
+        rate_rsp = use_this_psth.rate_rsp;
+        array_rsp = rate_rsp;
+   elseif isfield(use_this_psth, 'array_rsp')
+       % make sure that data_type is timestamp
+       assert(strcmp(data_type, 'timestamp'), 'only timestamp is supported');
+       array_rsp = use_this_psth.array_rsp;
+       % array_rsp should be overwritten b/c it is shrinken in compute_rate
+       % by win_len
+       [x rate_rsp array_rsp] = compute_rate(data_type, ts_resp, trigger, trial_start, trial_end, ...
+           'x', use_this_psth.x, 'array_rsp', use_this_psth.array_rsp, varargin{:} );
+   end
+   % grp is already assigned up in the beginning. no need to overwrite here
+%    grp = use_this_psth.grp;
    
    % baseline subtraction
    if ~isempty(base_sub_win) && all(size(base_sub_win) == [1 2])

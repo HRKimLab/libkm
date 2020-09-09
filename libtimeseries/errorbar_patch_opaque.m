@@ -46,4 +46,8 @@ end
 h1 = patch(X,Y, patch_color,'edgecolor','none','FaceAlpha', fa, 'parent', ax); hold on
 h2 = plot(ax, x,y,'color',c);
 
-if nargout>0, h = [h1 h2]; end
+% change order. mean goes first 9/9/2020 HRK
+if nargout>0
+%     h = [h1 h2]; 
+      h = [h2 h1]; 
+end

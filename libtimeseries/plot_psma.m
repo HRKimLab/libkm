@@ -223,14 +223,24 @@ if show_legend && nColor > 1
         end
            
     end
-    bV = ~isnan(h_psth(:,2));
-    hL = legend(h_psth(bV, 2), cL(bV), 'location', 'best');
+    bV = ~isnan(h_psth(:, 1));
+    % replace '_' with '\_ ' to avoid weird formatting
+    cL = regexprep(cL, '_', '\\_');
+    % show legend
+    hL = legend(h_psth(bV, 1), cL(bV), 'location', 'best');
     legend(ax, 'boxoff'); 
     if nColor > 1
         set(hL, 'fontsize', 7);
         color_legend(hL);
 %         position_legend(hL);
     end;
+    
+    % turn off legend auto update this ruins the legend when reference
+    % lines are added later. AutoUpdate was introduced after Matlab 2014b
+    % is set ON by defualt
+    if isprop(hL, 'AutoUpdate')  % 
+        set(hL, 'AutoUpdate', 'off');
+    end
 else
     hL = [];
 end

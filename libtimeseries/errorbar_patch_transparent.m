@@ -32,4 +32,8 @@ Y = [y+er fliplr(y-er)];
 h1 = patch(X,Y,c,'edgecolor','none','FaceAlpha',0.3, 'parent', ax); hold on
 h2 = plot(ax, x,y,'color',c);
 
-if nargout>0, h = [h1 h2]; end
+% mean goes first 9/9/2020 HRK
+if nargout>0
+%     h = [h1 h2]; 
+      h = [h2 h1]; 
+end

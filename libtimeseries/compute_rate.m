@@ -5,10 +5,11 @@ function [x rate_rsp array_rsp base_rate] = compute_rate(data_type, ts_resp, tri
 % 2015, HRK
 win_len = 60;
 bPlotRawCh = 0;
-array_rsp = [];
 n_trial = size(trigger, 1);
 base_sub_win = []; % window for baseline subtraction
 distance_edge = [];
+array_rsp = [];    % given array_rsp
+x = [];            % given x for array_rsp (ms)
 
 process_varargin(varargin);
 
@@ -84,8 +85,13 @@ switch(data_type)
         % generate trigger-aligned response array. expand TOI by time
         % window to avoid cutting off of average at both ends.
         
-        [x array_rsp] = ts2array(ts_resp, trigger, trial_start-off_win_len, trial_end+off_win_len);
-        
+        if ~isempty(array_rsp) && ~isempty(x)
+            % use given x and array_rsp
+            assert(size(array_rsp, 2) == size(x, 2), 'array_rsp should be [n_trial * n_timepoints]');
+%             assert(numel(unique(diff(x))) == 1, 'x should be equally spaced');
+        else
+            [x array_rsp] = ts2array(ts_resp, trigger, trial_start-off_win_len, trial_end+off_win_len);
+        end
         % smoothing.
         % NaNs will be assigned if at least one in the sliding window is NaN
         if length(trial_start) == 1 && length(trial_end) == 1 && (trial_end-trial_start) <= 200

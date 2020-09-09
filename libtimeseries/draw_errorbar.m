@@ -1,11 +1,14 @@
 function h_psth = draw_errorbar(x, mean_rsp, sem_rsp, cmap, errbar_type, ax)
-% draw errorbars of various types
+% DRAW_ERRORBAR draws errorbars of various types
+% When adding a new type, make sure that average is drawn last but is represented 
+% by the first handle in h_psth
+% 
 % 2014 HRK
 
 if isempty(mean_rsp)
     h_psth = []; 
     return; 
-end;
+end
 
 if ~is_arg('ax'); ax = gca; end
 assert(all(size(x) == size(mean_rsp)));
