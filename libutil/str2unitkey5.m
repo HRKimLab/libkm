@@ -18,6 +18,11 @@ for iR = 1:length(s)
             tmp = sscanf(unitkey, 'm%ds%dr%de%du%d');
         elseif ~isempty(regexp(unitkey, 'm[0-9]+s[0-9]+r[0-9]+')) && isempty(regexprep(unitkey, 'm[0-9]+s[0-9]+r[0-9]+',''))
             tmp = sscanf(unitkey, 'm%ds%dr%d');
+        elseif ~isempty(regexp(unitkey, 'm[0-9]+c[0-9]+r[0-9]+')) && isempty(regexprep(unitkey, 'm[0-9]+c[0-9]+r[0-9]+',''))
+            tmp = sscanf(unitkey, 'm%dc%dr%d');
+        elseif ~isempty(regexp(unitkey, 'm[0-9]+c[0-9]+')) && isempty(regexprep(unitkey, 'm[0-9]+c[0-9]+',''))
+            tmp = sscanf(unitkey, 'm%dc%d');
+            tmp(3) = -1;
         else
             warning('Failed to interpret unitkey %s', unitkey);
             tmp = NaN(1, 5);
