@@ -1,14 +1,15 @@
-function [comb, mid_list, cMissing, cInvPSTH] = load_psth_fpaths(fpaths, verbose, varargin)
-% LOAD_PSTH_FPSTHS load paths from cell array of file paths 
-% varargin are filters. 
-% there are too many versions of psth loading functions. I need to clean up 
+function [comb, n_psths, n_psths_filtered] = load_psth_fpaths(fpaths, verbose, varargin)
+% LOAD_PSTH_FPSTHS load paths from cell array of file paths
+% varargin are filters. If given, it applies filters after each loading to save memory
+% see also LOAD_PSTH_FILES, LOAD_PSTHS, LOAD_ALL_PSTHS
+%
+% 9/9/2020 HRK
+
+% TODO: there are too many versions of psth loading functions. I need to clean up 
 % some and change other functions such that they call this function.
 % this is most primitive loading function. do not have process_varargin in this
 % function. make another wrapper function if you need some fancier loading,
 % make another function and call this. For other versions,
-% see also LOAD_PSTH_FILES, LOAD_PSTHS, LOAD_ALL_PSTHS
-%
-% 9/9/2020 HRK
 
 % verbose can be 0, 1, 2
 if ~is_arg('verbose'), verbose = 0; end;
@@ -39,7 +40,7 @@ for iF = 1:length(fpaths)
     if isfield(d, 'data_list'), d = rmfield(d, 'data_list');   end
 
     n_psths(iF) = nfields(d);
-    % filter out psths before combining to save memory
+    % filter-in psths before combining to save memory
     if numel(filter_varargin) > 0
        d = filter_psth(d,  'verbose', verbose, filter_varargin{:});
     end
@@ -61,7 +62,6 @@ for iF = 1:length(fpaths)
         else
             warning('Redundant psth found (%s). psth will be overwritten', fn{iFD});
             comb.(fn{iFD}) = [d.(fn{iFD})];
-            % comb.(fn{iFD}) = [comb.(fn{iFD}); d.(fn{iFD})];
         end
     end
 end
@@ -69,8 +69,8 @@ end
 comb_fn = fieldnames(comb);
 fprintf(1, 'combined psths from %d files, total %d psths, filtered-in %d psths\n', nnz(n_psths > 0), sum(n_psths), sum(n_psths_filtered) );
 
-% verbose info
+% show verbose info
 if verbose == 2
     % too verbose...
-%     print_psths_info(comb);
+    print_psths_info(comb);
 end

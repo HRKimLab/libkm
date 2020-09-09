@@ -1,7 +1,8 @@
 function [st dataname_torun bLoaded] = load_all_psths(cD, fname, varargin)
-% load all psths based on repo, dataname, neuronname
+% LOAD_ALL_PATHS load all psths based on repo, dataname, neuronname
 % see load_psth_files for previous version
 % cD = {'HyungGoo_m123s34r1e4u1', 'Aleeza_m20s5r1e1u2', ...}
+%
 % 2020 HRK
 VirMEn_Path_Def;
 

@@ -24,9 +24,12 @@ for iV = 1:2:length(V)
 % 	if evalin('caller',['exist(''', V{iV}, ''',''var'' )'])
     if isstr(V{iV}) && evalin('caller',['exist(''', V{iV}, ''',''var'' )']) % HRK 2020
 		assignin('caller', V{iV}, V{iV+1});
-	else
+    elseif iV + 1 <= length(V)
 		leftoverV = cat(1, leftoverV, V(iV), V(iV+1));
         leftoverIdx = [leftoverIdx iV iV+1];
+    else
+        leftoverV = cat(1, leftoverV, V(iV));
+        leftoverIdx = [leftoverIdx iV];
 	end
 		
 end

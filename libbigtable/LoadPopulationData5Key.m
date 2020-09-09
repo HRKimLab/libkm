@@ -43,10 +43,6 @@ pcd_colname{nCol} = 'UnitID';
 
 nPreDefinedColumns = nCol;
 
-% make sure that analysis folder is not in the Matlab search path. it
-% messes up exist( ) and just find out files given as relative path.
-assert(isempty(findstr(c_path, ANALYSIS_ROOT)), ...
-    'ANALYSIS_ROOT and subfolders should not be in Matlab search path. do rmpath');
 %% iterate result formats and generate column index for all loaded variables
 for iR=1:nResults
     % parse space-seperated header into cell array
@@ -62,7 +58,7 @@ for iR=1:nResults
 %     % parse file header if it is []
 %     if isempty( ResultsHeader{iR} )
 %         % automatic loading of header
-%         if isstr(ResultsSummary{iR}) && ~exist(ResultsSummary{iR})
+%         if isstr(ResultsSummary{iR}) && isempty(dir(ResultsSummary{iR}))
 %             fpath = [ANALYSIS_ROOT num2str(MonkOfInterest(1)) filesep ResultsSummary{iR}];
 %         end
 %         if numel(ResultsHeader{iR} ) <= 1
@@ -235,19 +231,19 @@ for iR=1:nResults
         end
         % accumulated data file for each subject
     elseif iscell(ResultsSummary{iR}) || ...
-            ( isstr(ResultsSummary{iR}) && ~exist([ResultsSummary{iR}], 'file') && isempty(findstr(ResultsSummary{iR}, ':')) )
+            ( isstr(ResultsSummary{iR}) && isempty(dir([ResultsSummary{iR}])) && isempty(findstr(ResultsSummary{iR}, ':')) )
         
         
         for iM=1:length(MonkOfInterest)
             
             % relative path
-            if ( isstr(ResultsSummary{iR}) && ~exist([ResultsSummary{iR}], 'file') && isempty(findstr(ResultsSummary{iR}, ':')) )
+            if ( isstr(ResultsSummary{iR}) && isempty(dir([ResultsSummary{iR}])) && isempty(findstr(ResultsSummary{iR}, ':')) )
                 fpath = [ANALYSIS_ROOT filesep num2str(MonkOfInterest(iM)) filesep ResultsSummary{iR}];
             else
                 fpath = ResultsSummary{iR}{iM};
             end
             
-            if ~exist(fpath, 'file')
+            if isempty(dir(fpath))
                 warning('Cannot find file %s', fpath);
                 continue;
             end
