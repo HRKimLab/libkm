@@ -10,6 +10,7 @@ function [comb, mid_list, cMissing, cInvPSTH] = load_psth_files(filename, mids, 
 
 verbose = 0;
 analysis_root = '';
+repo = '';
 
 opt = who();
 [leftover_varargin i_left] = process_varargin_ext(varargin);
@@ -29,26 +30,38 @@ for iL = 1:numel(leftover_varargin)
     end
 end
     
-global gC; % ANALYSIS_ROOT
+% get default ANALYSIS_ROOT
+global gC; 
+% if exists, load declaration script
+if isempty(gC) && exist('VirMEn_Def','file');
+    gC = scriptvar2struct('VirMEn_Def');
+end
+    
 if ~isempty(gC) && isfield(gC, 'ANALYSIS_ROOT')
     ANALYSIS_ROOT = gC.ANALYSIS_ROOT; 
 end
 
-comb = struct;
-mid_list = [];
-fpaths = {};
-cMissing = {};
-
+% if repo is given, use it
+if ~isempty(repo) && ~isempty(gC) && isfield(gC, 'EXP_ROOT')
+    ANALYSIS_ROOT = [gC.EXP_ROOT(repo) 'Analysis' filesep];
+end
+    
+% if given by an agument, use it
 if ~isempty(analysis_root)
     ANALYSIS_ROOT = analysis_root;
 end
 
+fpaths = {};
 % prepare directories for each animal
 if is_arg('mids')
     for iM = 1:length(mids)
         fpaths{iM} = [ANALYSIS_ROOT num2str(mids(iM)) '\' filename];
     end
 end
+
+comb = struct;
+mid_list = [];
+cMissing = {};
 
 % load and combine psths files
 comb = load_psth_fpaths(fpaths, verbose, leftover_varargin{:} );
