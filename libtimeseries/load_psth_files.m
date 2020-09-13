@@ -1,8 +1,8 @@
 function [comb, mid_list, cMissing, cInvPSTH] = load_psth_files(filename, mids, varargin)
-% LOAD_PSTH_FILES load and combine psth files from given mids assuming
-% a recommended folder structure. varargin are filters. 
-% psths are filtered for each file during iteration to save memory
-% use load_psth_fpaths to directly specify file paths of psths.
+% LOAD_PSTH_FILES load and combine psth files based on filename and mids 
+% This function assumes that psth files are saved in a recommended folder structure. 
+% varargin are filters, which filter-in loaded psths to save memory.
+% use LOADP_PATH_FPATHS to directly specify file paths of psths.
 %
 % see also LOAD_ALL_PSTHS, LOAD_PSTH_FPATHS
 %

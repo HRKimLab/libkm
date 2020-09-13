@@ -258,11 +258,14 @@ end
 if nGrp >= 1 && nGrp < 10 % too many items in the legend is not useful
     % if the correlation is positive, move legend to left top
     if r > 0 && p < .1
-        legend(hS, cL, 'location','northwest'); legend boxoff
+        hLeg = legend(hS, cL, 'location','northwest'); legend boxoff
     elseif r < 0 && p < .1
-        legend(hS, cL, 'location','northeast'); legend boxoff
+        hLeg = legend(hS, cL, 'location','northeast'); legend boxoff
     else     % no guess about location
-        legend(hS, cL); legend boxoff;
+        hLeg = legend(hS, cL); legend boxoff;
+    end
+    if isprop(hLeg, 'AutoUpdate')
+        set(hLeg, 'AutoUpdate','off');
     end
 else
     legend off;

@@ -36,6 +36,7 @@ bPlotRawCh = false;
 win_len = 100;          % 50 to 60. 1/20/2016 HRK 60 to 100 11/18/2018 HRK
 plot_type = 'both';     % both, none , (raw, psth: not implemented yet)
 test_diff = 0;
+test_type = 'nonpar';   % 'nonpar', 'par'
 grp_lim = 10;
 test_bin = [];
 adjust_clim = 1;        % adjust clim for imagesc to be 1-99% to exclude outliers
@@ -238,7 +239,7 @@ if ~isempty(use_this_psth)
 end
 
 % compute averaged response and test statistical difference
-psth = compute_avggrp(x, rate_rsp, grp, 'test_diff', test_diff, 'grp_lim', grp_lim, ...
+psth = compute_avggrp(x, rate_rsp, grp, 'test_diff', test_diff, 'test_type', test_type, 'grp_lim', grp_lim, ...
     'test_bin', test_bin, 'resample_bin', resample_bin, 'roc', roc, 'x_base', x_base, ...
     'base_rsp', base_rsp, 'roc_base_grpid', roc_base_grpid, 'valid_x_crit', valid_x_crit);
 

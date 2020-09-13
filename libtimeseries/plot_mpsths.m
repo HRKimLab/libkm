@@ -2,7 +2,7 @@ function [avg_psth psths h_psth] = plot_mpsths(cPSTH, varargin)
 % superimpose cell array of multiple PSTHs in one axis and plot average of them
 %  or draw image array with each row representing individual PSTHs.
 % changed filename from plot_TC_psth to plot_multiple_psths
-% See also asave_psth  
+% See also asave_psth
 % 10/31/2017 HRK
 
 % grouping and filtering psths
@@ -28,6 +28,7 @@ avg_grp  = [];
 base_lim = [];          % baseline subtraction. Subtraction is done for each group and psth independently.
 event_header = {};        % event headers to show on the psth (e.g., {'VSTIM_ON_CD', 'RewOn'}
 test_diff = 1;
+test_type = 'nonpar';  % 'nonpar', 'par'   %, 'par_cond'
 adjust_x_anyway = 0;     % allow adjusting x eveen if x is not a subset of psth.x, by expending elements of psth
 tag_grp = 0;             % tag individual groups for condition-by-condition presentation
 mark_diff = 0;
@@ -46,29 +47,29 @@ process_varargin(varargin);
 if isempty(ax), ax = gca; end;
 avg_psth = []; comb_means = []; h_psth.avg_psth = []; h_psth.ind_psth = []; h_psth.event = [];
 if isempty(cPSTH) || (isstruct(cPSTH) && numel(fieldnames(cPSTH)) == 0)
-    return; 
+    return;
 end
 n_tot_psths = nfields(cPSTH);
 
 % do not sort psths by default for plot type image unless specified
 if isempty(psth_sort_format) && strcmp(plot_type, 'image')
-        psth_sort_format = 'no_sort';
+    psth_sort_format = 'no_sort';
 end
 
 if isempty(individual_events)
     individual_events = individual_psths;
-elseif individual_events && ~individual_psths 
+elseif individual_events && ~individual_psths
     % just avoid the case the user think it's perfectly aligned.
     error('individual_psths should be on to see individual_events')
 end
 
-% homogenize psths by adjusting time range and pick idential group # 
+% homogenize psths by adjusting time range and pick idential group #
 % and group information (if check_grifo == 1)
-if homogenize 
+if homogenize
     [psths x n_grp] = homogenize_psths(cPSTH, 'x', x, 'n_grp', n_grp, ...
-    'adjust_x_anyway', adjust_x_anyway, 'check_ginfo', check_ginfo, 'psth_sort_format', psth_sort_format);
+        'adjust_x_anyway', adjust_x_anyway, 'check_ginfo', check_ginfo, 'psth_sort_format', psth_sort_format);
 else
-    psths = cPSTH; 
+    psths = cPSTH;
     cF = fieldnames(psths);
     n_grp = nunique(psths.(cF{1}).grp);
     x = psths.(cF{1}).x;
@@ -98,7 +99,7 @@ end
 
 % print name of psths used for plotting
 print_psths_loading_info(psths);
-%% filtering and homogenizing is done. 
+%% filtering and homogenizing is done.
 % now plot individual psths, combine psths, and plot averaged psth
 if isempty(line_color)
     line_color = get_cmap(n_grp);
@@ -109,20 +110,20 @@ end
 
 % overwrite comb_grp and line_color if avg_grp is given
 if ~isempty(avg_grp)
-    % if avg_grp is given, we are interested in per-psth difference so n_grp should be 1. 
+    % if avg_grp is given, we are interested in per-psth difference so n_grp should be 1.
     % also make sure the there is no sorting in psths
     assert(n_grp == 1, 'per-psth group should be 1 when arg_grp is given');
     assert(n_tot_psths == size(avg_grp, 1), '# of avg_grp should match # of input psths');
     assert(n_homogenized_psths == size(avg_grp, 1), '# of avg_grp should match # of homogenized psths');
     assert(strcmp(psth_sort_format, 'no_sort'), 'sort option should be no_sort with avg_grp');
-
+    
     [avg_grp_cmap,~, avg_grp_idx] = grp2coloridx(avg_grp, 20);
 end
 
 % plot individual psths
 for iR = 1:n_psth
     % plot individual PSTHs.
-    if strcmp(plot_type, 'line') && individual_psths 
+    if strcmp(plot_type, 'line') && individual_psths
         % detemine whether to show individual events or not
         if individual_events
             tmp_header = event_header;
@@ -141,31 +142,38 @@ for iR = 1:n_psth
         end
     end
 end
-    
+
 % variables for combined psths
 comb_means = NaN( n_psth * n_grp, size(x, 2) );
 comb_pBaseDiff = NaN( n_psth * n_grp, size(x, 2) );
 comb_grp = NaN( n_psth * n_grp, 1);
 
 % combine multiple PSMAs (peri-stimulus moving average)
+% first, stack up mean responses and group info
 for iR = 1:n_psth
-        row_idx = ((iR-1)*n_grp+1):((iR)*n_grp);
-        tmp_mean = cPSTH{iR}.mean;
-        comb_pBaseDiff(row_idx, :) = cPSTH{iR}.pBaseDiff;
-        comb_grp(row_idx) = cPSTH{iR}.gname;
-        
-        % normalize mean
-        switch(norm_method)
-            case 'none'
-                comb_means(row_idx, :) = tmp_mean;
-            case 'max'
-                % use 97% max
-                comb_means(row_idx, :) = tmp_mean ./ prctile(tmp_mean(:), 97);
-            case 'zscore'
-                comb_means(row_idx, :) = (tmp_mean - nanmean(tmp_mean(:))) / nanstd(tmp_mean(:));
-            case 'roc'
-                comb_means(row_idx, :) = cPSTH{iR}.roc;
-        end
+    % get row indice in the stacked results. (# of groups)
+    row_idx = ((iR-1)*n_grp+1):((iR)*n_grp);
+    tmp_mean = cPSTH{iR}.mean;
+    comb_pBaseDiff(row_idx, :) = cPSTH{iR}.pBaseDiff;
+    comb_grp(row_idx) = cPSTH{iR}.gname;
+    
+    % normalize mean
+    switch(norm_method)
+        case 'none'
+            comb_means(row_idx, :) = tmp_mean;
+        case 'max'
+            % use 97% max
+            comb_means(row_idx, :) = tmp_mean ./ prctile(tmp_mean(:), 97);
+        case 'zscore_eachgrp'  % zscore for each group. 
+            warning('zscore_eachgrp has not used yet. it needs confirmation.');
+            mean_eachgrp = repmat(nanmean(tmp_mean, 2), [1 size(tmp_mean, 2)]);
+            std_eachgrp = repmat(nanstd(tmp_mean, [], 2), [1 size(tmp_mean, 2)]);
+            comb_means(row_idx, :) = (tmp_mean - mean_eachgrp) ./ std_eachgrp;
+        case 'zscore'   % zscore using across-condition mean and std for each psth
+            comb_means(row_idx, :) = (tmp_mean - nanmean(tmp_mean(:))) / nanstd(tmp_mean(:));
+        case 'roc'
+            comb_means(row_idx, :) = cPSTH{iR}.roc;
+    end
 end
 
 if ~isempty(avg_grp)
@@ -188,8 +196,10 @@ if ~isempty(base_lim) && all(~isnan(base_lim))
     comb_means = bsxfun(@minus, comb_means, base_rate);
 end
 
-% compute averaged psth from the combined PSMAs
-avg_psth = compute_avggrp(x(1,:), comb_means, comb_grp, 'test_diff', test_diff, 'test_timediff', 0, 'test_bin', 10, 'x_base', x_base);
+% compute averaged psth from the combined PSMAs. since it is already 10ms
+% bin, use test_bin = 1 instead of 10 in plot_timecourse
+avg_psth = compute_avggrp(x(1,:), comb_means, comb_grp, 'test_diff', test_diff, 'test_timediff', 0, ...
+    'test_bin', 1, 'x_base', x_base, 'test_type', test_type);
 
 % assign ginfo
 for iP = 1:n_psth
@@ -211,7 +221,7 @@ switch(plot_type)
         pct_bnd = prctile(comb_means(:), [1 99]);
         yl = [pct_bnd(1) - range(pct_bnd) * 0.1 pct_bnd(2) + range(pct_bnd) * 0.1];
         if nunique(yl) == 2, ylim(yl); end
-%         set(h_psth.avg_psth, 'linewidth', 2,'linestyle',':');
+        %         set(h_psth.avg_psth, 'linewidth', 2,'linestyle',':');
         
     case 'image' % draw image plot with rows for individual PSTHs
         [~,~,grp_idx] = grp2coloridx(avg_psth.grp);
@@ -222,9 +232,9 @@ switch(plot_type)
         else
             idx_trials = (1:size(avg_psth.rate_rsp, 1))';
         end
-
+        
         plot_continuous_array(avg_psth.x, avg_psth.rate_rsp(idx_trials,:), grp_idx(idx_trials), 1, ax);
-
+        
         % show events
         if ~isempty(event_header) && isfield(avg_psth, 'event')
             if isstr(event_header)
@@ -238,7 +248,7 @@ switch(plot_type)
             nG = size(events, 1);
             [h_psth.event] = plot_events_on_psth(ax, table2array(events)*1000, zeros(nG,1), (1:nG)', events.Properties.VariableNames );
         end
-
+        
         ylabel('Neuron #')
         xlabel('Time (s)');
 end

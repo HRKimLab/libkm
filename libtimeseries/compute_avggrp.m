@@ -6,6 +6,7 @@ if ~is_arg('grp'), grp = ones(size(rate_rsp, 1), 1); end;
 
 test_diff = false;
 test_timediff = false;
+test_type = 'nonpar';   % 'nonpar', 'par'
 grp_lim = 10;
 test_bin = [];
 x_base = [-1 0];      % timepoint range (e.g., [-1 0])
@@ -96,7 +97,14 @@ if test_diff && any(any(~isnan(rate_rsp)))
             % pairwise subtraction
             diff_vals = rate_rsp(grpid == iG, iC) - base_rspG;
             if nnum(diff_vals) > 0
-                pBaseDiff(iG, iC) = signrank(diff_vals);
+                switch(test_type)
+                    case 'nonpar'
+                        pBaseDiff(iG, iC) = signrank(diff_vals);
+                    case 'par'
+                        [~, pBaseDiff(iG, iC)] = ttest(diff_vals);
+                    otherwise
+                        error('Unknown test_type: %s', test_type);
+                end
             else
                 pBaseDiff(iG, iC) = NaN;
             end
