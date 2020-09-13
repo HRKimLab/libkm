@@ -67,7 +67,8 @@ for iF = 1:length(fpaths)
 end
 
 comb_fn = fieldnames(comb);
-fprintf(1, 'combined psths from %d files, total %d psths, filtered-in %d psths\n', nnz(n_psths > 0), sum(n_psths), sum(n_psths_filtered) );
+fprintf(1, 'combined psths from %d files, total %d psths loaded, filtered-in %d psths\n', ...
+    nnz(n_psths > 0), sum(n_psths), nfields(comb) ); % somehow sum(n_psths_filtered) is not correct
 
 % show verbose info
 if verbose == 2

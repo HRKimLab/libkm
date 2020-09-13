@@ -16,7 +16,7 @@ see demo_timecourse_data_analysis.m for a demo with detailed comments.
 # Examples
 ### Sinle-session time courses
 <img src=demo_Fig1.png alt="Fig1" width="400"> <img src=demo_Fig2.png alt="Fig2" width="400"> 
-### Population time courses
+### Population time courses: inspect individuals and plot the average
 <img src=demo_lick_xsession.png alt="xsession" width="400"> <img src=demo_lick_mpsths.png alt="mpsths" width="400"> 
 
 # Details
