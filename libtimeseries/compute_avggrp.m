@@ -81,10 +81,19 @@ else
     nSkip = round(0.1/(x(2)-x(1)));
 end
 
+% I need to set the resample x to be multiples of 10 to later combine it easily.
+% specifically, x should be matched in in adjust_psth_range()
+% find the start index that is a multiple of 10
+% resample_start_idx = find( mod(psth.x(1:10)*1000, 10) == 0 );
+[~,iM] = min( abs( x(1:10)*1000 - round(x(1:10)*100) * 10 ) );
+resample_start_idx = iM
+
 if test_diff && any(any(~isnan(rate_rsp))) 
     % difference relative to baseline
     for iG = 1:nColor
-        for iC = 1:nSkip:size(rate_rsp,2)
+        % use resample_start_idx instead of 1. Otherwise, p values will not
+        % be sampled below
+        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
             % compare response at x_base s with responses at each timepoint
             if ~isempty(base_rsp)
                 base_rspG = base_rsp(grpid == iG);
@@ -105,14 +114,14 @@ if test_diff && any(any(~isnan(rate_rsp)))
     
     % difference between groups
     if nColor == 2 % need to be changed using Wilcoxon test
-        for iC = 1:nSkip:size(rate_rsp,2)
+        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
             if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
                 pDiff(iC) = ranksum(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
                 %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
             end
         end
     elseif nColor > 2
-        for iC = 1:nSkip:size(rate_rsp,2)
+        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
             pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
         end
     end
@@ -153,12 +162,6 @@ psth.resample_bin = resample_bin;
 % resample psth to save memory and disk  8/14/2018 HRK
 % iterate fields in the psth structure and resmaple
 if resample_bin > 1 && diff(psth.x(1:2)) < 0.002 % only downsample when x is 1ms bin.
-    % I need to set the resample x to be multiples of 10 to later combine it easily.
-    % specifically, x should be matched in in adjust_psth_range()
-    % find the start index that is multiple of 10
-    % resample_start_idx = find( mod(psth.x(1:10)*1000, 10) == 0 );
-    [~,iM] = min( abs( x(1:10)*1000 - round(x(1:10)*100) * 10 ) );
-    resample_start_idx = iM;
     assert(~isempty(resample_start_idx), 'cannot find resample_start_idx');
 
     % get the length of x
