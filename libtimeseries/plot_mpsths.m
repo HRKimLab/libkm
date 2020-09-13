@@ -197,9 +197,12 @@ if ~isempty(base_lim) && all(~isnan(base_lim))
 end
 
 % compute averaged psth from the combined PSMAs. since it is already 10ms
-% bin, use test_bin = 1 instead of 10 in plot_timecourse
+% bin, use test_bin = 1 instead of 10 in plot_timecourse. 
+% note that btween-group comparisons are set to be paired because we are
+% dealing with mean responses between conditions across sessions.
+% Therefore, for each session, responses are paired.
 avg_psth = compute_avggrp(x(1,:), comb_means, comb_grp, 'test_diff', test_diff, 'test_timediff', 0, ...
-    'test_bin', 1, 'x_base', x_base, 'test_type', test_type);
+    'test_bin', 1, 'x_base', x_base, 'test_type', test_type, 'btw_grp_test', 'paired');
 
 % assign ginfo
 for iP = 1:n_psth

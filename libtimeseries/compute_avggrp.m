@@ -7,6 +7,7 @@ if ~is_arg('grp'), grp = ones(size(rate_rsp, 1), 1); end;
 test_diff = false;
 test_timediff = false;
 test_type = 'nonpar';   % 'nonpar', 'par'
+btw_grp_test = 'unpaired' % unpaired: trial, paired: mpsths
 grp_lim = 10;
 test_bin = [];
 x_base = [-1 0];      % timepoint range (e.g., [-1 0])
@@ -120,19 +121,104 @@ if test_diff && any(any(~isnan(rate_rsp)))
         end
     end
     
-    % difference between groups
-    if nColor == 2 % need to be changed using Wilcoxon test
-        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
-            if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
-                pDiff(iC) = ranksum(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
-                %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+    switch(btw_grp_test)
+        case 'unpaired'
+            switch(test_type)
+                case 'nonpar'
+                    % difference between groups
+                    if nColor == 2 % need to be changed using Wilcoxon test
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
+                                pDiff(iC) = ranksum(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                                %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+                            end
+                        end
+                    elseif nColor > 2
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+%                             pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+                            % Kruskal–Wallis one-way analysis of variance
+                            pDiff = kruskalwallis(rate_rsp(:, iC), grpid, 'off');
+                        end
+                    end
+                    
+                case 'par'
+                    % difference between groups
+                    if nColor == 2 % need to be changed using Wilcoxon test
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
+%                                 pDiff(iC) = ranksum(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                                 pDiff(iC) = ttest2(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                            end
+                        end
+                    elseif nColor > 2
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+                        end
+                    end
+                otherwise
+                    error('Unknown test_type: %s', test_type);
             end
-        end
-    elseif nColor > 2
-        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
-            pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
-        end
+            
+        case 'paired'
+            switch(test_type)
+                case 'nonpar'
+                    % difference between groups
+                    if nColor == 2 % need to be changed using Wilcoxon test
+                        assert(nnz(grpid == 1) == nnz(grpid == 2), '# of groups should match in paired test');
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
+                                pDiff(iC) = signrank(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                                %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+                            end
+                        end
+                    elseif nColor > 2
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            % create a 2D array for paired comparison
+                            rate_rsp_paired = NaN( numel(grpid)/max(grpid), max(grpid) );
+                            for iG = 1:max(grpid)
+                                bVG = grpid == iG;
+                                assert(nnz(bVG) == numel(grpid)/max(grpid), 'array creation for paired test failed');
+                                rate_rsp_paired(:, iG) = rate_rsp(bVG, iC);
+                            end
+%                             pDiff(iC) = anova_rm(rate_rsp_paired, 'off');
+                              pDiff(iC) = friedman(rate_rsp_paired, 1, 'off');
+                            warning('not tested thoroughly. needs to be confirmed');
+                        end
+                    end
+                    
+                case 'par'
+                    % difference between groups
+                    if nColor == 2 % need to be changed using Wilcoxon test
+                        assert(nnz(grpid == 1) == nnz(grpid == 2), '# of groups should match in paired test');
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
+                                [~, pDiff(iC)] = ttest(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                                %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+                            end
+                        end
+                    elseif nColor > 2
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            % create a 2D array for paired comparison
+                            rate_rsp_paired = NaN( numel(grpid)/max(grpid), max(grpid) );
+                            for iG = 1:max(grpid)
+                                bVG = grpid == iG;
+                                assert(nnz(bVG) == numel(grpid)/max(grpid), 'array creation for paired test failed');
+                                rate_rsp_paired(:, iG) = rate_rsp(bVG, iC);
+                            end
+                            p_tmp = anova_rm(rate_rsp_paired, 'off');
+                            pDiff(iC) = p_tmp(1);
+                            warning('not tested thoroughly. needs to be confirmed');
+                        end
+                    end
+                    
+                otherwise
+                    error('Unknown test_type: %s', test_type);
+            end
+            
+        otherwise
+            error('Unknown between-group test type: %s', btw_grp_test);
     end
+    
 end
 
 if test_timediff && any(any(~isnan(rate_rsp)))
