@@ -189,7 +189,8 @@ if ~isempty(base_lim) && all(~isnan(base_lim))
 end
 
 % compute averaged psth from the combined PSMAs
-avg_psth = compute_avggrp(x(1,:), comb_means, comb_grp, 'test_diff', test_diff, 'test_timediff', 0, 'test_bin', 10, 'x_base', x_base);
+avg_psth = compute_avggrp(x(1,:), comb_means, comb_grp, 'test_diff', test_diff, ...
+    'test_timediff', 0, 'test_bin', 10, 'x_base', x_base);
 
 % assign ginfo
 for iP = 1:n_psth

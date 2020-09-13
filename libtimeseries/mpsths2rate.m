@@ -1,6 +1,8 @@
 function [rate cF] = mpsths2rate(stPSTH, sTrigger, sWin, func)
-% Calculate mean response from multiple psth structure in the given time window
-% [# of stPSTHs, # of groups]
+% MPSTHS2RATE calculate mean response from multiple psths using a time window
+% aligned by trigger. output is [# of stPSTHs, # of groups].
+% see also PSTH2RATE
+%
 % 2018 HRK
 
 assert(isstruct(stPSTH), 'stPSTH should be structure with psths');

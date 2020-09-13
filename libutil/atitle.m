@@ -4,7 +4,8 @@ function hT = atitle(ax, sTitle, bFirst)
 global bOverwriteTitle
 
 MAX_CHAR_LEN = 20;
-
+content_split = ['/'];
+    
 % ax can be omitted. behave smartly.
 if ischar(ax) && nargin == 3
     error('first argument should be axis handle');
@@ -35,14 +36,14 @@ if iscell(prev_title)
             new_title = {sTitle, prev_title{:}};
         else
             new_title = prev_title;
-            new_title{1} = [sTitle prev_title{1}];
+            new_title{1} = [sTitle content_split prev_title{1}];
         end
     else
         if numel([prev_title{end} sTitle]) > MAX_CHAR_LEN
             new_title = {prev_title{:}, sTitle};
         else
             new_title = prev_title;
-            new_title{end} = [prev_title{end} sTitle];
+            new_title{end} = [prev_title{end} content_split sTitle];
         end
     end
     hT = title(ax, new_title, 'interpreter','none');
@@ -77,22 +78,20 @@ end
 % if bMany
 %     prev_title = regexprep(prev_title, ['[ ]*' char(10)], ' ');
 %     prev_title = regexprep(prev_title, '[ ]', '');
-    line_split = ['/'];
 % else
-    line_split = ['/'];
 % end
 
 if is_arg('bFirst') && bFirst
     if bMany
-        prev_title = [line_split char(10) prev_title];
+        prev_title = [content_split char(10) prev_title];
     else
-        prev_title = [line_split prev_title];
+        prev_title = [content_split prev_title];
     end
 else
     if bMany
-        prev_title = [prev_title char(10) line_split];
+        prev_title = [prev_title char(10) content_split];
     else
-        prev_title = [prev_title line_split];
+        prev_title = [prev_title content_split];
     end
     
 end

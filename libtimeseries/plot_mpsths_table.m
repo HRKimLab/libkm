@@ -6,10 +6,10 @@ function ax = plot_mpsths_table(tb, data_tags, varargin)
 uk_filter = [];
 individual_psths = 1;
 x = [];
-n_col = [];
-n_row = [];
-event_header = {};
-v_col = [];
+n_col = [];         % number of columns
+n_row = [];         % number of rows
+event_header = {};  % events to show.
+v_col = [];         % normalized heigh
 base_sub_win = [];
 mark_diff = 0;
 filter_grp = [];
@@ -32,8 +32,10 @@ else, errbar_type = 'none'; end
 
 
 nPlots = numel(cPSTHs);
-if ~isempty(v_col) && iscell(v_col)
+if ~isempty(v_col) && (iscell(v_col) || isnumeric(v_col) )
    assert(numel(v_col) == nPlots, 'v_col should have same # of elements as # of plots')
+elseif ~isempty(v_col) 
+    error('Cannot parse v_col. check the argument');
 else
     % equally spaced axis
     v_col = ones(1, nPlots) / nPlots;
