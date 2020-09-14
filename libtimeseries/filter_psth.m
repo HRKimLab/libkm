@@ -10,8 +10,8 @@ verbose = 1;
 % lo_varargin = process_varargin(varargin);
 lo_varargin  = varargin;
 
-% sort PSTHs
-[flist cPSTH] = sort_psth_structs(st);
+% sort PSTHs. keep the order here for boolean filter
+[flist cPSTH] = sort_psth_structs(st, 'no_sort');
 
 bV = true(size(flist));
 

@@ -13,3 +13,7 @@ tBetaP = readtable([fit_dir 'fits_pval3_SignedMag_o' num2str(nObj) '.dat'],'deli
 % tBetaP = readtable([fit_dir 'fits_pval2_SignedMag_o' num2str(nObj) '.dat'],'delimiter','\t','ReadVariableNames',1);
 
 tAll = innerjoin(innerjoin(tBeta, tBetaP, 'Keys', 'CELL'), tSummary, 'LeftKeys', 'CELL', 'RightKeys', 'FILE');
+
+% this is important. unique() behaviors changed in the recent version. 
+% dig in help, put assert code to make sure that it behaves as intended.
+tAll = unique(tAll, 'rows','last');

@@ -181,8 +181,14 @@ if test_diff && any(any(~isnan(rate_rsp)))
                                 rate_rsp_paired(:, iG) = rate_rsp(bVG, iC);
                             end
 %                             pDiff(iC) = anova_rm(rate_rsp_paired, 'off');
-                              pDiff(iC) = friedman(rate_rsp_paired, 1, 'off');
-                            warning('Friedman test was not tested thoroughly. needs to be confirmed');
+                              if any(any(isnan(rate_rsp_paired)))
+                                    pDiff(iC) = NaN;
+                              else
+                                    pDiff(iC) = friedman(rate_rsp_paired, 1, 'off');
+                              end
+                              if iC == resample_start_idx
+                                  warning('Friedman test was not tested thoroughly. needs to be confirmed');
+                              end
                         end
                     end
                     
@@ -207,7 +213,9 @@ if test_diff && any(any(~isnan(rate_rsp)))
                             end
                             p_tmp = anova_rm(rate_rsp_paired, 'off');
                             pDiff(iC) = p_tmp(1);
-                            warning('not tested thoroughly. needs to be confirmed');
+                            if iC == resample_start_idx
+                                warning('ANOVA_RM is not tested thoroughly. needs to be confirmed');
+                            end
                         end
                     end
                     
