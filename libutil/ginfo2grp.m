@@ -1,5 +1,6 @@
 function grp = ginfo2grp(ginfo, trial_start)
-
+% GINFO2GRP do some sanity checks and return grp
+% 2018 HRK
 assert(isstruct(ginfo));
 
 % ginfo.grp_idx should be positive except NaN, and the # of unique

@@ -1,6 +1,9 @@
 function [st dataname_torun bLoaded] = load_all_psths(cD, fname, varargin)
-% LOAD_ALL_PATHS load all psths based on repo, dataname, neuronname
-% see load_psth_files for previous version
+% LOAD_ALL_PATHS load specific psths referred by 'repo_dataname' or 'repo_neuronname'.
+% use this function when analysis dataset is finalized.
+% as opposed to other loading functions, varargin is NOT filter because
+% individual data is specificed by cD.
+% see also LOAD_PSTH_FILES, LOAD_PSTH_FPATHS
 % cD = {'HyungGoo_m123s34r1e4u1', 'Aleeza_m20s5r1e1u2', ...}
 %
 % 2020 HRK

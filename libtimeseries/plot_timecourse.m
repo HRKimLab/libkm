@@ -35,19 +35,20 @@ function [ax psth h_pt] = plot_timecourse(data_type, ts_resp, trigger, trial_sta
 bPlotRawCh = false;
 win_len = 100;          % 50 to 60. 1/20/2016 HRK 60 to 100 11/18/2018 HRK
 plot_type = 'both';     % both, none , (raw, psth: not implemented yet)
-test_diff = 0;
-grp_lim = 10;
-test_bin = [];
+test_diff = 0;          % test staitstical significance
+test_type = 'nonpar';   % 'nonpar', 'par'
+test_bin = 10;          % test every 10ms
+grp_lim = 10;           % # of values to recognize as group variable.
 adjust_clim = 1;        % adjust clim for imagesc to be 1-99% to exclude outliers
 clim = [];
 psth_type = 'mavg';     % mavg : moving average, hist: histogram
-hist_bin = 200;
+hist_bin = 200;         % bin size of histogram (ms)
 errbar_type = 'patch';
 errbar_crit = 5;        % do not show error if n_grp is greater than this
 psth_legend = 1;        % 1/0 of 'on','off'
 show_legend = '';       % 'psth', 'raster', 'rastertop' this can overwrite psth_legend setting
 adj_xl = 1;
-parent_panel = [];      % 
+parent_panel = [];      % parent panel object. an array of two axis, add rater and psth to them
 split_v = [.7 .3];      % vertical split proportion for the raster and psth
 lick = [];
 legend_gnum = 0;
@@ -238,7 +239,7 @@ if ~isempty(use_this_psth)
 end
 
 % compute averaged response and test statistical difference
-psth = compute_avggrp(x, rate_rsp, grp, 'test_diff', test_diff, 'grp_lim', grp_lim, ...
+psth = compute_avggrp(x, rate_rsp, grp, 'test_diff', test_diff, 'test_type', test_type, 'grp_lim', grp_lim, ...
     'test_bin', test_bin, 'resample_bin', resample_bin, 'roc', roc, 'x_base', x_base, ...
     'base_rsp', base_rsp, 'roc_base_grpid', roc_base_grpid, 'valid_x_crit', valid_x_crit);
 

@@ -6,6 +6,8 @@ if ~is_arg('grp'), grp = ones(size(rate_rsp, 1), 1); end;
 
 test_diff = false;
 test_timediff = false;
+test_type = 'nonpar';   % 'nonpar', 'par'
+btw_grp_test = 'unpaired' % unpaired: trial, paired: mpsths
 grp_lim = 10;
 test_bin = [];
 x_base = [-1 0];      % timepoint range (e.g., [-1 0])
@@ -81,10 +83,19 @@ else
     nSkip = round(0.1/(x(2)-x(1)));
 end
 
+% I need to set the resample x to be multiples of 10 to later combine it easily.
+% specifically, x should be matched in in adjust_psth_range()
+% find the start index that is a multiple of 10
+% resample_start_idx = find( mod(psth.x(1:10)*1000, 10) == 0 );
+[~,iM] = min( abs( x(1:10)*1000 - round(x(1:10)*100) * 10 ) );
+resample_start_idx = iM
+
 if test_diff && any(any(~isnan(rate_rsp))) 
     % difference relative to baseline
     for iG = 1:nColor
-        for iC = 1:nSkip:size(rate_rsp,2)
+        % use resample_start_idx instead of 1. Otherwise, p values will not
+        % be sampled below
+        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
             % compare response at x_base s with responses at each timepoint
             if ~isempty(base_rsp)
                 base_rspG = base_rsp(grpid == iG);
@@ -96,26 +107,118 @@ if test_diff && any(any(~isnan(rate_rsp)))
             % pairwise subtraction
             diff_vals = rate_rsp(grpid == iG, iC) - base_rspG;
             if nnum(diff_vals) > 0
-                pBaseDiff(iG, iC) = signrank(diff_vals);
+                switch(test_type)
+                    case 'nonpar'
+                        pBaseDiff(iG, iC) = signrank(diff_vals);
+                    case 'par'
+                        [~, pBaseDiff(iG, iC)] = ttest(diff_vals);
+                    otherwise
+                        error('Unknown test_type: %s', test_type);
+                end
             else
                 pBaseDiff(iG, iC) = NaN;
             end
         end
     end
     
-    % difference between groups
-    if nColor == 2 % need to be changed using Wilcoxon test
-        for iC = 1:nSkip:size(rate_rsp,2)
-            if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
-                pDiff(iC) = ranksum(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
-                %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+    switch(btw_grp_test)
+        case 'unpaired'
+            switch(test_type)
+                case 'nonpar'
+                    % difference between groups
+                    if nColor == 2 % need to be changed using Wilcoxon test
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
+                                pDiff(iC) = ranksum(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                                %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+                            end
+                        end
+                    elseif nColor > 2
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+%                             pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+                            % Kruskal–Wallis one-way analysis of variance
+                            pDiff = kruskalwallis(rate_rsp(:, iC), grpid, 'off');
+                        end
+                    end
+                    
+                case 'par'
+                    % difference between groups
+                    if nColor == 2 % need to be changed using Wilcoxon test
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
+%                                 pDiff(iC) = ranksum(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                                 pDiff(iC) = ttest2(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                            end
+                        end
+                    elseif nColor > 2
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+                        end
+                    end
+                otherwise
+                    error('Unknown test_type: %s', test_type);
             end
-        end
-    elseif nColor > 2
-        for iC = 1:nSkip:size(rate_rsp,2)
-            pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
-        end
+            
+        case 'paired'
+            switch(test_type)
+                case 'nonpar'
+                    % difference between groups
+                    if nColor == 2 % need to be changed using Wilcoxon test
+                        assert(nnz(grpid == 1) == nnz(grpid == 2), '# of groups should match in paired test');
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
+                                pDiff(iC) = signrank(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                                %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+                            end
+                        end
+                    elseif nColor > 2
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            % create a 2D array for paired comparison
+                            rate_rsp_paired = NaN( numel(grpid)/max(grpid), max(grpid) );
+                            for iG = 1:max(grpid)
+                                bVG = grpid == iG;
+                                assert(nnz(bVG) == numel(grpid)/max(grpid), 'array creation for paired test failed');
+                                rate_rsp_paired(:, iG) = rate_rsp(bVG, iC);
+                            end
+%                             pDiff(iC) = anova_rm(rate_rsp_paired, 'off');
+                              pDiff(iC) = friedman(rate_rsp_paired, 1, 'off');
+                            warning('not tested thoroughly. needs to be confirmed');
+                        end
+                    end
+                    
+                case 'par'
+                    % difference between groups
+                    if nColor == 2 % need to be changed using Wilcoxon test
+                        assert(nnz(grpid == 1) == nnz(grpid == 2), '# of groups should match in paired test');
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
+                                [~, pDiff(iC)] = ttest(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                                %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+                            end
+                        end
+                    elseif nColor > 2
+                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                            % create a 2D array for paired comparison
+                            rate_rsp_paired = NaN( numel(grpid)/max(grpid), max(grpid) );
+                            for iG = 1:max(grpid)
+                                bVG = grpid == iG;
+                                assert(nnz(bVG) == numel(grpid)/max(grpid), 'array creation for paired test failed');
+                                rate_rsp_paired(:, iG) = rate_rsp(bVG, iC);
+                            end
+                            p_tmp = anova_rm(rate_rsp_paired, 'off');
+                            pDiff(iC) = p_tmp(1);
+                            warning('not tested thoroughly. needs to be confirmed');
+                        end
+                    end
+                    
+                otherwise
+                    error('Unknown test_type: %s', test_type);
+            end
+            
+        otherwise
+            error('Unknown between-group test type: %s', btw_grp_test);
     end
+    
 end
 
 if test_timediff && any(any(~isnan(rate_rsp)))
@@ -153,12 +256,6 @@ psth.resample_bin = resample_bin;
 % resample psth to save memory and disk  8/14/2018 HRK
 % iterate fields in the psth structure and resmaple
 if resample_bin > 1 && diff(psth.x(1:2)) < 0.002 % only downsample when x is 1ms bin.
-    % I need to set the resample x to be multiples of 10 to later combine it easily.
-    % specifically, x should be matched in in adjust_psth_range()
-    % find the start index that is multiple of 10
-    % resample_start_idx = find( mod(psth.x(1:10)*1000, 10) == 0 );
-    [~,iM] = min( abs( x(1:10)*1000 - round(x(1:10)*100) * 10 ) );
-    resample_start_idx = iM;
     assert(~isempty(resample_start_idx), 'cannot find resample_start_idx');
 
     % get the length of x
