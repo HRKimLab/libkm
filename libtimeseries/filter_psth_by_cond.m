@@ -6,18 +6,17 @@ function new_st = filter_psth_by_cond(st, varargin)
 verbose = 1;
 name = '';
 
-lo_varargin = process_varargin(varargin);
+lo_varargin = process_varargin_ext(varargin);
 % sort PSTHs
 [flist cPSTH] = sort_psth_structs(st);
 
 bV = true(size(flist));
 
-% filter by group number
-% if ~isnan(n_grp)
-    for iF = 1:numel(bV)
-       bV(iF) = bV(iF) & any(~cellfun(@isempty, regexp(cPSTH{iF}.ginfo.unq_grp_label(:), name)));
-    end
-% end
+% filter-in psth if any of the unq_grp_labels contain name
+for iF = 1:numel(bV)
+    bV(iF) = bV(iF) & any(~cellfun(@isempty, regexp(cPSTH{iF}.ginfo.unq_grp_label(:), name)));
+end
+
 flist = flist(bV); 
 cPSTH = cPSTH(bV);
 

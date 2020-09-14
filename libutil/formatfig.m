@@ -80,7 +80,7 @@ for fid = fig_list
                 end
                 
                 % title
-                if gP.show_title
+                if isfield(gP, 'show_title') && gP.show_title
                     
                 else
                     title(hA, '');

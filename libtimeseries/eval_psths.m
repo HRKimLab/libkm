@@ -22,6 +22,10 @@ end
 % here, psth is single psth structure
 psth = psths;
 assert(~isempty(findstr(expr, 'psth.')), 'expr should have psth.');
+% add ';' if not exist
+if isempty(findstr(expr, ';'))
+    expr = [expr ';'];
+end
 % evaluate psth assuming that the variable name is 'psth'
 eval(expr);
 psths = psth;

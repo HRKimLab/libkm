@@ -1,5 +1,6 @@
 function psths = filter_psth_group(psths, filter_grp_func)
-% filter specific groups for each psth
+% FILTER_PSTH_GROUP filter specific groups for each psth
+% filter_grp_func can be a boolean flag, 'argmax_gnumel', 'argmin_gnumel', etc.
 % 2019 HRK
 psth_type = class(psths);
 switch(psth_type)
@@ -48,6 +49,8 @@ switch class(filter_grp_func)
                 filter_grp_func = @argmax_gnumel;
             case 'argmin_gnumel'
                 filter_grp_func = @argmin_gnumel;
+            case 'regexp'  % regular expression search of label. not implemented yet.
+                error('Not implemented yet');
             otherwise
                 error('Unknown filter_grp_func: %s', filter_grp_func);
         end

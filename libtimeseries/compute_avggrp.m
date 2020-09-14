@@ -7,7 +7,7 @@ if ~is_arg('grp'), grp = ones(size(rate_rsp, 1), 1); end;
 test_diff = false;
 test_timediff = false;
 test_type = 'nonpar';   % 'nonpar', 'par'
-btw_grp_test = 'unpaired' % unpaired: trial, paired: mpsths
+btw_grp_test = 'unpaired'; % unpaired: trial, paired: mpsths
 grp_lim = 10;
 test_bin = [];
 x_base = [-1 0];      % timepoint range (e.g., [-1 0])
@@ -88,7 +88,7 @@ end
 % find the start index that is a multiple of 10
 % resample_start_idx = find( mod(psth.x(1:10)*1000, 10) == 0 );
 [~,iM] = min( abs( x(1:10)*1000 - round(x(1:10)*100) * 10 ) );
-resample_start_idx = iM
+resample_start_idx = iM;
 
 if test_diff && any(any(~isnan(rate_rsp))) 
     % difference relative to baseline
@@ -182,7 +182,7 @@ if test_diff && any(any(~isnan(rate_rsp)))
                             end
 %                             pDiff(iC) = anova_rm(rate_rsp_paired, 'off');
                               pDiff(iC) = friedman(rate_rsp_paired, 1, 'off');
-                            warning('not tested thoroughly. needs to be confirmed');
+                            warning('Friedman test was not tested thoroughly. needs to be confirmed');
                         end
                     end
                     

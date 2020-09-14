@@ -35,6 +35,8 @@ while iA <= length(lo_varargin)
         assert( numel( lo_varargin{iA+1} ) == 1, 'verbose parameter should have 1 value (0/1)');
         verbose = double(lo_varargin{iA+1});
         iA = iA+1;
+    elseif islogical( psth_filter ) && numel( psth_filter ) == numel(flist) % direct boolean flag
+        bV1 = psth_filter(:);
     else
         error('Unknow filter:');
     end
