@@ -34,6 +34,6 @@ The table below describes select fields of psth struct, which is the main output
 | pBaseDiff  | [# of groups * # of timepoints]  | p-values to test whether responses are same or different from baseline  |
 | event  | [1 * # of events]  | a table containing the medians of events |
 | rate_rsp  | [# of trials * # of timepoints]  | trial-to-trial responses that was used to compute the averages for each group|
-| ginfo.grp_idx |   [# of trials * 1] |   group index |
-| ginfo.unq_grp_label |  [# of groups * 1] |  string label for the group index |
+| ginfo.grp_idx |   [# of trials * 1] |   group indice of individual trials |
+| ginfo.unq_grp_label |  [# of groups * 1] |  string labels for the group indice |
 
