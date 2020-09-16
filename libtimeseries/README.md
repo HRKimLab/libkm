@@ -28,6 +28,12 @@ The table below describes select fields of psth struct, which is the main output
 | x    |[1 * # of timepoints]             | time point of PSTHs |
 | mean | [# of groups * # of timepoints]  | average activity for each group |
 | sem  | [# of groups * # of timepoints]  | standard error of mean for each group |
+| std  | [# of groups * # of timepoints]  | standard deviation for each group |
+| numel  | [# of groups * # of timepoints]  | # of valid trials for each group |
+| pDiff  | [1 * # of timepoints]  | p-values to test whether responses are same or different across groups  |
+| pBaseDiff  | [# of groups * # of timepoints]  | p-values to test whether responses are same or different from baseline  |
+| event  | [1 * # of events]  | a table containing the medians of events |
+| rate_rsp  | [# of trials * # of timepoints]  | trial-to-trial responses that was used to compute the averages for each group|
 | ginfo.grp_idx |   [# of trials * 1] |   group index |
 | ginfo.unq_grp_label |  [# of groups * 1] |  string label for the group index |
 
