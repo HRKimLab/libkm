@@ -147,7 +147,7 @@ if test_diff && any(any(~isnan(rate_rsp)))
                         for iC = resample_start_idx:nSkip:size(rate_rsp,2)
                             if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
 %                                 pDiff(iC) = ranksum(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
-                                 pDiff(iC) = ttest2(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                                 [~, pDiff(iC)] = ttest2(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
                             end
                         end
                     elseif nColor > 2

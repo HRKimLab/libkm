@@ -144,12 +144,14 @@ if mark_diff && any(~isnan(psth.pDiff))
         y_cord = ones(1, nnz(psth.pDiff<.05)) * y_sigmark;
         % mark bins in which resps are group means are significantly different
         hP = plot(ax, psth.x(psth.pDiff<.05), y_cord,'s','color',[.5 .5 .5], 'markersize', marker_size, 'markerfacecolor', [.5 .5 .5] );
-    else % if none is significant, mark it by open square
-        y_cord = ones(1, nnz(psth.pDiff > .05)) * y_sigmark;
-        % mark bins in which resps are group means are significantly different
-        hP = plot(ax, psth.x(psth.pDiff > .05), y_cord,'s','color',[.5 .5 .5], 'markersize', marker_size, 'markerfacecolor', 'none' );
+        set(hP, 'tag', 'sigmark');
     end
-    set(hP, 'tag', 'sigmark');
+    % do not use open square. it is confusing since plots and marks are often small.
+%     else % if none is significant, mark it by open square
+%         y_cord = ones(1, nnz(psth.pDiff > .05)) * y_sigmark;
+%         % mark bins in which resps are group means are significantly different
+%         hP = plot(ax, psth.x(psth.pDiff > .05), y_cord,'s','color',[.5 .5 .5], 'markersize', marker_size, 'markerfacecolor', 'none' );
+%     end
     set(ax, 'NextPlot', 'replace');
 end
 
