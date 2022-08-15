@@ -5,6 +5,8 @@ if isstruct(st) && ~isfield(st, 'x')  % population psth
    cF = fieldnames(st);
    nF = numel(cF);
    for iF = 1:nF
+       % more info and a newline will be added in serialize_single_psth
+       fprintf('%s: ', cF{iF}); 
        [st.(cF{iF}) sBorder] = serialize_single_psth(st.(cF{iF}), start_win, end_win);
    end
 elseif isstruct(st) && isfield(st, 'x') % single psth
@@ -12,7 +14,7 @@ elseif isstruct(st) && isfield(st, 'x') % single psth
 elseif iscell(st)
     nF = numel(st);
     for iF = 1:nF
-       [st{iF} sBorder] = serialize_single_psth(st{iF}, start_win, end_win);
+        [st{iF} sBorder] = serialize_single_psth(st{iF}, start_win, end_win);
     end
 end
 

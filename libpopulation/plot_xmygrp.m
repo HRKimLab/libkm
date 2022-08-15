@@ -38,6 +38,8 @@ for iG=1:length(uG)
     if show_individual
         hInd = plot(x, y(bVG ,:)', sline , 'color', brighter(cmap(iG,:), brighter_order) );
         if ~isempty(hInd), hInd = hInd(1); end;
+    else
+        hInd = NaN;
     end
     hP(iG,:) = hInd;
 end
@@ -59,5 +61,7 @@ hold off;
 if ~isempty(grp_name)
     cL = grp_name;
 end
-legend(hP(:,1), cL);
+if any(ishandle(hP(:,2)))
+    legend(hP(:,2), cL);
+end
 stitle('n=%d', nnz(any(~isnan(y), 2)) );

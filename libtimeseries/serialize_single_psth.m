@@ -95,6 +95,7 @@ st.x = comb_x;
 st.mean = comb_mean;
 st.sem = comb_sem;
 st.roc = comb_roc;
+% nullify trial-to-trial information
 st.std = NaN(size(st.x));
 st.numel = ones(size(st.x)) * nT;
 st.pDiff = NaN(size(st.x));
@@ -102,7 +103,10 @@ st.pBaseDiff = NaN(size(st.x));
 st.gname = 1;
 st.idx_sorted_by_num = 1;
 st.gnumel = NaN;
+st.grp = NaN;
 st.n_grp = sum(st.n_grp);
 if ~isempty(comb_event)
     st.event = comb_event;
 end
+
+fprintf(1, 'serialize %d groups into 1, x = [%d %d]\n', nG, min(st.x), max(st.x));

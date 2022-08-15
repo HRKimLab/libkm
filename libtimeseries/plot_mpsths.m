@@ -71,7 +71,8 @@ if homogenize
 else
     psths = cPSTH;
     cF = fieldnames(psths);
-    n_grp = nunique(psths.(cF{1}).grp);
+    % use group info of the first psth
+    n_grp = size(psths.(cF{1}).mean, 1);
     x = psths.(cF{1}).x;
 end
 n_homogenized_psths = nfields(psths);
@@ -154,6 +155,7 @@ for iR = 1:n_psth
     % get row indice in the stacked results. (# of groups)
     row_idx = ((iR-1)*n_grp+1):((iR)*n_grp);
     tmp_mean = cPSTH{iR}.mean;
+    
     comb_pBaseDiff(row_idx, :) = cPSTH{iR}.pBaseDiff;
     comb_grp(row_idx) = cPSTH{iR}.gname;
     

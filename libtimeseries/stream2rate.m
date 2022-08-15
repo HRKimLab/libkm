@@ -16,6 +16,7 @@ for iT = 1:nT
     elseif onset(iT) > length(stream) || offset(iT) > length(stream) 
         rate(iT, 1) = NaN;
     else
-        rate(iT, 1) = func( stream(onset(iT):offset(iT) ) );
+%         rate(iT, 1) = func( stream(onset(iT):offset(iT) ) );
+        rate(iT, 1) = func( stream( int32(onset(iT)):int32(offset(iT)) ) );
     end
 end

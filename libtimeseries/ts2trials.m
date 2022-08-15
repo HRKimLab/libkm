@@ -8,18 +8,20 @@ function [ts_T nEvent_T] = ts2trials(msEvent, msStart_T, msFinish_T, bShowWarnin
 % HRK 6/16/2015
 
 ts_T = []; nEvent_T = [];
-if numel(msStart_T) == 0|| numel(msFinish_T) == 0,
+if ~is_arg('snTaken'), snTaken = 1; end;
+
+if numel(msEvent) == 0 || numel(msStart_T) == 0|| numel(msFinish_T) == 0,
     % this generates 1 x 0 array instead of 0 x 0, does prevent errors later
-    ts_T = NaN(size(msStart_T)); nEvent_T = NaN(size(msStart_T));
+    ts_T = NaN(size(msStart_T, 1), abs(snTaken)); nEvent_T = NaN(size(msStart_T, 1), abs(snTaken));
     return;
 end
 
 assert(size(msStart_T,1) == size(msFinish_T,1) && size(msStart_T,2) == 1 && size(msFinish_T,2) == 1, ...
     'start and end time should be n * 1 vectors');
-assert(all(nonnans(msFinish_T - msStart_T) > 0));
+assert(all(nonnans(msFinish_T - msStart_T) >= 0));
 
 if ~is_arg('bShowWarning'), bShowWarning = true; end;
-if ~is_arg('snTaken'), snTaken = 1; end;
+
 nTaken = abs(snTaken);
 ts_T = NaN(size(msStart_T, 1), nTaken);
 nEvent_T = NaN(size(msStart_T, 1), 1);

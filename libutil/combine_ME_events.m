@@ -17,3 +17,7 @@ for iV = 1:numel(varargin)
    % assign valid values
    evt(bV) = varargin{iV}(bV);
 end
+
+if any(isnan(evt))
+    warning('combined result still contains %d NaNs', sum(isnan(evt)) );
+end

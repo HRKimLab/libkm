@@ -9,6 +9,8 @@
 % output:
 %        aPD
 %        pcd_colname
+%
+% see DEMO_ANALYSIS_FRAMEWORK for examples
 % 2/15/2013 HRK
 % make sure that MonkOfInterst does not have redundant monkid
 assert(numel(MonkOfInterest) == nunique(MonkOfInterest), 'reduandant aniaml id in MonkOfInterest');
@@ -276,6 +278,7 @@ for iR=1:nResults
                     end
                     % update data.
                     aPD(bSameNeuron,nColumnsAccumulated(iR)+(1:nColumnsLoaded(iR))) = all_columns_data(iRow, iColumnsLoaded{iR}-bHasUnitKey(iR));
+                    
                 else % new neuron key. inser a row
                     onerow = NaN(1, nCol);
                     onerow(KEY_COLS) = nkey5(iRow,:);

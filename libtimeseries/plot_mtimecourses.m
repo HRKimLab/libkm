@@ -188,7 +188,8 @@ for iV = 1:nV
                 set(ax(2), 'ylim', [-1 16], 'ytick', 0:8:16);
                 ylabel(ax(2), 'Lick (licks/s)');
             case 'Speed'
-                %             yl = get(ax(2),'ylim');
+                % yl = get(ax(2),'ylim');
+                set(ax(1), 'ylim', [-1 40]);
                 set(ax(2), 'ylim', [-1 30], 'ytick', 0:15:30);
                 ylabel(ax(2), 'Speed (cm/s)');
             otherwise % remove label by default

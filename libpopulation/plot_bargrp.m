@@ -109,7 +109,8 @@ if isempty(bar_x) % default. almost all cases fall in here.
     bar_x = unique(nonnans(x)); bar_x = bar_x(:)';
     assert(all(bar_x == (1:max(x))), 'bar_x is not increasing integer from 1.');
 else % when bar_x is given from plot_barpair
-    assert(numel(bar_x) == nunique(x));
+    assert(numel(bar_x) == nunique(x), '# of bar_x (%d) should be same as unique # of x (%d)', ...
+    numel(bar_x), nunique(x) );
     if ~all(bar_x == 1:nunique(x))
         warning('bar_x is given. make sure the x axis and check if bar positions, x labels are not mixed up!');
         bar_x
@@ -278,7 +279,7 @@ switch ( class(grp) )
         cXL = regexprep(get(gca,'xticklabel'), '_', ' ');
         set(gca,'XTickLabel', cXL, 'XTickLabelRotation', 320);
     otherwise
-        if numel(get(gca,'xtick')) == numel(grp_names) 
+        if numel(get(gca,'xtick')) == numel(grp_names) && isempty(bar_x)
             set(gca, 'xticklabel',  grp_names);
         end
 end

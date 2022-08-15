@@ -1,7 +1,7 @@
 function asave_psth(fpath, psth, unitname, save_raw)
 % save_psth saves variables including but not limited to psth structure 
 % save_psth is a bit complicated. simple is good. 
-% See also plot_multiple_psths
+% See also plot_mpsths, combine_psth_trials
 % 5/16/2018 HRK
 
 global data
@@ -34,7 +34,7 @@ if ~isempty(psth) && isstruct(psth) && isfield(psth, 'mean')  % psth structure
     if ~save_raw
         psth.rate_rsp = [];
     else
-        disp(['Save trial-by-trial data (' unitname ')']);
+        disp(['Save trial-by-trial data (' unitname ') to ' fpath]);
     end
 else % not psth structure
     

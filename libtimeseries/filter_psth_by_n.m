@@ -1,6 +1,6 @@
 function new_st = filter_psth_by_n(st, varargin)
-% filter psth structure by unitkey, regular expression, or  explicit list
-% explicit list should be the first argument.
+% filter psth structure by simple numbers
+% n_grp: number of groups
 % 5/20/2018 HRK
 
 verbose = 1;

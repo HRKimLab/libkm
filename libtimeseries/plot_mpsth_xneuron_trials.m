@@ -55,8 +55,8 @@ if isempty(parent_ax)
     p = setpanel(n_row, n_col, fig_title); % ['m' num2str(mid) ' / ' fn]);
     p.margin = 12;
     for iF = 1:nF
-        pp = gnp;
-        ax(iF, 1) = pp.select();
+        p1 = gnp;
+        pp{iF, 1} = p1;
     end
 else
 end
@@ -106,10 +106,11 @@ for iF = 1:nF
                 b_valid_trial = true(size(psth.grp));
             end
             psth.grp(~b_valid_trial) = NaN;
-            [ax_pt cPSTH{iF}] = plot_timecourse('stream', [], [], [], [], [], 'use_this_psth', psth,'parent_panel', ax(iF));
+            [ax_pt cPSTH{iF}] = plot_timecourse('stream', [], [], [], [], [], 'use_this_psth', psth,'parent_panel', pp{iF});
             ax(iF) = ax_pt(1);
             hL = legend(ax_pt(2));
         case 'psth'
+            ax(iF) = pp{iF}.select();
             % plot peri-stimulus moving average
             [~,~,hL] = plot_psma(psth, errbar_type, cmap, 'smooth_win', smooth_win,'ax', ax(iF), ...
                 'event_header', event_header);

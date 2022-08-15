@@ -1,4 +1,4 @@
-function ax = plot_mpsths_table(tb, data_tags, varargin)
+function [ax p1] = plot_mpsths_table(tb, data_tags, varargin)
 % plot PSTHs from a table of dataname arranged by ( protocols X subjects ), 
 % plot averagd psth from for each row in a columnar manner
 % 5/30/2018 HRK
@@ -51,8 +51,10 @@ end
 nTag = numel(data_tags);
 if ~isempty(n_col) && ~isempty(n_row)
     p = setpanel(n_row, n_col, [],[],[], 0);
+    p1 = p;
 else
     p = setpanel(nTag, [], [],[],[], 0);
+    p1 = p;
 end
 
 % iterate data tags and plot PSTHs in column

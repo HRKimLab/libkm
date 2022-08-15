@@ -10,7 +10,9 @@ if isstruct(uk) && isfield(uk, 'mid') % data.id structure
 else
     for iR = 1:size(uk, 1)
         if size(uk, 2) == 4
-            s{iR, 1} = sprintf('m%ds%d_TT%d_%02d', uk(iR, 1), uk(iR, 2), uk(iR, 3), uk(iR, 4) );
+%             s{iR, 1} = sprintf('m%ds%d_TT%d_%02d', uk(iR, 1), uk(iR, 2), uk(iR, 3), uk(iR, 4) );
+              % modify above 2022/4/24 HRK
+              s{iR, 1} = sprintf('m%ds%dr1e%du%d', uk(iR, 1), uk(iR, 2), uk(iR, 3), uk(iR, 4) );
         elseif size(uk, 2) == 5 % 5 columns (m, s, r, 
             if isnan(uk(iR, 4)) && isnan(uk(iR, 5))
                 s{iR, 1} = sprintf('m%ds%dr%d', uk(iR, 1), uk(iR, 2), uk(iR, 3));

@@ -27,7 +27,8 @@ x_hb = max(trial_end - trigger);
 max_len = x_hb - x_lb + 1; % time 0 is column 1
 
 % avoid mistakenly assign too large memory
-if max_len > 45 * 1000, log4m.getLogger().warn('ts2array', 'max len(%f) exceed 45sec. is this correct?', max_len); end;
+% if max_len > 45 * 1000, log4m.getLogger().warn('ts2array', 'max len(%f) exceed 45sec. is this correct?', max_len); end;
+if max_len > 70 * 1000, log4m.getLogger().warn('ts2array', 'max len(%f) exceed 70sec. is this correct?', max_len); end;
 % assert(max_len < 240 * 1000, sprintf('length (%.2f) exceeds 60 second.', max_len)); % this is nonsense.
 % I also want to plot whole session data. check actual memory usage instead single trial len.
 assert(n_trial * max_len * 8 / 1024 / 1024 < 700, '# of trigger(%d) * max len(%d) is too big', n_trial, max_len);

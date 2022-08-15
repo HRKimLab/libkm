@@ -71,6 +71,15 @@ show_colorbar = 1;
 distance_edge = [];         % bin for z(t) (e.g., distance(t))
 valid_x_crit = 0.5;         % criterion (trials in the condition) to compute valid estimator
 
+% in case grp is omitted before varargin options...
+if ~is_arg('grp')
+    grp = [];
+elseif strcmp(class(grp), 'char') && any(~cellfun(@isempty, regexp(who(), grp))) % if grp is one of the above args
+    % put grp to the varargin and nullify grp
+    varargin = [{grp} varargin];
+    grp = [];
+end
+
 process_varargin(varargin);
 
 ax = [];
@@ -125,6 +134,7 @@ elseif isstruct(grp) && isfield(grp, 'grp_idx') % grp is ginfo structure from pa
     % which is grp_idx. And the order of grpstat() in compute_avggrp should
     % be matched to the order of label both is in the ascending order.
     grp = ginfo2grp(ginfo, trial_start);
+    grp_lim = 25;    % when using ginfo, I do not use grp for sorting
 elseif isstruct(grp) % grp is structure of conditions
     n_trials = structfun( @(x) numel(x), grp);
     assert( numel(unique(n_trials)) == 1, '# of trial differ in grp struct');
@@ -151,8 +161,10 @@ assert(size(trigger,1) == size(trial_start,1) || numel(trial_start) == 1, '# of 
 assert(size(trial_start,1) == size(trial_end,1) || numel(trial_start) == 1 || numel(trial_end) == 1, '# of trial_start and trial_end should match');
 assert(size(trigger,1) == size(grp,1), 'trigger and grp must have the same # of rows');
 assert(isempty(base_rsp) || size(base_rsp, 1) == size(trigger, 1), '# of base_rsp should be same as # of trigger');
+% get valid trials
+bVT = ~isnan(trigger) & ~isnan(trial_start) & ~isnan(trial_end);
 % nullify grp to get the correct gnumel for printout
-grp( isnan(trigger) | isnan(trial_start) | isnan(trial_end) ) = NaN;
+grp( ~bVT ) = NaN;
 
 % return if any of input argument is just NaN array
 %if all(isnan(trigger)) || all(isnan(trial_start)) || all(isnan(trial_end)) % || all(isnan(grp))

@@ -1,4 +1,6 @@
 function uk = str2unitkey(s)
+% convert string to unit key numeric array [mid sid rid tid uid]
+% HRK
 
 uk = [];
 if ischar(s), s = {s}; end

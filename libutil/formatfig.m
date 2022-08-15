@@ -27,6 +27,11 @@ if bReposition
     end
 end
 
+% delete figure annotations (e.g., titles)
+disp('delete figure annotations...');
+delete( findall(fig_list, '-regexp','tag','fig_') )
+
+disp('iterate figures to adjust fine details (e.g., font size)...');
 % iterate figures
 for fid = fig_list
     % set font size
@@ -73,8 +78,8 @@ for fid = fig_list
                 hX = get(hA,'xlabel');
                 hY = get(hA,'ylabel');
                 if gShowLabel
-                    set(hX, 'fontsize', font_size,'fontunits', font_unit);
-                    set(hY, 'fontsize', font_size,'fontunits', font_unit);
+                    set(hX, 'fontsize', font_size+1,'fontunits', font_unit);
+                    set(hY, 'fontsize', font_size+1,'fontunits', font_unit);
                 else
                     delete(hX); delete(hY);
                 end
@@ -105,6 +110,7 @@ for fid = fig_list
     end
 end
 
+disp('set ticks...');
 % set ticks
 xrange = range(xlim);
 %xrange/3

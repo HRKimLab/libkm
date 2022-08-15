@@ -30,22 +30,22 @@ for iL = 1:numel(leftover_varargin)
     end
 end
     
-% get default ANALYSIS_ROOT
-global gC; 
-% if exists, load declaration script
-if isempty(gC) && exist('VirMEn_Def','file');
-    gC = scriptvar2struct('VirMEn_Def');
-end
-    
-if ~isempty(gC) && isfield(gC, 'ANALYSIS_ROOT')
-    ANALYSIS_ROOT = gC.ANALYSIS_ROOT; 
-end
+% % get default ANALYSIS_ROOT
+% global gC; 
+% % if exists, load declaration script
+% if isempty(gC) && exist('VirMEn_Def','file');
+%     gC = scriptvar2struct('VirMEn_Def');
+% end
+%     
+% if ~isempty(gC) && isfield(gC, 'ANALYSIS_ROOT')
+%     ANALYSIS_ROOT = gC.ANALYSIS_ROOT; 
+% end
+% 
+% % if repo is given, use it
+% if ~isempty(repo) && ~isempty(gC) && isfield(gC, 'EXP_ROOT')
+%     ANALYSIS_ROOT = [gC.EXP_ROOT(repo) 'Analysis' filesep];
+% end
 
-% if repo is given, use it
-if ~isempty(repo) && ~isempty(gC) && isfield(gC, 'EXP_ROOT')
-    ANALYSIS_ROOT = [gC.EXP_ROOT(repo) 'Analysis' filesep];
-end
-    
 % if given by an agument, use it
 if ~isempty(analysis_root)
     ANALYSIS_ROOT = analysis_root;

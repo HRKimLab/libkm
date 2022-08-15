@@ -25,6 +25,12 @@ for iC = COL_OFF:size(tb, 2)
         if isempty( tb{iR, iC} ) || tb{iR, iC}(1) == '%' || tb{iR, iC}(1) == '-'
             continue;
         end
+        iS = findstr(tb{iR, iC}, '%');
+        if ~isempty(iS), tb{iR, iC} = tb{iR, iC}(1:(iS-1)); end
+        
+        iS = findstr(tb{iR, iC}, '-');
+        if ~isempty(iS), tb{iR, iC} = tb{iR, iC}(1:(iS-1)); end
+        
         nk = str2unitkey5(tb{iR, iC});
         bMatch = all( abs(bsxfun(@minus, keys, nk)) < 0.00001, 2);
         if nnz(bMatch) == 1

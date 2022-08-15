@@ -1,5 +1,7 @@
-function [x rate_rsp borders] = combine_psth_trials(cPSTH, varargin)
-% combine trials from multiple psths
+function [x rate_rsp borders TrTimePsth] = combine_psth_trials(cPSTH, varargin)
+% combine trials (rate_rsp) from multiple psths
+% make 2D array of (# of combined trials) * (# of time points) and 
+% (# of max trials) * (# of time points) * (# of psths)
 % 10/2019 HRK
 
 x = [];
@@ -131,8 +133,17 @@ end
 
 rate_rsp = [];
 borders = [];
+szTrTimePsth = [0 size(cPSTH{1}.rate_rsp, 2), n_psth]; % size for TrTimePsth
 for iR = 1:n_psth
    rate_rsp = [rate_rsp; cPSTH{iR}.rate_rsp];
    borders = [borders; size(rate_rsp, 1)];
+   szTrTimePsth(1) = max([szTrTimePsth(1) size(cPSTH{iR}.rate_rsp, 1)]);
 end
 borders = borders(1:end-1);
+
+% create trial * time * (# of psth) array
+TrTimePsth = NaN(szTrTimePsth);
+for iR = 1:n_psth
+    TrTimePsth(1:size(cPSTH{iR}.rate_rsp, 1), 1:szTrTimePsth(2), iR) = ...
+        cPSTH{iR}.rate_rsp;
+end

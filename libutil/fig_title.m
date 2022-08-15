@@ -1,5 +1,9 @@
 function fig_title(sTitle, font_size)
-
+% FIG_TITLE create figure with some additional information
+% note the anootations have tag starting with 'fig_'
+% so you can find those using finbobj and regular expression option
+% finbobj(0, '-regexp', 'tag', 'fig_');
+% HRK
 % pStartOffset = 0.2;
 pStartOffset = 0.04;
 if ~is_arg('font_size'), font_size = 12; end;
@@ -36,23 +40,28 @@ if isfield(data, 'one_time_params')
             RigInfo = 'R3';
         case 'Mcb-Uchida-VS4'
            RigInfo = 'R4';
+        case {'NeuRLab-VR1','NeuRLab-VR2','NeuRLab-VR3','NeuRLab-VR4','NeuRLab-VR5', ...
+                'NeuRLab-VR6','NeuRLab-VR7','NeuRLab-VR8','NeuRLab-VR9','NeuRLab-VR10', ...
+                'NeuRLab-VR11','NeuRLab-VR12','NeuRLab-VR13','NeuRLab-VR14','NeuRLab-VR15', ...
+                'NeuRLab-VR16','NeuRLab-VR17','NeuRLab-VR18','NeuRLab-VR19','NeuRLab-VR20'}
+           RigInfo = regexprep(data.one_time_params.MachineName, 'NeuRLab-','');
     end
     dn = datenum(data.one_time_params.Datetime);
-    sDate = [ datestr( dn, 'mm/DD') '@' RigInfo];
+    sDate = [ datestr( dn, 'mm/DD') '  ' RigInfo];
 else
     sDate = ' ';
 end
 
-ax = axes('Position', [0.8 .975 .2 .025], 'tag', 'date');
+ax = axes('Position', [0.8 .973 .2 .027], 'tag', 'fig_date');
 % append analysis date
 sDate = [sDate ' / DoA:' datestr(now(), 'mm/DD')];
-text(pStartOffset, 0.6, sDate, 'fontsize', 8, ...
-    'fontweight','bold', 'linestyle','none', 'tag','col_date');
+text(pStartOffset, 0.65, sDate, 'fontsize', 8, ...
+    'fontweight','bold', 'linestyle','none', 'tag','fig_col_date');
 
 % % analysis date
 % sDate = ['Analyzed: ' datestr(now(), 'mm/DD')];
 % text(pStartOffset, 0.0, sDate, 'fontsize', 8, ...
-%     'fontweight','bold', 'linestyle','none', 'tag','anal_date');
+%     'fontweight','bold', 'linestyle','none', 'tag','fig_anal_date');
 
 % show the the analysis fuction filename for other people 
 % such that they know what code to take a look at
@@ -70,7 +79,7 @@ end
 if ~isempty(func_name)
     func_name = regexprep(func_name,'_','\\_');
     text(pStartOffset, 0.0, func_name, 'fontsize', 8, ...
-        'fontweight','bold', 'linestyle','none','tag','func_name');
+        'fontweight','bold', 'linestyle','none','tag','fig_func_name');
 end
 
 % inactivate the axes to avoid plotting on this axes

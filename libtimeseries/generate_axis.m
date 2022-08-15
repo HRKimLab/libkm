@@ -41,7 +41,7 @@ end
 % figure is generated using setpanel(), and parent_panel is not Matlab axes
 if ( strcmp(class(get(gcf,'UserData')), 'panel') || ...
         strcmp(class(get(gcf,'UserData')), 'panel_ext') ) && ...
-        ~(ishandle(parent_panel) && strcmp(get(parent_panel,'type'),'axes'))
+        ~( (~isempty(parent_panel) && ishandle(parent_panel)) && strcmp(get(parent_panel,'type'),'axes'))
     p = get(gcf,'UserData');
     p.pack('h', {8.3/10 []});
     p(1).pack('v', {split_v(1) split_v(2)});
