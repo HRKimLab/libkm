@@ -18,6 +18,8 @@ Save individual-session analysis results. Load discrete population data into a b
 ## [libutil](https://github.com/hkim09/libkm/tree/master/libutil)
 A collection of misc functions.
 
+## [libfit]
+
 # Dependencies
 
 - Many functions use process_varargin.m from [MClust](http://redishlab.neuroscience.umn.edu/mclust/MClust.html)
