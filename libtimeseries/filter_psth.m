@@ -1,6 +1,31 @@
 function [psth_in psth_out] = filter_psth(st, varargin)
-% filter psth structure by an explicit list of strings, unitkey array, 
-% or regular expression for string-match. % explicit list should be the first argument.
+% FILTER_PSTH filter psths and return a subset. 
+%   filter_psth(st, varargin) st is a variable that contains psth as fields.
+%   varargin is the filtering criteria. these can be the following.
+%     cell array: an explicit list of dataname or unitname strings, 
+%        e.g., {'m192s23r1','m193s23r2', ... } for behavioral data,
+%              {'m183s14r1e3u1','m184s18r1e2r1', ..} for neural data.
+%     numeric array: unitkey array (n_filters * 5). 
+%         psth will filter-in if it matches to any of the rows.
+%         NaN means that such element will be filtered-in
+%         e.g., [192 NaN 1 NaN 1; 293 NaN 1 NaN 1] will filter in
+%               data from 192 and 293, and rid should be 1, and uid (e.g.,
+%               photometry channel) should be 1.
+%     string: regular expression for string-match. 
+%         e.g., 'm294s[0-9].r1[eu0-9]*' will filter-in data from
+%               animal 294, sid 0-9, rid 1. see regular expression (regexp)
+%               for more info about how to use this.
+%
+%   Note that explicit list should be the first argument if you use
+%   multiple criteria.
+%
+% RETURN VALUES:
+% [psth_in psth_out] = filter_psth(st, varargin)
+% psth_in:      psths that are filtered in.
+% psth_out:     psths that are filtered out.
+%
+% See also LOAD_PSTH_FILES, filter_psth_by_cond, filter_psth_by_n,
+%   filter_psth_group, filter_psth_trials, REGEXP
 %
 % 5/20/2018 HRK
 

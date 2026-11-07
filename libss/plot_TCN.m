@@ -1,4 +1,9 @@
 function plot_TCN(pc_score, varargin)
+% PLOT_TCN plot state space dynamics in 2D. Please use plot3_TCN instead. This will be deprecated.
+%   This is an early version. plot3_TCN include this functionality and 
+%   maintained better. 
+% 
+% 2022 HRK
 
 grp_label = ''
 animation = 1;

@@ -1,9 +1,18 @@
 function fid = create_figure(sTitle, orient_flag, h, v, size_mult)
-% create figure for analysis. separated from setpanel
+% CREATE_FIGURE create figure for analysis. 
+% separated from setpanel
+% sTitle: title of the figure
 % orient_flag : 0: landscape 1: portrait 2: depends on the subplots
+%
+% h and v only works when orient_flag == 2.
+%  h: number of rows for the array of panels (height)
+%  v: number of columns for the array of panels
+%
 % 5/30/2018 HRK
+
 global gP
 
+if ~is_arg('sTitle'), sTitle = ''; end
 if ~isfield(gP, 'remote')
     gP.remote = 0;
 end
@@ -63,6 +72,5 @@ curpos = get(fid, 'position');
 % remote desktop mess it up.
 set(fid, 'Position', [curpos(1) curpos(2)+curpos(4)-figsz(2) size_mult * figsz]);
 
-if is_arg('sTitle')
-    fig_title(sTitle);
-end
+% put title with additional information
+fig_title(sTitle);

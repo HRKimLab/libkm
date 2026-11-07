@@ -1,5 +1,8 @@
 function hT = atitle(ax, sTitle, bFirst)
-% append title to the current one
+% ATITLE append title to the current one
+%
+% See also STITLE
+%
 % 2016 HRK
 global bOverwriteTitle
 

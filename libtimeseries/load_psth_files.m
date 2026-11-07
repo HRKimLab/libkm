@@ -1,11 +1,38 @@
 function [comb, mid_list, cMissing, cInvPSTH] = load_psth_files(filename, mids, varargin)
-% LOAD_PSTH_FILES load and combine psth files based on filename and mids 
-% This function assumes that psth files are saved in a recommended folder structure. 
-% varargin are filters, which filter-in loaded psths to save memory.
-% use LOADP_PATH_FPATHS to directly specify file paths of psths.
+% LOAD_PSTH_FILES load and combine psth .mat files
+%   In a single session analysis, time courses are visualized and the
+%   results can be saved into .mat file using asave_psth() for each session.
+%   For population analysis, These time courses across multiple sessions need to 
+%   be loaded and analyzed altogether. load_psth_files iterates files, load them,
+%   and combine them such that it can be visualized and analzyed easily.
+%   It assumes that psth files are saved in a standard folder structure. 
 %
-% see also LOAD_ALL_PSTHS, LOAD_PSTH_FPATHS
+% load_psth_files(filename, mids): load psth files based on the filename
+% and mids. Single psth file usually contains multiple psth results from
+% one animal. In the standard framework, the psth file is saved in 
+% Y:\NeuRLab\Analysis\mid\ 
 %
+% load_psth_files(filename, mids, varargin) varargin are psth filters. 
+%   loading all psths often requires lots of memory. To avoid this, 
+%   psth filters can be applied for each .mat, and the results are then
+%   combined to save memory. See filter_psth for details about psth filters
+%
+%   Note: if your computer has enough memory, it is fine to load all psth files
+%   without filter (e.g., load all psth data from all animals), and filter 
+%   them later using filter_psth (e.g., filter-in experiment 1, do analysis; 
+%   filter-in experiments 2, do analysis, and so on). 
+%   do this way if you want to use 'load a superset, and then use subsets for
+%   each analysis' strategy.
+% 
+% Examples:
+% datanames = {'m123s8r1','m123s9r1','m145s31r1','m145s32r1','m156s13r1','m156s14r1'};
+% lick_RewOn = load_psth_files('lick_ab_RewOn.mat', [123 145 156], ...
+%    'analysis_root', 'Y:\NeuRLab\Analysis\', datanames);
+%
+% use load_psth_fpaths to directly specify file paths of psths.
+%
+% See also FILTER_PSTH, LOAD_ALL_PSTHS, LOAD_PSTH_FPATHS
+
 %  7/9/2015 HRK
 
 verbose = 0;

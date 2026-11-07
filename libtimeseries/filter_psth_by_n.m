@@ -1,4 +1,4 @@
-function new_st = filter_psth_by_n(st, varargin)
+function [st_filter_in] = filter_psth_by_n(st, varargin)
 % filter psth structure by simple numbers
 % n_grp: number of groups
 % 5/20/2018 HRK
@@ -28,7 +28,7 @@ cPSTH = cPSTH(bV);
 fprintf(1, 'filter in %d out of %d psths\n', nnz(bV), numel(bV));
 
 % assign it to new structure
-new_st = struct();
+st_filter_in = struct();
 for iF = 1:length(flist)
-   new_st.(flist{iF}) = cPSTH{iF}; 
+   st_filter_in.(flist{iF}) = cPSTH{iF}; 
 end

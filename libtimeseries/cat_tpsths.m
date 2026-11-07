@@ -3,6 +3,10 @@ function [conc_tpsths sConcBorder sBorders] = cat_tpsth(tpsths, tpsths_unitname,
 % serialize individual psths (possbly more than one groups).
 % and then concatenate them for further analysis or population plot
 % use the unitname of the first column to represent the combined signal.
+%
+% see also cat4fit (for model-fit), concatenate_psth (serialze),
+%   LI_pop_concat_data (can select row tags in table)
+%
 % 2020 HRK
 
 auto_start = 0; auto_end = 0;

@@ -16,7 +16,8 @@ imdata = uint8(imdata);
 for iC = 1:3
     dL = double(msk * target_color(iC))  - double(imdata(:,:,iC));
     dL(dL < 0) = 0;
-    imdata(:,:,iC) = imdata(:,:,iC) + uint8(floor(0.3 * dL));
+%     imdata(:,:,iC) = imdata(:,:,iC) + uint8(floor(0.3 * dL));
+	imdata(:,:,iC) = imdata(:,:,iC) + uint8(floor(0.5 * dL));
     iOthers = setdiff(1:3, iC);
     % if it's bright, shading does not work. darken other colors a bit
     imdata(:,:,iOthers) = uint8( double(imdata(:,:,iOthers)) - double(imdata(:,:,iOthers)) .* ...

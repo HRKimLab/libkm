@@ -1,9 +1,30 @@
 function [p fid] = setpanel(h, v, sTitle, bColumnFirst, parent_panel, orient_flag)
-% wrapper function of panel_ext for easy layout
+% SETPANEL a wrapper function of panel_ext for easy layout
+%   It is an advanced version of setfig(). This allows you to use panel()
+%   class, which is an advaced version of subplot(). 
+%   (See https://kr.mathworks.com/matlabcentral/fileexchange/20003-panel for detail)
+%
+%   For example, you can organzie in a hierarchical manner and set margins 
+%   in detail (e.g., top, bottom, left, right separately). I added the
+%   following functions to the panel, mimicing setfig() and gna().
+%  
+%   p.gna: get next axis in the panel object. (similar to gna for setfig)
+%   p.pnp: get next panel object.
+% 
+% gP.orient = 0 : letter, landscape. 
+% gP.orient = 1 : letter, portrait.
+% gP.orient = 2 : based on # of rows and columns of square panels.
+% 
+% Examples:
+% This creates 5 * 2 square panels with very little margin.
+% p = setpanel(5, 2, 'test1', 0, [], 2);
+% p.margin = 8; % you can change the margins later
+% p.gna;
+%
+% See also SETFIG
+%
 % 2015 HRK
-% gP.orient = 0 : letter, landscape 
-% gP.orient = 1 : letter, portrait
-% gP.orient = 2 : based on figures (to make figures square)
+
 global gP % for gnp function to auto-generate the next figure
 if ~is_arg('bColumnFirst'), bColumnFirst = 0; end;
 if ~is_arg('sTitle'), sTitle = ''; end;

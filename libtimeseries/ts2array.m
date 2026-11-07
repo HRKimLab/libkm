@@ -31,7 +31,21 @@ max_len = x_hb - x_lb + 1; % time 0 is column 1
 if max_len > 70 * 1000, log4m.getLogger().warn('ts2array', 'max len(%f) exceed 70sec. is this correct?', max_len); end;
 % assert(max_len < 240 * 1000, sprintf('length (%.2f) exceeds 60 second.', max_len)); % this is nonsense.
 % I also want to plot whole session data. check actual memory usage instead single trial len.
-assert(n_trial * max_len * 8 / 1024 / 1024 < 700, '# of trigger(%d) * max len(%d) is too big', n_trial, max_len);
+gb_memory_need = n_trial * max_len * 8 / 1024 / 1024 / 1024;
+if gb_memory_need > 0.8
+	warning('ts2array: requesting # of trigger(%d) * max len(%d) = %.1f GB memory ... ', ...
+		n_trial, max_len, n_trial * max_len * 8 / 1024 / 1024 / 1024);
+
+	uV = memory;
+	gb_memory_available = uV.MaxPossibleArrayBytes / 1024/1024/1024;
+	% there should be 1G spare memory 
+	if gb_memory_available < gb_memory_need + 1
+		error('available memory (%.1f GB) < requested (%.1f GB) + 1GB', ...
+			gb_memory_available , gb_memory_need);
+	end
+end
+% assert(mb_memory_need  < 800, '# of trigger(%d) * max len(%d) = %.1f is too big', ...
+% 	n_trial, max_len, n_trial * max_len * 8 / 1024 / 1024);
 % generate time axis
 x = x_lb:x_hb;
 
@@ -57,4 +71,5 @@ end
 
 % make sure that the array size is not automatically expanded by
 % out-of-range index
-assert(size(array_rsp,2) == max_len);
+assert(size(array_rsp,2) == max_len, 'size(array_rsp, 2) (%d) does not match with max_len (%d)', ...
+	size(array_rsp, 2), max_len);

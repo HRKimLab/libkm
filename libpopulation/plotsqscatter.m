@@ -1,7 +1,12 @@
 function [r,p,N,sl,itc,fitdata,pSR, hS] = plotsqscatter(x,y,grp,varargin)
-% regdata: [x y basic_#(N;r;p) fit_params(sl;itc)
-% substitute x if given as column idx
-% HRK
+% PLOTSQSCATTER create a square scatter plot and performs statistical tests
+%   See plot_scatter for options since it internally calls plot_scatter.
+%   On top of that, it assumes that x and y are have the same unit. So it
+%   makes the x and y range same, and draws a diagonal line for easy
+%   comparison.
+%
+% See also PLOT_SCATTER, MODIFY_LEGEND
+
 show_individual = 1;
 show_grpmean = 0;
 grp_zscore = 0;     % 1: zscore 2: subtract mean

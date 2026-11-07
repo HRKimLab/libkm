@@ -17,6 +17,7 @@ function [pDiff bNonEqualVar mc_comparison, mc_means, pPair] = test_same_dist(x,
 % par_cond: parameteric if conditions are met (not implemented yet)
 test_type = 'nonpar';  % 'nonpar', 'par', 'par_cond'
 sig_crit = 0.05;
+debug = 0;
 
 process_varargin(varargin);
 
@@ -46,6 +47,10 @@ elseif numel(gname) > 2 && numel(gnumel) > 1 && ... % for more than two groups
 else
     warning('test_same_diff: group # is not appropriate for test. skip');
     return;
+end
+if numel(gname) == numel(x)
+	warning('# of group (%d) == # of data (%d). not enough # per group. skip.', numel(gname), numel(x) )
+	return;
 end
 
 % just run 1-way ANOVA here. for nonparametric test, it will be overwirtten.
@@ -86,7 +91,7 @@ switch (test_type)
         end
         if any(p_kstest < sig_crit)
             gids = grpid(p_kstest < sig_crit);
-            warning('test_same_diff: grpid %s does not meet normality assumption', ...
+            warning('test_same_diff: grpid %s does not meet normality assumption (Kolmogorov-Smirnov test, kstest)', ...
                 sprintf('%d ', gids(:) ) );
         end
         
@@ -96,13 +101,16 @@ switch (test_type)
             if ~bNonEqualVar
                 % Wilcoxon rank-sum test
                 pDiff = ranksum(x(grpid==1),x(grpid==2));
+                if debug, fprintf(1, 'P = %e, Wilcoxon rank-sum test\n', pDiff); end
             else
                 % use K.S test to examine if there same from the same distribution or not.
                 [tmp pDiff] = kstest2(x(grpid == 1), x(grpid == 2));
+                if debug, fprintf(1, 'P = %e, Two-sample Kolmogorov-Smirnov goodness-of-fit hypothesis test\n', pDiff); end
             end
         elseif length(gname) > 2 && length(gnumel) > 1 && ( numel(x) > numel(unique(grp)) )
             % Kruskal–Wallis one-way analysis of variance
             pDiff = kruskalwallis(x, grpid, 'off');
+            if debug, fprintf(1, 'P = %e, Kruskal–Wallis one-way analysis of variance\n', pDiff); end
         end
         
         % do nonparametric test for multiple comparisons (rank sum test)

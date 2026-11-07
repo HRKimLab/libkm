@@ -1,5 +1,10 @@
 function ax_h = modify_legend(ax_h, grp_idx, cL)
-% assuming that legend has grp_idx, replace it with user-frendly string.
+% MODIFY_LEGEND assuming that legend has grp_idx, replace it with user-frendly string.
+%   make sure that the original legend has grp_idx (1, 2, 3, ...).
+% 
+% EXAMPLES:
+% modify_legend(gca, 1:3, {'VS','DMS','TS'})
+% 
 % HRK 8/25/2015
 if ischar(cL), cL = {cL}; end;
 

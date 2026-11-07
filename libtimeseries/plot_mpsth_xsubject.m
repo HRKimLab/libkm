@@ -6,6 +6,9 @@ function [p, ax, flist] = plot_mpsth_xsubject(varargin)
 % filt_neuron = filter_psth(neuron_RewOn, dnames, [NaN NaN NaN 0 1]);
 % [p, ax, flist] = plot_mpsth_xsubject(filt_lick, filt_loc, filt_neuron, 'ylims', [-1 15; -1 30; -1 3.5], ...
 %            'x_ref', 0, 'xlim', [-10 3], 'v_pack', [.2 .2 .6]);
+%
+% see also plot_mpsths_table, plot_mpsth_xneuron, plot_mpsth_xsubject
+%
 % 2018 HRK
 global gP
 

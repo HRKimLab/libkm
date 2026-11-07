@@ -1,7 +1,26 @@
 function asave_psth(fpath, psth, unitname, save_raw)
-% save_psth saves variables including but not limited to psth structure 
-% save_psth is a bit complicated. simple is good. 
-% See also plot_mpsths, combine_psth_trials
+% ASAVE_PSTH saves psth structure into a file.
+%  ASAVE_PSTH(fpath, psth) saves psth (the return value of plot_timecourse)
+%  into a file path (fpath). Because psth is saved under the given
+%  unitname, you can save results from different sessions (or different
+%  neurons within the same session) into a single file.
+% 
+% asave_psth(fpath, psth, unitname)
+%  specifies unitname used to save the data. If not given, it uses unitname
+%  of the currently loaded neuron.
+% 
+% asave_psth(fpath, psth, unitname, save_raw)
+%  if save_raw == 1, it saves trial-to-trial data in psth. Use this option
+%  only necessary (e.g., you want to combine trial-to-trial data at the
+%  population level) because it makes file size quite big. 
+%
+%  Note that asave_psth is mainly used for saving psth result, 
+%  it is a general routine that saves variables and can be used for other
+%  purpose.
+%
+% See also plot_mpsths, combine_psth_trials, ASAVE
+%
+% derived from save_psth, which was a bit complicated. simple is good. 
 % 5/16/2018 HRK
 
 global data
@@ -33,8 +52,9 @@ if ~isempty(psth) && isstruct(psth) && isfield(psth, 'mean')  % psth structure
     % save_raw
     if ~save_raw
         psth.rate_rsp = [];
+        disp(['Save PSTH (' unitname ') to ' fpath]);
     else
-        disp(['Save trial-by-trial data (' unitname ') to ' fpath]);
+        disp(['Save PSTH with trial-by-trial data (' unitname ') to ' fpath]);
     end
 else % not psth structure
     

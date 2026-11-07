@@ -1,6 +1,44 @@
 function bV = is_uk_member(unitkeys, unit_filter, str2key_func)
-% test if unitkey is the member of unit_filter using unitkey5 format
-% convert string format into unitkey5, and filter-in
+% IS_UK_MEMBER test if an array of unitkey is the member of unit_filter.
+%   bV = IS_UK_MEMBER(unitkeys, unit_filter) using unitkey5 format. 
+%     unitkeys: [n_rows * 5] array of unitkeys ([mid sid rid eid uid]). 
+%        Usually, you provide the first five columns of the loaded aPD.0
+%     unit_filter: [n_filters * 5] array of filters or cell array.
+%        if cell array is given, it converts string into unitkey5.
+%        
+% RETURN VALUE:
+%     bV is a column vector. The row number is same as unitkeys [n_rows * 1].
+%
+%     Note that it iterate individual rows of unikeys(iR,:), and examine filters. 
+%     Filters are tested indenpendently. If any of the filters match, that
+%     row will be marked as true ( bV(iR) = true ). Otherwise, it will be
+%     false ( bV(iR) = false ). NaN in the unit_filter will be ignored.
+%
+%     bV can be used as a array index variable to filter-in aPD. 
+%     The strategy of aPD framework is that you load a superset of data 
+%     (a big table) once and you dissect a subset of it (e.g., specific 
+%     training days) and use it for specific analyses. In this strategy,
+%     boolean flag plays a key role in dissecting the big dataset.
+% 
+%     Tip: You can easily get a intersect of two subsets by applying
+%     element-wise AND operation between the boolean flags. For example, if
+%     you have bD1 for day 1 dataset and bControl for control animals, 
+%     (bD1 & bControl) gives you an intersection between the two subsets. 
+%     In your population analysis code, you first make a basic filters, 
+%     and then in the later analysis section, you can make new boolean 
+%     filters by combining them. This keeps your analysis codes simple and
+%     readable.
+%
+% Examples:
+%    The following statements generate boolean filter bV to filter-in
+%    aPD rows from animal 183 and 234, and eid of 14 and uid of 1.
+%    >> neuron_behavior_filt = [183 NaN NaN 14 1; 234 NaN NaN 14 1];
+%    >> bV = is_uk_member(aPD(:, 1:5), neuron_behavior_filt);
+%    % now you can select a subset of aPD data using the boolean filter
+%    >> aPD(bV, VARIABLES_OF_INTEREST ) 
+%
+% See also ISMEMBER (very useful), IS_SK_MEMBER, filter_psth
+%
 % 5/21/2018 HRK
 if ~is_arg('str2key_func')
     str2key_func = @str2unitkey5;

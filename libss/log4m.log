@@ -1,0 +1,44 @@
+2025-11-04 09:24:02,653 INFO load_virmen_data - Exclude 0/186 trials
+2025-11-04 09:25:18,061 INFO load_virmen_data - Exclude 0/186 trials
+2025-11-04 09:29:16,124 WARN load_daq_file - abstime [2025 4 18 17 32 20 ] and one_time_params.Datetime [2025 4 11 17 11 51 ] differ too much
+2025-11-04 09:29:18,506 INFO load_virmen_data - Exclude 0/65 trials
+2025-11-04 09:30:00,381 ERROR sync_timestamps - # of x (65) <> # of y (186). too many event difference (-93) between two to-be-syned signals
+2025-11-04 10:02:18,613 ERROR load_virmen_data - # of total rew(44) - reward during trials(0) is smaller than unexp rew(45)
+2025-11-04 10:02:18,627 ERROR load_virmen_data - # of unexpected rew in DAQ (44) < log file (45). might be given in trial duration
+2025-11-04 10:02:19,194 INFO load_virmen_data - Exclude 0/65 trials
+2025-11-04 10:02:46,336 ERROR load_virmen_data - # of total rew(44) - reward during trials(0) is smaller than unexp rew(45)
+2025-11-04 10:02:46,349 ERROR load_virmen_data - # of unexpected rew in DAQ (44) < log file (45). might be given in trial duration
+2025-11-04 10:02:46,364 INFO load_virmen_data - Exclude 0/65 trials
+2025-11-04 10:04:50,098 ERROR load_virmen_data - # of total rew(44) - reward during trials(0) is smaller than unexp rew(45)
+2025-11-04 10:04:50,110 ERROR load_virmen_data - # of unexpected rew in DAQ (44) < log file (45). might be given in trial duration
+2025-11-04 10:04:50,122 INFO load_virmen_data - Exclude 0/65 trials
+2025-11-04 10:05:53,237 ERROR load_virmen_data - # of total rew(44) - reward during trials(0) is smaller than unexp rew(45)
+2025-11-04 10:05:53,255 ERROR load_virmen_data - # of unexpected rew in DAQ (44) < log file (45). might be given in trial duration
+2025-11-04 10:05:53,280 INFO load_virmen_data - Exclude 0/65 trials
+2025-11-04 10:07:38,630 ERROR load_virmen_data - # of total rew(44) - reward during trials(0) is smaller than unexp rew(45)
+2025-11-04 10:07:38,659 ERROR load_virmen_data - # of unexpected rew in DAQ (44) < log file (45). might be given in trial duration
+2025-11-04 10:07:38,684 INFO load_virmen_data - Exclude 0/65 trials
+2025-11-04 10:14:08,217 ERROR load_virmen_data - # of total rew(153) - reward during trials(0) is smaller than unexp rew(154)
+2025-11-04 10:14:08,230 ERROR load_virmen_data - # of unexpected rew in DAQ (153) < log file (154). might be given in trial duration
+2025-11-04 10:14:08,240 INFO load_virmen_data - Exclude 0/193 trials
+2025-11-04 10:17:11,438 ERROR load_virmen_data - # of total rew(153) - reward during trials(0) is smaller than unexp rew(154)
+2025-11-04 10:17:11,456 ERROR load_virmen_data - # of unexpected rew in DAQ (153) < log file (154). might be given in trial duration
+2025-11-04 10:17:11,510 INFO load_virmen_data - Exclude 0/193 trials
+2025-11-04 10:17:51,065 ERROR load_virmen_data - # of total rew(153) - reward during trials(0) is smaller than unexp rew(154)
+2025-11-04 10:17:51,080 ERROR load_virmen_data - # of unexpected rew in DAQ (153) < log file (154). might be given in trial duration
+2025-11-04 10:17:51,092 INFO load_virmen_data - Exclude 0/193 trials
+2025-11-04 10:18:37,873 ERROR load_virmen_data - # of total rew(153) - reward during trials(0) is smaller than unexp rew(154)
+2025-11-04 10:18:37,887 ERROR load_virmen_data - # of unexpected rew in DAQ (153) < log file (154). might be given in trial duration
+2025-11-04 10:18:37,901 INFO load_virmen_data - Exclude 0/193 trials
+2025-11-04 19:44:40,888 ERROR load_virmen_data - # of total rew(153) - reward during trials(0) is smaller than unexp rew(154)
+2025-11-04 19:44:40,911 ERROR load_virmen_data - # of unexpected rew in DAQ (153) < log file (154). might be given in trial duration
+2025-11-04 19:44:40,932 INFO load_virmen_data - Exclude 0/193 trials
+2025-11-04 20:01:39,896 ERROR load_virmen_data - # of total rew(153) - reward during trials(0) is smaller than unexp rew(154)
+2025-11-04 20:01:39,910 ERROR load_virmen_data - # of unexpected rew in DAQ (153) < log file (154). might be given in trial duration
+2025-11-04 20:01:39,932 INFO load_virmen_data - Exclude 0/193 trials
+2025-11-04 20:22:26,381 ERROR load_virmen_data - # of total rew(153) - reward during trials(0) is smaller than unexp rew(154)
+2025-11-04 20:22:26,394 ERROR load_virmen_data - # of unexpected rew in DAQ (153) < log file (154). might be given in trial duration
+2025-11-04 20:22:26,404 INFO load_virmen_data - Exclude 0/193 trials
+2025-11-04 20:24:01,970 ERROR load_virmen_data - # of total rew(153) - reward during trials(0) is smaller than unexp rew(154)
+2025-11-04 20:24:01,983 ERROR load_virmen_data - # of unexpected rew in DAQ (153) < log file (154). might be given in trial duration
+2025-11-04 20:24:01,994 INFO load_virmen_data - Exclude 0/193 trials

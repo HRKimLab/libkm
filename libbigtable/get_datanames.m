@@ -1,23 +1,50 @@
-function [dnames mids sids] = get_datanames(tD, prot_name)
-% get dataset names based on a tabular format of dataset file
-% using regular expression
+function [dnames mids sids] = get_datanames(tD, data_tags, varargin)
+% GET_DATANAMES retrieve datanames from data tags of the data table.
+% GET_DATANAMES(tD, data_tags) tD is a loaded data table from 
+% load_tabular_dataset_info(). data_tags is search keywoard for the data
+% tags. If it is string, it finds out all data tags that contains the string.
+% More specifically, it uses regular expression to find matched data tags.
+% If data_tags is a cell array, it combines data_tags from individual
+% elements.
+% 
+% GET_DATANAMES(tD, data_tags, varargin)
+% 'exact_match': 1 if you want to put ^ and $ at the beginning and end of
+%    the dataname, respectively. This ensures that you can do exact match 
+% 'check_mid' : 1 (default) - check if mids in dataname match with the mid
+%    in the column header. 0 - do not check.
+% 
+% Examples:
+% % load data table into tD
 % tD = load_tabular_dataset_info('Z:\data.csv');
-% datanames = get_datanames(tD, {'VR_DAY1','VR_DAY2'});
+% % combine VR_DAY1 datatsets and VR_DAY2 datasets
+% datanames = get_datanames(tD, {'VR_DAY1','VR_DAY2'}); 
+% % returns the same set. (order might be different)
+% datanames = get_datanames(tD, {'VR_DAY[1-2]'});  .
+% % returns regular expression for exact match.
+% datanames = get_datanames(tD, {'VR_DAY[1-2]'}, 'exact_match', 1);  .
+%
+% See also load_tabular_dataset_info, get_datanames_col, LoadPopulationData5Key, regexp
 %
 % 5/25/2018 HRK
+
+exact_match = 0; % for regular expression exact match
+check_mid = 1;   % check if mid in dataname matches with mid in the column header
+
+process_varargin(varargin);
+
 ROW_OFF = 2;
 COL_OFF = 2;
 
 mids = []; sids = {};
 
-if is_arg('prot_name') && iscell(prot_name)
-   tmp_dnames = cellfun(@(x) get_datanames(tD, x), prot_name, 'un', false);
+if is_arg('data_tags') && iscell(data_tags)
+   tmp_dnames = cellfun(@(x) get_datanames(tD, x, 'check_mid', check_mid), data_tags, 'un', false);
    dnames = cat(2, tmp_dnames{:});
    return;
 end
 
 % deal with NO_FILTER
-if (ischar(tD) && strcmp(tD, 'NO_FILTER')) || (nargin > 1 && ischar(prot_name) && strcmp(prot_name, 'NO_FILTER'))
+if (ischar(tD) && strcmp(tD, 'NO_FILTER')) || (nargin > 1 && ischar(data_tags) && strcmp(data_tags, 'NO_FILTER'))
     dnames = [];
     return;
 end
@@ -25,7 +52,10 @@ end
 % convert to cell array if tD is table
 if istable(tD)
     % make cell array by putting rownames and columna names
-    if all(strcmp(tD.Properties.RowNames, tD{:,1}))
+    if isempty(tD.Properties.RowNames) % RowNames can be empty if not unique (see load_tabular_dataset_info)
+		iVC = 2:size(tD, 2);
+		cD = [tD{:,:}];
+	elseif all(strcmp(tD.Properties.RowNames, tD{:,1}))
         iVC = 2:size(tD, 2);
         cD = [tD.Properties.RowNames tD{:, 2:end}];
     else
@@ -41,13 +71,17 @@ end
 if ~iscell(tD), error('first argument should be cell array of tabular dataset'); end;
 
 % return protocol names if no name is given
-if ~is_arg('prot_name')
+if ~is_arg('data_tags')
     dnames = tD(ROW_OFF:end,1);
+    
+    if exact_match
+        dnames = cellfun(@(x) ['^' x '$'], dnames, 'un', false);
+    end
     return;
 end
 
 
-if isstr(prot_name), prot_name = {prot_name}; end;
+if isstr(data_tags), data_tags = {data_tags}; end;
 
 % get mouse numeric id
 mids = tD(1, :);
@@ -55,10 +89,13 @@ mids = tD(1, :);
 % mids should be numbers except the first column
 n_mids = [];
 for iC = 2:numel(mids)
-   if isempty(str2num(mids{iC}))
-        error('First row of %dth column is not animal numbers: %s', iC, mids{iC} );
+   if ~isempty(str2num(mids{iC}))
+       n_mids(iC) = str2num(mids{iC});
+   elseif numel(mids{iC}) > 0 && (mids{iC}(1) == 'm'||mids{iC}(1) == 'M') && ~isempty(str2num( mids{iC}(2:end) ))
+       n_mids(iC) = str2num( mids{iC}(2:end) );
+   else
+        error('First row of %dth column is not animal numbers: %s', iC, mids{iC} );     
    end
-   n_mids(iC) = str2num(mids{iC});
 end
 
 % add animal # if dataname starts with 's' and ignore comments
@@ -72,7 +109,7 @@ for iR = ROW_OFF:size(tD, 1)
         elseif tD{iR,iC}(1) == 'm'
             % double check that it matches to animal id in column
             mid_ext = sscanf(tD{iR,iC}, 'm%d');
-            if mid_ext ~= n_mids(iC)
+            if check_mid && mid_ext ~= n_mids(iC)
                 error('%s (%d, %d) does not match to mid(%d)', tD{iR,iC}, iR, iC, n_mids(iC));
             end
         end
@@ -85,14 +122,14 @@ for iR = ROW_OFF:size(tD, 1)
 end
 
 % find proper row in the table
-% iR = find(cellfun(@(x) ~isempty(regexp(x, prot_name)), tD(:,1)));
-iR = find( ~cellfun(@isempty, regexp(tD(:,1), prot_name)) );
+% iR = find(cellfun(@(x) ~isempty(regexp(x, data_tags)), tD(:,1)));
+iR = find( ~cellfun(@isempty, regexp(tD(:,1), data_tags)) );
 
-if strcmp(prot_name, 'all')
+if strcmp(data_tags, 'all')
     dnames = tD(ROW_OFF:end,COL_OFF:end);
     dnames = dnames(:)';
 elseif numel(iR) == 0
-    error('No dataset with protocol name %s\n', prot_name{1});
+    error('cannot find the protocol name %s in the 1st column of the table.\n', data_tags{1});
     dnames = {};
 else
     % get a subset of table
@@ -107,8 +144,8 @@ end
 % remove empty dataset
 iValidCol = find(cellfun(@(x) ~isempty(x) && x(1) ~= '-', dnames));
 dnames = dnames(iValidCol);
-
-fprintf(1, '['); fprintf(1, '%s ', prot_name{:}); fprintf(1, ': %s] (n=%d): ', sprintf('%s ',tD{iR, 1}), numel(dnames));
+    
+fprintf(1, '['); fprintf(1, '%s ', data_tags{:}); fprintf(1, ': %s] (n=%d): ', sprintf('%s ',tD{iR, 1}), numel(dnames));
 fprintf(1, '%s ', dnames{:});
 fprintf(1, '\n');
 

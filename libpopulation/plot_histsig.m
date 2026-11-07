@@ -1,11 +1,36 @@
-function [n, center, median_x, p] = plot_histsig(x, is_sig, edges, x_ref, bar_color)
-% plot histogram with significance
+function [n, center, median_x, pDiff] = plot_histsig(x, is_sig, edges, x_ref, bar_color)
+% PLOT_HISTSIG plot an histogram with separate stacked bars for significant
+% values
+% 
+% PLOT_HISTSIG(x) x is (n_obj * 1) column vector. It creates a histogram
+% based on automatic selection of bins.
+%
+% PLOT_HISTSIG(x, is_sig) is_sig is (n_obj * 1) column vector indicating
+% significance of corresponding x values. data with is_sig value 0 will be
+% counted in the open bars, whereas is_sig value 1 will be counted in the filled bars. 
+% 
+% PLOT_HISTSIG(x, is_sig, edges) draws a histogram using edges
+% PLOT_HISTSIG(x, is_sig, edges, x_ref) show reference line and performs
+% statistical tests
+% PLOT_HISTSIG(x, is_sig, edges, x_ref, bar_color) assign color of bars.
+% 
+% RETURN VALUES:
+% [n, center, median_x, p] = plot_histsig
+% n:        count for each bin
+% center:   center for each bin
+% median_x: median for each group. The last element is median for total
+%   population.
+% pDiff value under H0: median is same as x_ref.
+%
+% See also PLOT_HISTGRP, HIST
+% 
+
 % caution: NaN < any number is 0. so, if NaN filtering is only based on
 % the second parameter as a form of p_values < 0.05, then these values
 % won't be NaN at al, thus cannot filter out anything.
 
 % shit. diff -1:.1:1 gives not equal space. floating point bug..
-%assert(length(unique(diff(edges)))== 1, 'edge should be equi-linearly spaced');
+% assert(length(unique(diff(edges)))== 1, 'edge should be equi-linearly spaced');
 if length(x) == 1
     try
     x_label = evalin('caller', ['pcd_colname{' num2str(x) '}']); 
@@ -80,16 +105,16 @@ end
 median_x = nanmedian(x);
 
 if exist('x_ref','var') && ~isempty(x_ref) && nnz(~isnan(x))
-    p = signrank(x-x_ref);
+    pDiff = signrank(x-x_ref);
 else
-    p=NaN;
+    pDiff = NaN;
 end
 
 % mark median
 hold on; 
 yl = get(gca,'ylim');
 hM = plot(median_x, yl(2) * 1.1,'v','markeredgecolor','black','markersize', 6, 'linewidth', 1);
-if p < 0.05
+if pDiff < 0.05
     set(hM, 'markerfacecolor','black');
 end
 set(hM, 'tag','median');
@@ -105,7 +130,7 @@ else
     title(sprintf('N=%d (OL=%d), v=%.2f', nnz(bV)-nOL, nOL, median_x));
 end
 
-if ~isnan(p), atitle(sprintf('(p=%s)',p2s(p))); end;
+if ~isnan(pDiff), atitle(sprintf('(p=%s)',p2s(pDiff))); end;
 if nNS ~= 0, legend(['NS, N=' num2str(nNS)],['Sig, N=' num2str(nSig)]); end;
 
 if exist('x_label','var'), xlabel(regexprep(x_label,'_',' ')); end;

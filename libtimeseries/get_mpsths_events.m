@@ -5,7 +5,7 @@ function [event total_event] = get_mpsths_events(cPSTH, varargin)
 
 event_header = {};        % event headers to show on the psth (e.g., {'VSTIM_ON_CD', 'RewOn'}
 b_valid_psths = [];
-check_event_timing = 2;   % 0: do nothing, 1: warning (might miss), 2: msg dialog (cannot miss but can ignore) 3: evoke an error (no way to miss)
+check_event_timing = 2;   % 0: print out msg, 1: warning (might miss), 2: msg dialog (cannot miss but can ignore) 3: evoke an error (no way to miss)
 event_std_crit = 0.1;     % std criterion (sec) to evoke an warning or error
 
 process_varargin(varargin);

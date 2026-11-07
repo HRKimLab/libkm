@@ -1,7 +1,16 @@
 function psth2pd(stPSTH, sWin, entry, func)
-% calculate mean response from stPSTH in the given time window
+% PSTH2PD calculate mean response from stPSTH in the given time window and
+% insert it into aPD as a new column.
+% Note that this is previous implementation. PSTH2PDCOL uses PSTH2PDIDX to
+% do the same thing. the results should be same.
+% 
+% Example:
+% psth2pdcol(lick_ab_RewOn, [-1 0], 'new_AntiLick')
+% 
 % [# of psths X 1]
+%
 % 2018 HRK
+
 assert(isstruct(stPSTH));
 % for now, sWin should be 1X2 vector
 assert(size(sWin,1) == 1 && size(sWin,2) == 2);
@@ -41,7 +50,7 @@ if ~isfield(stPSTH, 'x')
         elseif nnz(bMatch)> 1
             error('More than one match found: %s', cF{iF});
         else
-            warning('No match found: %s', cF{iF});
+            warning('No unitkey found(%s) in aPD.', cF{iF});
         end
     end
     

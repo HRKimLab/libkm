@@ -1,4 +1,5 @@
 function [n, center, hB] = plot_outcome_grp(x, grp, varargin)
+% PLOT_OUTCOME_GRP 
 
 x_ref = [];
 plot_type = 'bar';

@@ -6,7 +6,7 @@ function [n_row n_col] = get_panel_layout(orient, nPanel)
 % orient = 3 : force n_row to be 3
 % 2019 HRK
 switch(orient)
-    case 0 % landsacpe layout
+    case {0, 2} % landsacpe layout
         if      nPanel <= 3,    n_row = nPanel; n_col = 1;
         elseif  nPanel == 4,    n_row = 2;      n_col = 2;
         elseif  nPanel <= 6,    n_row = 2;      n_col = 3;

@@ -1,21 +1,101 @@
-%% load data
-% recognize valid columns, create variables for convenient column indexing
-% using [fileext column] naming convention.
-% input:
-%        ResultsExt{nResults} = 'sr';
-%        ResultsHeader{nResults} = {'CELL','SPon','Veb_min','Vis_min','Veb_max','Vis_max'};
-%        ResultsSummary{nResults} = {[TUNING_DIR{MonkOfInterest} 'DirectionTuning3D_Summary.dat']};
-%        ResultsMultipleDelims{nResults} = '\t';
-% output:
-%        aPD
-%        pcd_colname
+% LOADPOPULATIONDATA5KEY load numeric data from text files into a 2D array.
+% LOADPOPULATIONDATA5KEY is a data loading script for population analysis.
+%   It generates a big 2D array [# of entities * # of features].
+%   Below are some key assumptions and working principles.
 %
-% see DEMO_ANALYSIS_FRAMEWORK for examples
+%   1) text data file is saved in a specific folder.
+%       ( e.g., Y:\NeuRLab\Analysis\mid\beh.dat )
+%   2) For each animal, distinct analyses may create multiple data files.
+%   3) Data files consist of a string header (1st row) and numeric data.
+%   4) The first column is a special string, unique key of the data entity.
+%       It is called unitkey, consisting of [mid sid rid eid uid]. Each
+%       element is followed by 'm','s','r','e','u'. e.g., 'm42s18r1e2r1'. 
+%       It means [mouse(monkey) id, session id, run id, electrode id, unit id].
+%       The first 3 elements identifies a single experimental session.
+%       The last 2 elements identifies the source of neural activity.
+%    5) The first 5 numeric elements in aPD are unitkey. 
+%       e.g., the row generated from the above eneity is: 
+%             [42 18 1 2 1 ...  ... ...]
+%    6) Data entities can be appended by off-line analysis (e.g., batch_run) any time.
+%    7) Upon finding the same entity and features, this script overwrites
+%       previous values. As a results, although data entities are appended 
+%       to the text file, whatever results saved last will be loaded to aPD.
+%
+%       Thanks to these features, you do not need to care about managing
+%       result file (e.g., delete all files before running analysis). Once
+%       you write off-line analysis, you can just keep running and save
+%       data using StoreResults(). The updated results will be loaded by
+%       this loading script.
+%
+% input: The below section defines the data schema of one data file.
+%    MonkOfInterest: animals (mids) that the script look file for loading.
+%    SessionOfInterest: cell array of sid) that the script loads. 
+%      For simplicity, you can just use 1:300 (or larger # for
+%      monkey) to load all sessions from the animal. Otherwise, you can
+%      specify your sessions of interest (e.g., excluding training
+%      sessions).
+%
+%    nResults = nResults + 1;   
+%    ResultsExt{nResults} = 'sr';
+%    ResultsHeader{nResults} = {'CELL','SPon','Veb_min','Vis_min','Veb_max','Vis_max'};
+%    ResultsSummary{nResults} = {[TUNING_DIR{MonkOfInterest} 'DirectionTuning3D_Summary.dat']};
+%    ResultsMultipleDelims{nResults} = '\t';
+% 
+%    The first column (CELL) is reserved for unitkey. The rest of columns
+%    define column index variables, usually same or similar to the header
+%    of the text file. Except for the first column, this schema will add 5
+%    columns to the big aPD table. You can keep adding the schema of data
+%    files. The column can be access by [ResultsExt + ResultsHeader]. e.g.,
+%    srSPon, srVeb_min, srVis_min, etc. This script create those variables
+%    in the base workspace, such that you can access the column easily
+%    without remembering the numeric column column index.
+%
+% output:
+%    aPD:           a large 2D array [# of eneities * # of featurs].
+%    pcd_colname:   cell array of column names. This can be used to
+%                   show feature names on the plot legend.
+%    column indece: e.g., srSPon, srVeb_min in the above example.
+%
+% Examples:
+% MonkOfInterest = [123 145 166 294];  % mids included in data loading
+% SessionOfInterest = repmat({1:100},[1 4]);  % sids for each animal
+% 
+% initialize variables used in the population loading function
+% ResultsExt={}; ResultsHeader={};
+% nResults = 0; ResultsMultipleDelims=[];
+% 
+% Define one result file. You can keep adding files
+% nResults = nResults + 1;
+% ResultsExt{nResults} = 'beh_';
+% ResultsHeader{nResults} = 'CELL	durTILick	durITILick	impLick	antLick	postLick	impUnLick	antUnLick	postUnLick	elapsed_time	avgSpd_TI	maxSpd_TI	avgSpd_ITI	maxSpd_ITI	impSpd	antSpd	postSpd	impUnSpd	antUnSpd	postUnSpd';
+% ResultsSummary{nResults} = 'beh.dat'
+% ResultsMultipleDelims(nResults) = 0;
+%
+% ... (another file schema added)
+%
+% load data and generate aPD table
+% LoadPopulationData5Key 
+%
+% See also STORERESULTS, READ_TEXT_TABLE, DEMO_ANALYSIS_FRAMEWORK, EXAMPLE_POP_ANALYSIS
+%
 % 2/15/2013 HRK
+
 % make sure that MonkOfInterst does not have redundant monkid
 assert(numel(MonkOfInterest) == nunique(MonkOfInterest), 'reduandant aniaml id in MonkOfInterest');
 nCol = 0; bColumnsLoaded = {}; iColumnsLoaded = {}; nColumnsLoaded=[]; bHasUnitKey = [];
 pcd_colname = {}; pcd_col2res=[]; aPD=[];
+
+% check new variable SessionOfInterest
+if ~exist('SessionOfInterest','var') && exist('CellOfInterest','var') 
+    error('Modify your code to use SessionOfInterest instead of CellOfInterst (deprecated).');
+elseif ~exist('SessionOfInterest','var')
+    error('Please define SessionOfInterest.');
+end
+
+% make sure that the size of SessionOfInterest is the same as MonkOfInterest
+assert(numel(MonkOfInterest) == numel(SessionOfInterest), ...
+    'The size of MonkOfInterst (%d) should match with SessionOfInterest (%d)!', ...
+    numel(MonkOfInterest), numel(SessionOfInterest));
 
 % mid, cellid, runid, eid, uid
 KEY_COLS = 1:5;
@@ -47,6 +127,11 @@ nPreDefinedColumns = nCol;
 
 %% iterate result formats and generate column index for all loaded variables
 for iR=1:nResults
+    % check if REsultsExt contains space
+    if ~isempty(findstr(ResultsExt{iR}, ' ') )
+        error('%dth ResultsExt [%s] contains space. use _ instead of space', iR, ResultsExt{iR} );
+    end
+        
     % parse space-seperated header into cell array
     if ischar(ResultsHeader{iR})
         new_header = {};
@@ -97,7 +182,13 @@ for iR=1:nResults
     fprintf(1, '[%d] %d/%d columns will be loaded\n', iR, length(iColumnsLoaded{iR}), length(bColumnsLoaded{iR}));
     for iC = iColumnsLoaded{iR}
         varname = [ResultsExt{iR} ResultsHeader{iR}{iC}];
-
+        
+        % check if ResultsHeader contains space
+        if ~isempty(findstr( ResultsHeader{iR}{iC} , ' ') )
+            error('%dth Result , %th ResultsHeader [%s] contains space. use _ instead of space', ...
+                iR, iC, ResultsHeader{iR}{iC} );
+        end
+        
         % create index number for each variable
         nCol = nCol + 1;
         cmd_str = [varname ' = ' num2str(nCol) ';'];
@@ -110,8 +201,14 @@ for iR=1:nResults
         if any(bSameColName)
             error('adding colunm name %s is redandunt to [%d] column', varname, find(bSameColName,1,'first'));
         end
-
-        eval(cmd_str);
+        try
+            eval(cmd_str);
+        catch ME
+            getReport(ME)
+            error(['An error occured while registering ' ...
+                num2str(iR) 'th Results (ResultsExt: [' ResultsExt{iR} ']), a column variable [' varname '] for the aPD big table. ' char(10) ...
+                'Most likely, the column variable contains something not allowed (e.g., space). Check it out.']);
+        end
         pcd_colname{nCol} = varname;
         pcd_col2res(nCol) = iR;
 
@@ -167,7 +264,7 @@ for iR=1:nResults
                 % check if data is of my interest
                 iMonkNo = find(monkid == MonkOfInterest);
                 if isempty(iMonkNo), continue; end
-                iCellNo = find(cellid == CellOfInterest{iMonkNo});
+                iCellNo = find(cellid == SessionOfInterest{iMonkNo});
                 if isempty(iCellNo), continue; end
                 
                 % check subject
@@ -262,7 +359,7 @@ for iR=1:nResults
                 % check if data is of my interest
                 iMonkNo = find(nkey5(iRow,1) == MonkOfInterest);
                 if isempty(iMonkNo), continue; end
-                iCellNo = find(nkey5(iRow,2) == CellOfInterest{iMonkNo});
+                iCellNo = find(nkey5(iRow,2) == SessionOfInterest{iMonkNo});
                 if isempty(iCellNo), continue; end
 
                 bSameNeuron = all( bsxfun(@minus, nkey5(iRow, :), aPD(:, KEY_COLS) ) == 0, 2);
@@ -302,7 +399,7 @@ for iR=1:nResults
             % check if data is of my interest
             iMonkNo = find(nkey5(iRow,1) == MonkOfInterest);
             if isempty(iMonkNo), continue; end
-            iCellNo = find(nkey5(iRow,2) == CellOfInterest{iMonkNo});
+            iCellNo = find(nkey5(iRow,2) == SessionOfInterest{iMonkNo});
             if isempty(iCellNo), continue; end
 
 

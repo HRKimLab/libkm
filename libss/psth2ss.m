@@ -1,6 +1,19 @@
 function [ss_rsp rspTCN cF] = psth2ss(psths)
-% convert psths struct to state-space (nTime * nNeuron)
+% PSTH2SS convert psths structs to data structure for state-space plot (nTime * nNeuron).
+%  [ss_rsp rspTCN cF] = psth2ss(psths) psths contains structs returned from plot_timecourse.
+% 
+% RETURN VALUES: 
+%   Note that ss_rsp and rspTCN may contain NaNs.
+%   ss_rsp: [(time*condition) x neuron] 
+%   rspTCN: [time x condition x neuron]
+%   cF    : cell array of the unitkeys
+%
+% TODO: I need to make another psth2ss for plot_timecourseMD
+% 
+% See also ss2TCN, TCN2ss, plot_timecourse
+%
 % 2022 HRK
+
 ss_rsp = [];
 rspTCN = [];
 
@@ -32,14 +45,19 @@ for iF = 1:numel(cF)
    serialized_rsp = avg_rsp';
    % now vetorize it
    serialized_rsp = serialized_rsp(:);
-   % assign it to state space resposne
+   % assign the serialized response to state space response
    ss_rsp(:, iF) = serialized_rsp;
+   % also, assign it to TCN response
    rspTCN(:, :, iF) = avg_rsp';
 end
 
-%ss2TCN(rspTCN, [nTime nCond nNeuron])
-% TCN2ss(ss_rsp)
+
+% double check ssTCN and TCN2ss functions (it's also for checking the
+% functions themselves since they are relatively new)
 % transform from ss to (nTime * nCond * nNeuron)
-all(all(all( rspTCN == ss2TCN(ss_rsp, [nTime nCond nNeuron])  )))
-% transform from (nCond*nTime*nNeuron) to ss
-all(all( ss_rsp == TCN2ss(rspTCN) ))
+assert( all(all(all( rspTCN == ss2TCN(ss_rsp, [nTime nCond nNeuron])  ))), ...
+    'TCN conversion seems not right');
+% transform from (nCond * nTime * nNeuron) to ss
+assert(all(all( ss_rsp == TCN2ss(rspTCN) )), 'ss conversion seems not right');
+
+% now, apply post-processing 

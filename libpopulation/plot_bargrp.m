@@ -1,32 +1,60 @@
-function [grp_means grp_sem pRef pDiff mc_sig gR gP] = plot_bargrp(y, grp, varargin)
-% plot_barplot 
-% plot bar graph with rows of (value, group). Perform statstics (compare
-% with global mean, multiple comparisons).
-% previous args: is_sig, y_ref, yl, show_individual
+function [grp_means grp_sem pRef pDiff mc_sig gR gP bar_res] = plot_bargrp(y, grp, varargin)
+% PLOT_BARGRP create a bar plot and perform unpaired comparisons between columns
+% 
+% PLOT_BARGRP(Y, GRP) y is a (n_obs * 1) column vector containing
+%  measurements. grp is a (n_obs * 1) column vector indicating groups of corresponding 
+%  y values. For example, y is height, grp is grade (number).
+%  It creates bars for each group. Therefore, the number of bars is same as 
+%  the number of unique values in grp, and the height of each bar is the mean 
+%  of the y values for each group. If grp is numeric, the positions of the bars 
+%  are in the order of increasing grp value. Otherwise, the order is not
+%  gauranteed (You need to confirm the order).
+% 
+% PLOT_BARGRP(Y, GRP, VARARGIN) open the function to see a list
+% of variable arguments. e.g., 'show_individual', 0 hide showing individual
+% dots.
+% 
+% RETURN VALUES:
+% [grp_means grp_sem pRef pDiff mc_sig gR gP bar_res] = PLOT_BARGRP
+%
+% grp_mean: mean of each column
+% grp_sem: s.e.m. of each column; 
+% pRef: p value under H0: median is the same as y_ref;
+% pDiff: p value under H0: median is the same across columns
+% mc_sig: 1 if multiple comparison is significant
+% gR : Spearman correlation between grp and y
+% gP : p value of the gR
+% bar_res: bar handles
+% 
+% For paired comaprisons, see 
+% see also PLOT_BARPAIR (paired comparisons), PLOT_HISTGRP, DEMO_TIMECOURSE_DATA_ANALYSIS
+
 % 2017 HRK
 
-is_sig = [];
-y_ref = [];
-yl = [];
-show_individual = 1;
+is_sig = [];        % (n_obs * 1) column vector. 0: open circle 1: filled 
+y_ref = [];         % reference value to compaire with. 
+yl = [];            % y range [y_min y_max]
+show_individual = 1;    % 1: show individual dots 0: do not show
 individual_x_width = 0.3; % spread the x range of individual dots
 individual_size = 20;
 r_with_grp = 0;
 use_star = 0;
-bar_color = [];
-marker_color = [];
+bar_color = [];     % color of the bars. might not work.
+marker_color = [];  % color of individual dots.
 % estimator = @nanmean;
 % eb = @nansem;
-estimator = [];
-show_mc = 3; % 1: horiznotal bar 2: stars, 3: start, only sig.
-bar_x = [];      % bar start position. for now, only accept bar_x from plot_barpair
-test_type = 'nonpar';  % 'nonpar', 'par', 'par_cond'
-convert_col_idx = 1;     % treat x as a aPD column index if it's a scalar value
-eb_type = 'sem';        % 'sem','std'
+estimator = [];     % estimator (mean of median).
+% show_mc: show multiple comparison results (the horizontal lines above bars)
+show_mc = 3;        % 0: do not show 1: horiznotal bar 2: stars, 3: start, only sig.
+bar_x = [];         % bar start position. for now, only accept bar_x from plot_barpair
+test_type = 'nonpar';   % 'nonpar', 'par', 'par_cond'
+convert_col_idx = 1;    % treat x as a aPD column index if it's a scalar value
+eb_type = 'sem';        % error bar type. 'sem'|'std'
+debug = 0;
 
 process_varargin(varargin);
 
-gR = NaN; gP = NaN; mc_sig = [];
+gR = NaN; gP = NaN; mc_sig = []; bar_res=[];
 
 if ~is_arg('yl'), yl = []; end;
 if ~is_arg('is_sig'), is_sig = true(size(y)); end
@@ -148,6 +176,8 @@ if show_individual
     if isfield(get(hS), 'MarkerFaceAlpha') % new graphic engine
         set(hS, 'MarkerFaceAlpha',0.25, 'MarkerEdgeAlpha', 0.25)
     end
+    bar_res.hScatter1 = hS1;
+    bar_res.hScatter2 = hS2;
 else
     hS = [];
 end
@@ -175,7 +205,10 @@ end
 nOL = nnz( y < yl(1) | y > yl(2) );
 
 % test same dist 
-[pDiff bNonEqualVar mc_comparison,~,pPair] = test_same_dist(y, grp2idx(grp), 'test_type', test_type);
+[pDiff bNonEqualVar mc_comparison,~,pPair] = test_same_dist(y, grp2idx(grp), 'test_type', test_type,'debug', debug);
+
+% for plot_barpair_grp selective star display
+bar_res.pPair = pPair;
 
 % show multiple comparison results
 if ~isempty(mc_comparison)
@@ -235,6 +268,7 @@ if ~isnan(y_ref)
                 hStar = plot(ux(iX), yl(1) + diff(yl)* 0.93, 'h');
                 set(hStar,'tag','star', 'markerfacecolor',bar_color, 'color', bar_color, 'markersize', 5 );
             end
+            bar_res.hStar = hStar;
        else % use text
             hT = text(ux(iX), yl(1) + diff(yl)* 0.93, sprintf('%s\nn=%d', p2s(pRef(iX)), nnum(y(bV))));
             set(hT, 'fontsize', 7, 'tag', 'pval','HorizontalAlignment','center');
@@ -283,4 +317,7 @@ switch ( class(grp) )
             set(gca, 'xticklabel',  grp_names);
         end
 end
+
+bar_res.hB = hB;
+bar_res.hE = hE;
 return;

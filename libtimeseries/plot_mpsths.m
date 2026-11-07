@@ -1,8 +1,26 @@
 function [avg_psth psths h_psth] = plot_mpsths(cPSTH, varargin)
-% superimpose cell array of multiple PSTHs in one axis and plot average of them
-%  or draw image array with each row representing individual PSTHs.
+% PLOT_MPSTHS Plot the average of multiple time courses (namely, PSTHs) or
+%  visualize individual PSTHs in a color-coded 2D array
+% 
+% plot_mpsths(cPSTH) cPSTH is a psth struct from LOAD_PSTH_FILES or cell
+%   array of psth struct. Note that it does not always use all PSTHs 
+%   given to the function. For example, if the number of groups are
+%   different, PSTHs should not be pooled together. In that case, it picks 
+%   PSTHs with most frequent group count. 
+%   Therefore, It is very important to check the N info on the title
+%   and make sure that the # of PSTHs is accurate.
+% 
+% plot_mpsths(cPSTH, VARARGIN) PLOT_MPSTHS has a long list of options. Open
+% the function for detailed options. Below is a selected list of options.
+% 
+% plot_type:    'line':  plot averaged line plot
+%               'image': visualize individual PSTHs in (# of PSTHs * Time)
+%               2D array.
+% individual_psths:     1: show individual PSTHs
+%
+% See also PLOT_TIMECOURSE, LOAD_PSTH_FILES, PLOT_MPSTHS_TABLE, PLOT_MPSTH_XNEURON, PLOT_MPSTH_XSUBJECT, asave_psth
+
 % changed filename from plot_TC_psth to plot_multiple_psths
-% See also asave_psth
 % 10/31/2017 HRK
 
 % grouping and filtering psths
@@ -40,6 +58,10 @@ legend_gnum = 0;            % show # of groups in legend
 auto_filter_x = 1;       % set 0 if want to disconnect individual psths in concatenated form
 color_event_by_grp = 0;   % color event in PSTH by cmap for each group
 subsample_x = 1;        % subsample x to reduce plot size
+grp_lim = 10;
+check_event_timing = 2;   % 0: print out msg, 1: warning (might miss), 2: msg dialog (cannot miss but can ignore) 3: evoke an error (no way to miss)
+use_subgrp_psths = 0;       % use psths with a sebset of groups
+grp_order_only = 0;         % when combining grp, only care about grp order (first, 2nd, ) and ignore gname
 
 % process options
 process_varargin(varargin);
@@ -49,6 +71,7 @@ avg_psth = []; comb_means = []; h_psth.avg_psth = []; h_psth.ind_psth = []; h_ps
 if isempty(cPSTH) || (isstruct(cPSTH) && numel(fieldnames(cPSTH)) == 0)
     return;
 end
+
 n_tot_psths = nfields(cPSTH);
 
 % do not sort psths by default for plot type image unless specified
@@ -67,12 +90,14 @@ end
 % and group information (if check_grifo == 1)
 if homogenize
     [psths x n_grp] = homogenize_psths(cPSTH, 'x', x, 'n_grp', n_grp, ...
-        'adjust_x_anyway', adjust_x_anyway, 'check_ginfo', check_ginfo, 'psth_sort_format', psth_sort_format);
+        'adjust_x_anyway', adjust_x_anyway, 'check_ginfo', check_ginfo, ...
+        'psth_sort_format', psth_sort_format, 'use_subgrp_psths', use_subgrp_psths);
 else
     psths = cPSTH;
     cF = fieldnames(psths);
     % use group info of the first psth
     n_grp = size(psths.(cF{1}).mean, 1);
+    % if not homogenize the psths, use x range from the first psth.
     x = psths.(cF{1}).x;
 end
 n_homogenized_psths = nfields(psths);
@@ -156,9 +181,17 @@ for iR = 1:n_psth
     row_idx = ((iR-1)*n_grp+1):((iR)*n_grp);
     tmp_mean = cPSTH{iR}.mean;
     
+    % check x time point size
+    if size(comb_pBaseDiff, 2) ~= size(cPSTH{iR}.pBaseDiff, 2)
+        error('combined time points in comb_pBaseDiff (%d) is different from [%s] time points(%d)', ...
+            size(comb_pBaseDiff, 2), flist{iR} , size(cPSTH{iR}.pBaseDiff, 2) );
+    end
     comb_pBaseDiff(row_idx, :) = cPSTH{iR}.pBaseDiff;
-    comb_grp(row_idx) = cPSTH{iR}.gname;
-    
+    if grp_order_only
+        comb_grp(row_idx) = (1:size(cPSTH{iR}.mean,1))';
+    else
+        comb_grp(row_idx) = cPSTH{iR}.gname;
+    end
     % normalize mean
     switch(norm_method)
         case 'none'
@@ -204,15 +237,21 @@ end
 % dealing with mean responses between conditions across sessions.
 % Therefore, for each session, responses are paired.
 avg_psth = compute_avggrp(x(1,:), comb_means, comb_grp, 'test_diff', test_diff, 'test_timediff', 0, ...
-    'test_bin', 1, 'x_base', x_base, 'test_type', test_type, 'btw_grp_test', 'paired');
+    'test_bin', 1, 'x_base', x_base, 'test_type', test_type, 'btw_grp_test', 'paired', 'grp_lim', grp_lim);
 
+if numel(avg_psth.gname) < n_grp
+    warning('# of groups plotted (%d) is smaller than what was saved in psth (%d)', ...
+        numel(avg_psth.gname), n_grp);
+end
+    
 % assign ginfo
 for iP = 1:n_psth
     if isfield(cPSTH{iP}, 'ginfo'), avg_psth.ginfo = cPSTH{iP}.ginfo; break; end;
 end
 
 % get event header for PSTHs
-[avg_psth.event avg_psth.individual_event] = get_mpsths_events(cPSTH, 'event_header', event_header, 'b_valid_psths', b_valid_psths);
+[avg_psth.event avg_psth.individual_event] = get_mpsths_events(cPSTH, ...
+    'event_header', event_header, 'b_valid_psths', b_valid_psths, 'check_event_timing', check_event_timing);
 
 % plot averaged psth
 switch(plot_type)

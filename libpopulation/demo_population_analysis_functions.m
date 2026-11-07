@@ -1,21 +1,12 @@
-% A demo of Matlab functions for exploratory population data analysis
-% This demo consists of two part. The first partintroduces a number of
-% plotting functions. What makes these functions useful is 1) they show 'N' 
+% DEMO_POPULATION_ANALYSIS_FUNCTIONS A demo shoing custom-made functions for population data analysis
+% What makes these functions useful is 1) they show 'N' 
 % for data verification and ignores NaNs. 2) perform basic computation (e.g., 
 % linear regression) and statistics (e.g., signed rank test) related to the plots.
-% 3) additional options makes them strong and flexble. Open each
-% function to see a list of available options.
-% The second part shows how to load population data. The loading functions
-% generate a gigantic 2D array of [entity * features], where entities are either
-% neurons or subjects, and features are columns in the text file containing
-% numeric data. The first column of text file should be dataname. The text file 
-% is assumed to be saved with a specific folder structure. So you may need
-% to work on changing folder structure if you want to use this framework.
-% Once data is loaded in the gigantic 2D array form, it goes well with the 
-% plotting functions in the first part.
+% 3) additional options makes them strong and flexble. 
+% Open each function to see a list of available options.
 % 
-% see also DEMO_TIMECOURSE_DATA_ANALYSIS, DEMO_SAVE_SU_RESULTS 
-
+% see also DEMO_POPULATION_ANALYSIS_FRAMEWORK, DEMO_TIMECOURSE_DATA_ANALYSIS, DEMO_SAVE_SU_RESULTS 
+%
 % 3/15/2014 HRK.
 
 %% first part.
@@ -46,7 +37,7 @@ gna; [r,p,N,sl,itc,fitdata,pSR, hS] = plotsqscatter(x,y, grp, 'regress_type', 't
 a = x + 1; b = y + 1; c = b + 2;
 
 setfig(1, 2);
-% significance
+% stack insignificnat and significant data
 gna; plot_histsig(a, abs(a)>2);
 % groups
 gna; plot_histgrp(a, grp, -3:.25:3, 0.5);
@@ -64,3 +55,35 @@ gna; plot_barpair([a b], [abs(a)>2 abs(b)>2.5], 0);
 % parametric test
 gna; plot_barpair([a b c], [abs(a)>2 abs(b)>2.5 abs(c)>2.5], 0, 'test_type','par');
 
+%% X-Y plots 
+
+setfig(2,2);
+% x and y are paired column vectors. 
+% x is discrete independent variable. 
+x = repmat( (1:5)', [20 1])
+% y is measurement with noise.
+y = x.^2 + randn(size(x)) * 10;
+gna;
+% plot x and y with error bars
+plot_xyerr(x,y, 'errbar_type','patch');
+
+n_trial = numel(x);
+grp = randsample([1 2], n_trial, true)';
+gna;
+% plot x and y for each group
+plot_xygrp(x, y, grp);
+
+gna;
+% x is 
+x = 1:10;
+n_trial = 40;
+mx = repmat(x, [n_trial, 1]);
+my = mx .^ 2 + randn(size(mx)) * 30;
+% plot x and matrix y with error bars (no group)
+plot_xmyerr(x, my, 'errbar_type','patch');
+
+gna;
+% assign group id randomly for each row
+grp = randsample([1 2], n_trial, true)';
+% plot x and matrix y with group.
+plot_xmygrp(x, my, grp);

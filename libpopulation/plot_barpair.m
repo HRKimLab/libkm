@@ -1,22 +1,61 @@
-function [grp_means grp_sem pRef pDiff pPair] = plot_barpair(x, is_sig, y_ref, varargin)
-% plot bar plot with paired elements connected with lines
-% 10/28/2017 HRK
+function [grp_means grp_sem pRef pDiff pPair bar_res] = plot_barpair(x, is_sig, y_ref, varargin)
+% PLOT_BARPAIR Create a bar plot and perform paired comparisons between columns
+% 
+% PLOT_BARPAIR(X) creates a bar plot. x is [n_obs * n_features] array. The
+%   plot contains [n_features] bars, and the height of the bar is the
+%   average (mean) of n_obs (# of observations) elements for each feature.
+% 
+% Note that It assumes that features of each row is paired. For example, rows are
+%   subjects, features are (blood pressure before treatment, after treatment). 
+%   In this case, there is a shared variability (individual difference)
+%   between the two measurements. Thus, we should maintain paring when
+%   performing statistical analysis. 
+%   If you should not pair features, use plot_bargrp.
 %
+% PLOT_BARPAIR(X, IS_SIG) IS_SIG is an array whose size is the same as x.
+%   it indicates whether indiviausl element is significant or not. if the
+%   value is 0, the element is open dot, if the value is 1, the element is
+%   filled dot. 
+%
+% PLOT_BARPAIR(X, IS_SIG, Y_REF) performs statistical test. Null hypothesis
+%   is that the estimator (mean or median) of individual feature is the same 
+%   as y_ref.
+% 
+% PLOT_BARPAIR(X, IS_SIG, Y_REF, VARARGIN) open the function to see a list
+% of variable arguments. e.g., 'show_individual', 0 hide showing individual
+% dots.
+% 
+% RETURN VALUES:
+% [grp_means grp_sem pRef pDiff pPair bar_res] = PLOT_BARPAIR
+%
+% grp_mean: mean of each column
+% grp_sem: s.e.m. of each column; 
+% pRef: p value under H0: median is the same as y_ref;
+% pDiff: p value under H0: median is the same across columns
+% pPair: p value from multiple comparisons
+% bar_res: bar handles
+% 
+% see also PLOT_BARGRP (unpaired comparison), DEMO_TIMECOURSE_DATA_ANALYSIS
+
 % from PMC153434: As a rule, nonparametric methods, particularly when used in small samples, 
 % have rather less power (i.e. less chance of detecting a true effect where one exists) than 
 % their parametric equivalents, and this is particularly true of the sign test (see Siegel and Castellan [3] 
 % for further details).
+% 
+% 10/28/2017 HRK
 
-yl = [];
-show_individual = 1;
-use_star = 0;
-show_mc = 3; % 1: horiznotal bar 2: stars, 3: start, only sig.
-bar_x = 1;      % bar start position. can be a vector (same size as size(x,2))
-test_type = 'nonpar';  % 'nonpar', 'par', 'par_cond'
+yl = [];                % y lim range yl = [y_min y_max]
+show_individual = 1;    % 1: show individual dots 0: do not show    
+use_star = 0;           % 
+show_mc = 3;            % how to show mutual comparison results. 1: horiznotal bar 2: stars, 3: start, only sig.
+bar_x = 1;              % bar start position. can be a vector (same size as size(x,2))
+test_type = 'nonpar';   % 'nonpar', 'par', 'par_cond'
+bar_color = [];         % color of the bar. might not be implemented.
+debug = 0;
 
 process_varargin(varargin);
 
-if ~is_arg('c'), c = [.5 .5 .5];    end;
+if ~is_arg('bar_color'), bar_color = [.5 .5 .5];    end;
 if ~is_arg('y_ref'), y_ref = []; end;
 if ~is_arg('is_sig'), is_sig = true(size(x)); end;
 if numel(bar_x) == 0 
@@ -29,9 +68,9 @@ nCond = size(x, 2);
 [v grp] = cols2grp(x, 1:nCond);
 [is_sig grp] = cols2grp(is_sig, 1:nCond);
 
-[grp_means grp_sem pRef pDiff mc_sig] = plot_bargrp(v, grp, 'is_sig', is_sig, 'y_ref', y_ref, 'yl', yl, ...
-    'show_individual', show_individual, 'use_star', use_star, 'marker_color', c, 'show_mc', 0, ...
-    'bar_x', bar_x, 'test_type', test_type, 'individual_x_width', 0);
+[grp_means grp_sem pRef pDiff mc_sig ~,~,bar_res] = plot_bargrp(v, grp, 'is_sig', is_sig, 'y_ref', y_ref, 'yl', yl, ...
+    'show_individual', show_individual, 'use_star', use_star, 'marker_color', bar_color, 'show_mc', 0, ...
+    'bar_x', bar_x, 'test_type', test_type, 'individual_x_width', 0,'debug', debug);
 
 % compute correlation across groups (often group is an ordered variable)
 [rG pG] = corr(grp, v, 'type','Spearman', 'rows','pairwise');
@@ -42,12 +81,13 @@ atitle(sprintf('nR=%d,rG=%.2f,pG=%s', nR, rG, p2s(pG)), 1);
 % draw lines to connect corresponding data points
 if show_individual
     for iR = 1:size(x, 1)
-        hSL = line(bar_x, x(iR,:),'color', c);
+        hSL = line(bar_x, x(iR,:),'color', bar_color);
         
         % alpha for line only works for the new graphic engine
         % http://undocumentedmatlab.com/blog/plot-line-transparency-and-color-gradient
         if ~isnumeric(hSL) 
-            hSL.Color = [.5 .5 .5 .25];
+%             hSL.Color = [.5 .5 .5 .25];
+            hSL.Color(4) = [.25];
         end
     end
 end
@@ -104,6 +144,7 @@ switch(test_type)
         % do repeated measures ANOVA instead of ANOVA
         if nCond > 1
             pDiff_ANOVA_RM = anova_rm(x(bVR,:), 'off');
+            if debug, fprintf(1, 'P = %e, repeated measures ANOVA\n', pDiff_ANOVA_RM); end
         else
             pDiff_ANOVA_RM = NaN;
         end

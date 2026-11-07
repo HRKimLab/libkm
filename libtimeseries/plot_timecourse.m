@@ -1,38 +1,82 @@
-function [ax psth h_pt] = plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end, grp, varargin)
-%PLOT_TIMECOURSE plot averaged timecourse of neural or behavioral responses.
-% plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end, grp, varargin)
+function [ax psth h_pt quant_res] = plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end, grp, varargin)
+%PLOT_TIMECOURSE Plot averaged timecourses.
+% plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end)
 % data_type:
 %   ‘timestamp’: e.g., spike timing or lick timing in milisecond (ms).
 %   ‘stream’   : continuous data sampled at 1000Hz. the start of data acqusition is 0ms.
+%   'stream_2D': same as stream, but ts_resp is complex number encoding 2D 
+%                crrodinate(X, Y) of animal. plot_timecourseMD extends this
+%                and allows multi-dimensional array of ts_resp (under development)
 %   'stream_lineplot': use line plot instead of color-coded image.
 %    numeric   : x(t) that covary with responses (e.g., location of animal)
 %
-% nT         : the number of trials or events
-% ts_resp    : responses to plot
-% trigger    : nT X 1 array of event timing from the start of session (SoS) in ms.
-% trial_start: time from SoS (nT X 1 array) or relative to trigger (scalar value) in ms
-% trial_end  : time from SoS (nT X 1 array) or relative to trigger (scalar value) in ms
+% ts_resp    : a column or row vector (responses to plot)
+% trigger    : (nT X 1) column vector of event timing from the start of session (SoS) in ms.
+% trial_start: time from SoS (nT X 1) or time relative to trigger (scalar value) in ms
+% trial_end  : time from SoS (nT X 1) or time relative to trigger (scalar value) in ms
+%
+% nT is the number of trials or events. Note that plot_timecourse does not
+% assume that nT is trial. trigger can be any events (e.g., licks) that you
+% want to align with.
+% trial_start, trial_end can be either column vectors or single value.
+% 
+% plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end, grp)
+% plot time courses for each group using different colors.
 % grp        : categorical variable (e.g., experimental condition) or 
 %              continuous variable (e.g., movement latency) to group (sort) trials.
+%              Note that if you want to give varargin, grp must be given.
+%              Pass empty array ([]) if there is no group in data.
 %
-% additional options are shown below. (e.g., ..., 'win_len', 200);
-% win_len    : time window for averaging
-% test_diff  : do statistical test for 1) difference between groups 
+% plot_timecourse(data_type, ts_resp, trigger, trial_start, trial_end, grp, varargin)
+% Open the file to check a full list of options. Selected options are:
+%   win_len    : time window for averaging
+%   test_diff  : do statistical test for 1) difference between groups 
 %                 2) difference between baseline and after-trigger response.
-% grp_lim     : maximum number of groups (default: 10)
-% adjust_clim : exclude outliers (n% on both side) when color code continuse
-%                response using imagesc
-% clim        : directly assign clim
-% psth_type   : mavg for moving average, hist for histogram (PSTH)
-% hist_bin    : bin size for PSTH
-% errbar_type : {'patch'|'line'|'none'}
-% adj_xl      : auto-adjust use x range that >95% of values are valid
-% lick        : superimpose timestamp (e.g., lick) data
-% base_sub_win: window for baseline subtraction (e.g, [-1.5 -0.5] ) or rates
-% convert     : 'dF/F' , etc
+%   grp_lim     : maximum number of groups (default: 10)
+%   adjust_clim : exclude outliers (n% on both side) when color code continuse
+%                 response using imagesc
+%   clim        : directly assign clim
+%   psth_type   : mavg for moving average, hist for histogram (PSTH)
+%   hist_bin    : bin size for PSTH
+%   errbar_type : {'patch'|'line'|'none'}
+%   adj_xl      : auto-adjust use x range that >95% of values are valid
+%   lick        : superimpose timestamp (e.g., lick) data
+%   base_sub_win: a constant window for baseline subtraction (e.g, [-1.5 -0.5] ) or
+%        baseline rate for each group ( [# of grp X 1] ).
+%   convert     : 'dF/F' , etc
+%   quant_win   : time windows in sec for quantification (e.g., [-1 0; 1 2; 3 4];
+%                 this can be timestamps of size [n_trial 2]. In this case, median will be
+%                 used to draw time window in the PSTH plot.
 %
+% RETURN VALUES:
+% [ax psth h_pt quant_res] = PLOT_TIMECOURSE
+% ax:   axes for raster plot ax(1), and PSTH (ax(2)).
+% psth: a struct containing details of time course. This can be saved using
+%       asave_psth. See COMPUTE_AVGGRP for details. Note that the
+%       trial-to-trial data, psth.rate_rsp follows the order given by
+%       trigger. It is not re-ordered based on grp.
+%
+% h_pt: [2 * 2] handles for graphics. 
+%       h_pt.psth(:,1) are handles for lines in the psth.
+%       h_pt.psth(:,2) are handles for shadings in the psth.
+%       e.g., >> legend(h_pt.psth(:,1), 'Cond1','Cond2') % change legends
+%
+% quant_res: quantificaion results (if 'quant_win' option is used)
+%
+% Examples: 
+% [ax psth h_pt quant_res] = plot_timecourse('timestamp', lick, RewOn, -5000, 4000, exp_cond, 'quant_win', [-2 -1; 0 1] )
+%           : plot lick events aligned by reward onset, using a time window
+%           of [-5s +4s] relative to reward onset. Plot for each exp_cond
+%           (experimental condition).
+% 
+% 
+% legend(h_pt(:,1), 'low','high');
+%
+% See also COMPUTE_AVGGRP, PLOT_MTIMECOURSE, ASAVE_PSTH, PLOT_MPSTHS
+
 % previous output args: [ax h_psth psth x rate_rsp h_event_psth h_event_raster array_rsp] 
 bPlotRawCh = false;
+estimator = 'mean';      % if estimator is numeric, psth.mean is percentile
 win_len = 100;          % 50 to 60. 1/20/2016 HRK 60 to 100 11/18/2018 HRK
 plot_type = 'both';     % both, none , (raw, psth: not implemented yet)
 test_diff = 0;          % test staitstical significance
@@ -70,6 +114,13 @@ cmap = [];                  % color map. see get_cmap()
 show_colorbar = 1;
 distance_edge = [];         % bin for z(t) (e.g., distance(t))
 valid_x_crit = 0.5;         % criterion (trials in the condition) to compute valid estimator
+% time windows in sec for quantification (e.g., [-1 0; 1 2; 3 4];
+% this can be timestamps of size [n_trial 2]. In this case, median will be
+% used to draw time window in the PSTH plot.
+quant_win = [];             
+event_ts = [];              % plot multiple events within a trial (to be implemented!!)
+b_valid = [];               % filter-in valid traiggers (same as assining NaNs)
+FDR = [];                % control the false discovery rate (FDR). see fdr_bh().
 
 % in case grp is omitted before varargin options...
 if ~is_arg('grp')
@@ -88,6 +139,7 @@ x = []; rate_rsp = [];
 ginfo = [];
 h_pt.psth = []; h_pt.event_raster = []; h_pt.event = [];
 h_psth = NaN(0,2); h_event_raster = []; h_event_psth = [];
+quant_res = [];
 
 % assign dummy variable in case of using provided psth. just use the whole 
 % trial structure for now.
@@ -121,6 +173,8 @@ end
 
 if size(trigger, 2) > 1, error('Use row vector( | ) for trigger'); end
 n_trial = size(trigger, 1);
+nTime = size(ts_resp, 2);
+
 if roc == 2
     split_v = [.5 .5];
 end
@@ -134,7 +188,7 @@ elseif isstruct(grp) && isfield(grp, 'grp_idx') % grp is ginfo structure from pa
     % which is grp_idx. And the order of grpstat() in compute_avggrp should
     % be matched to the order of label both is in the ascending order.
     grp = ginfo2grp(ginfo, trial_start);
-    grp_lim = 25;    % when using ginfo, I do not use grp for sorting
+    grp_lim = 30;    % when using ginfo, I do not use grp for sorting
 elseif isstruct(grp) % grp is structure of conditions
     n_trials = structfun( @(x) numel(x), grp);
     assert( numel(unique(n_trials)) == 1, '# of trial differ in grp struct');
@@ -161,10 +215,18 @@ assert(size(trigger,1) == size(trial_start,1) || numel(trial_start) == 1, '# of 
 assert(size(trial_start,1) == size(trial_end,1) || numel(trial_start) == 1 || numel(trial_end) == 1, '# of trial_start and trial_end should match');
 assert(size(trigger,1) == size(grp,1), 'trigger and grp must have the same # of rows');
 assert(isempty(base_rsp) || size(base_rsp, 1) == size(trigger, 1), '# of base_rsp should be same as # of trigger');
+
+if is_arg('b_valid')
+    assert(size(trigger,1) == size(b_valid,1), '# of trigger and b_valid should match');
+else
+    b_valid = true(size(trigger));
+end
+
 % get valid trials
-bVT = ~isnan(trigger) & ~isnan(trial_start) & ~isnan(trial_end);
+bVT = ~isnan(trigger) & ~isnan(trial_start) & ~isnan(trial_end) & b_valid;
 % nullify grp to get the correct gnumel for printout
 grp( ~bVT ) = NaN;
+
 
 % return if any of input argument is just NaN array
 %if all(isnan(trigger)) || all(isnan(trial_start)) || all(isnan(trial_end)) % || all(isnan(grp))
@@ -191,8 +253,9 @@ end
 % make sure grp is equivalent to whole-trial-based group.
 if ~isempty(ginfo) && isstruct(ginfo)
    if(nColor ~= size(ginfo.unq_grp_n, 1) )
-       warning('group # plotted is different from ginfo. Use data_params2grp() to generate proper ginfo');
-       keyboard;
+       error('Group # after removing NaN events (%d) is different from group # in the ginfo (%d). Use data_params2grp() to generate proper ginfo', ...
+           nColor, size(ginfo.unq_grp_n, 1) );
+       %keyboard;
    end
    % stronger sanity check would be save used trials and compare whether
    % the seed trials are identical.
@@ -208,8 +271,8 @@ end
 % sort trials based on group and trial #
 [~, idx_trials] = sortrows([grp (1:n_trial)']);
 
-% compute instantaneous rates. it will be subsampled in compute_avggrp
-% x, rate_rsp, array_rsp is original results (1kHz)
+% compute instantaneous rates aligned by trigger. rate_rsp is [# of trial * # of ticks]
+% x, rate_rsp, array_rsp is original results (1kHz). It will be subsampled in compute_avggrp
 % psth.XX is sub-sampled results (default: 100Hz)
 [x, rate_rsp array_rsp base_rate] = compute_rate(data_type, ts_resp, trigger, trial_start, trial_end, 'win_len', win_len, 'bPlotRawCh', bPlotRawCh, ...
     'base_sub_win', base_sub_win, 'distance_edge', distance_edge);
@@ -253,7 +316,8 @@ end
 % compute averaged response and test statistical difference
 psth = compute_avggrp(x, rate_rsp, grp, 'test_diff', test_diff, 'test_type', test_type, 'grp_lim', grp_lim, ...
     'test_bin', test_bin, 'resample_bin', resample_bin, 'roc', roc, 'x_base', x_base, ...
-    'base_rsp', base_rsp, 'roc_base_grpid', roc_base_grpid, 'valid_x_crit', valid_x_crit);
+    'base_rsp', base_rsp, 'roc_base_grpid', roc_base_grpid, 'valid_x_crit', valid_x_crit, ...
+    'estimator', estimator, 'FDR', FDR);
 
 % assign array_rsp (unaveraged raw trial structure). This won't be saved
 psth.array_rsp = array_rsp;
@@ -346,6 +410,24 @@ else
         set(ax_raster, 'xtick',[]);
         n_valid = nnz(~all(isnan(array_rsp),2));
         stitle(ax_raster, 'N=%d/%d(-%d)', n_valid, n_trial, n_trial - n_valid);
+    case 'stream_2D'
+%         image_continuous_array(x, array_rsp(idx_trials,:), 'grp_idx', grpid(idx_trials), ...
+%             'bSkipNaN', true, 'grp_lim', grp_lim, 'xl', xl, 'ax', ax_raster, 'show_colorbar', show_colorbar, ...
+%             'adjust_clim', adjust_clim, 'clim', clim);
+          plot_mxmygrp( real( array_rsp(idx_trials,:)), imag( array_rsp(idx_trials,:)), grpid(idx_trials) )
+          next_status = get(ax_raster, 'nextplot');
+          set(ax_raster, 'nextplot', 'add');
+
+          plot( real(ts_resp(trigger)), imag(ts_resp(trigger)), 'x');
+          % if trial_start and trial_end are single, it's time relative to trigger
+         if numel(trial_start) == 1, tstart = trigger + trial_start; end
+         if numel(trial_end) == 1, tend= trigger + trial_end; end
+
+
+          plot( real(ts_resp(tstart)), imag(ts_resp(tstart)), '*');
+          plot( real(ts_resp(tend)), imag(ts_resp(tend)), 's');
+          set(ax_raster, 'nextplot', next_status);
+          axis(ax_raster,'square')
     end
 end
 
@@ -364,7 +446,8 @@ end
 if ~isempty(lick)
     axes(ax_raster);
     [~, ar_lick] = ts2array(lick, trigger, trial_start, trial_end);
-    plot_raster_array(x, ar_lick(idx_trials,:), grpid(idx_trials), true, 'raster_size', raster_size);
+    hP = plot_raster_array(x, ar_lick(idx_trials,:), grpid(idx_trials), true, 'raster_size', raster_size);
+    set(hP,'tag','lick');
     % use tag = 'rastermarker' to find out lick handles
 end
 
@@ -400,7 +483,7 @@ end
 switch(psth_type)
     case 'mavg' % peri-stimulus moving average
         [h_pt.psth hT hL] = plot_psma(psth, 'eb_type', errbar_type, 'cmap', cmap, 'legend_gnum', ...
-            legend_gnum,'ax',ax_psth, 'set_lim', set_lim, 'grp_xlim', grp_xlim);
+            legend_gnum,'ax',ax_psth, 'set_lim', set_lim, 'grp_xlim', grp_xlim,'valid_x_crit', valid_x_crit);
     case 'hist'        
         bar(ax_psth, hist_edges, nHist, 'histc');
         xlim(ax_psth, minmax(hist_edges));
@@ -408,6 +491,7 @@ switch(psth_type)
         % In this case, change x and rate_rsp accordingly.
         x = hist_edges;
         rate_rsp = nHist';
+    case 'none'
 end
 
 % plot legend
@@ -437,7 +521,13 @@ draw_refs(0, 0, NaN, ax_psth);
 % axes(ax_raster); 
 
 ax = [ax_raster; ax_psth];
-linkaxes(ax, 'x'); set(ax, 'xlim', xl); 
+if ~isnumeric(data_type)
+    switch(data_type)
+        case 'stream_2D'
+        otherwise
+            linkaxes(ax, 'x'); set(ax, 'xlim', xl); 
+    end
+end
 
 % plot events. event can be double array, table array or struct 
 if isfield(psth, 'event') && ~isempty(psth.event)
@@ -492,5 +582,37 @@ end
 % color bar on the right of raster makes ax_rater not be CurrentAxes.
 % I tried some tweaks but did not work. make it explicit here.
 set(get(ax_raster,'parent'), 'CurrentAxes', ax_raster);
+
+% plot quantification windows and quantify responses using contant windows
+n_quant_win = size(quant_win, 1);
+if is_arg('quant_win') && is_arg('base_sub_win') 
+    if n_quant_win == n_trial 
+        error('variable trial time window for quant_win and base_sub_win is not implemented.');
+    end
     
+    % use rate_rsp when base_sub_win is applied. Found by Hoyeon
+    
+elseif is_arg('quant_win')
+    % quant_win is given as column vectors of start and and end ms timestamps
+    if n_quant_win == n_trial 
+        assert(all(all(quant_win >1000)), 'You are using quant_win as milisecond timestamps, but the timestamp values are small');
+        % we cannot put shading for this type of timestamps
+        % TODO we may use median of timestamps to plot time window
+        ms_start_window = nanmedian( quant_win(:,1) - trigger );
+        ms_end_window = nanmedian( quant_win(:,2) - trigger );
+        % shade plot
+        shade_plot(ax(2), [ms_start_window ms_end_window]/1000, [0.9 1]);
+        quant_res = conv2rate(data_type, ts_resp, quant_win(:,1) , quant_win(:,2)  );
+    elseif n_quant_win < 20 % quant_win is given as constant scalar numbers relative to trigger
+        shade_plot(ax(2), quant_win, [0.9 1]);
+        for iQ = 1:size(quant_win, 1)
+            quant_res(:, iQ) = conv2rate(data_type, ts_resp, trigger + round(quant_win(iQ, 1)*1000), ...
+                trigger + round(quant_win(iQ, 2)*1000) );
+        end
+    else % n_quant_win is timestamps, but the number does not match
+        error('size(quant_win, 1) (%d) should match with the # of triggers (%d)', ...
+            n_quant_win, n_trial);
+    end
+end
+
 return;

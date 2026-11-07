@@ -66,7 +66,9 @@ for iAx = 1:length(ax)
     hP = [];
     ax1 = ax(iAx);
     set(ax1,'NextPlot','add');
-    if n_trial > 200
+	if n_trial > 600
+		msize = 1;
+	elseif n_trial > 200
         msize = 2;
     else
         msize = 3;

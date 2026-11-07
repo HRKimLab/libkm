@@ -1,11 +1,24 @@
 function StoreResults(fdir, fname, file_tag, unitkey, cHeader, data)
-% StoreResults(fdir, fname, file_tag, unitkey, cHeader, data)
-%  advanced version of WriteData. this function attempts to store data in a flexible way, 
+% STORERESULTS(fdir, fname, file_tag, unitkey, cHeader, data)
+%  Saves numeric data (data) into a text file with string header (cHeader).
+%  This creates a file if not exists. If exists, this append data at the
+%  end of the file.
+%
+% Examples:
+% onerow_data = [1.4 1.3 3.2 0.5];
+% StoreResults(data.files.analysis_dir, 'neuron_MStimOn.dat', ...
+%     [], data.dataname, {'CS1' 'CS2' 'CS3' 'CS4'}, onerow_data);
+%
+% See also LoadPopulationData5Key
+%
+% HRK
+
+% (deprecated explanation)
 % considering later distributed analysis situation (e.i., running analysis in multiple
 %  machine). In that case, store results can be thoughts as sending
 %  'message', and this function can select multiple way to store those
 %  data. data is usually consists of (unitkey, array of values).
-% 
+%
 % gSave.type = 0, or undefined: use whichever suggested by fdir. 
 %    if fdir is full path, then append to the destination file
 %    if fpth is directory, then store as to 'unitkey.tag' file. This is
@@ -14,6 +27,7 @@ function StoreResults(fdir, fname, file_tag, unitkey, cHeader, data)
 % gSave.type == 1 : force to append to [fname]. error if fdir is directory
 % gSave.type == 2 : force to save to individual file. use path part of fpath if it has filename at the end.
 % gSave.type == 3 : foree to save to [fname_m'host_id'].
+
 STORE_UNDEF = 0;
 ONE_FILE = 1;
 KEY_FILES = 2;

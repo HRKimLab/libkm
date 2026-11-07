@@ -43,6 +43,9 @@ if ( strcmp(class(get(gcf,'UserData')), 'panel') || ...
         strcmp(class(get(gcf,'UserData')), 'panel_ext') ) && ...
         ~( (~isempty(parent_panel) && ishandle(parent_panel)) && strcmp(get(parent_panel,'type'),'axes'))
     p = get(gcf,'UserData');
+    if ~isempty(p.axis)
+        error('Use p.gnp() instead of p.gna() for plot_timecourse in a figure created by setpanel()')
+    end
     p.pack('h', {8.3/10 []});
     p(1).pack('v', {split_v(1) split_v(2)});
     ax_psth = p(1,2).select();
@@ -63,9 +66,10 @@ parent_fig = get(ax_psth, 'parent');
 % get axis for raster and psth
 pAx = get(ax_psth, 'position');
 % push down raster
-set(ax_psth, 'position', [pAx(1), pAx(2), pAx(3) * 0.92, pAx(4) * 0.24]);
+% set(ax_psth, 'position', [pAx(1), pAx(2), pAx(3) * 0.92, pAx(4) * 0.24]);
+set(ax_psth, 'position', [pAx(1), pAx(2), pAx(3) * 0.92, pAx(4) * split_v(2)* 0.8 ]);
 % axes for raster
-ax_raster = axes('position', [pAx(1), pAx(2) + pAx(4) * 0.25, pAx(3) * 0.92, pAx(4) * 0.7], ...
-    'parent', parent_fig);
+% ax_raster = axes('position', [pAx(1), pAx(2) + pAx(4) * 0.25, pAx(3) * 0.92, pAx(4) * 0.7 ], 'parent', parent_fig);
+ax_raster = axes('position', [pAx(1), pAx(2) + pAx(4) * split_v(2)*0.85, pAx(3) * 0.92, pAx(4) * split_v(1) ], 'parent', parent_fig);
 
 return;

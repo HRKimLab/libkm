@@ -1,7 +1,11 @@
-function [hP xye] = plot_xygrp(x,y, grp, errbar_type, varargin)
-% plot_xygrp(x,y, errbar_type)
-% compute std or sem of y based on x, and plot errorbars.
-% errbar = 'sem' | 'std'
+function [hP xye] = plot_xygrp(x, y, grp, errbar_type, varargin)
+% PLOT_XYGRP draw a line plot with error bars, for each group
+%   PLOT_XYGRP(X, Y, GRP) the action of the plot is same as plot_xyerr, 
+%     except that it iterate each group, and then add the plot to the
+%     existing plots. the number of line plots is the same as the number of
+%     unique grp values.
+% 
+% See also PLOT_XYERR, PLOT_XMYERR, PLOT_XMYGRP
 
 show_individual = 0;
 individual_size = 20;
@@ -50,9 +54,12 @@ for iG=1:nG
    serrG = grpstats(y,x, errbar_type);
 
    marker_color = brighter(cmap(iG,:), 2);
-   scatter(x, y, individual_size, marker_color, 'o', 'filled');
+   if show_individual
+        scatter(x, y, individual_size, marker_color, 'o', 'filled');
+   end
    hP(iG) = plot(unique_x, mG,'-o','color', cmap(iG,:));
    errorbar(unique_x, mG, serrG, 'color', cmap(iG,:));
+%    draw_errorbar(unique_x, mG, serrG, cmap(iG,:), errbar_type, gca)
    
    % save x, y, err
    nX = length(unique_x);

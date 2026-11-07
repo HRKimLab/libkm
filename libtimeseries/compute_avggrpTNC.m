@@ -1,0 +1,388 @@
+function [psth] = compute_avggrpTNC(x, rate_rsp, grp, varargin)
+% COMPUTE_AVGGRPMD compute average activities for each group
+%  compute_avggrp(x, rate_rsp, grp) computes average activity of 
+%   rate_rsp [nTime nNeuron nTrial] based on grp [nTrial 1]. 
+%   Make grp element to NaN if trigger or windows is not valid
+% 
+% RETURN VALUE:
+% psth: psth struct that contains results of grouping.
+% psth.mean: [nTime nNeuron nGroup]
+% 
+% See also compute_avggrpMD
+%
+% HRK 2016
+
+if ~is_arg('grp'), grp = ones(nTrial, 1); end;
+
+test_diff = false;
+test_timediff = false;
+test_type = 'nonpar';   % 'nonpar', 'par'
+btw_grp_test = 'unpaired'; % unpaired: trial, paired: mpsths
+grp_lim = 10;
+test_bin = [];
+x_base = [-1 0];      % timepoint range (e.g., [-1 0])
+base_rsp = [];         % directly provide baseline rsp
+resample_bin = 10;
+roc = 0;
+roc_base_grpid = [];   % compute auROC based on the specified two groups
+valid_x_crit = 0.5; % criterion (trial ratio) to compute estimators at each time point (mean, std, sem, etc)
+
+% array_rsp = [];  % do not use array_rsp. timestamp will be dropped due to subsampling
+
+process_varargin(varargin);
+
+assert(valid_x_crit < 1, 'valid_x_crit should be less than 1'); % b/c I do > below
+
+[cmap nColor grpid gname gnumel] = grp2coloridx(grp, grp_lim);
+% nTrial = size(rate_rsp, 1);
+% nTime = size(rate_rsp,2);
+nTrial = size(rate_rsp, 3);
+nTime =  size(rate_rsp, 1);
+nNeuron = size(rate_rsp, 2);
+
+% stats for drawing PSTH.
+% mean can also be NaN if all column values are NaN
+if nTrial == 1 % grpstats does some stupid thing with row size is 1 (transpose it)
+    mean_rsp  = rate_rsp;
+    sem_rsp = zeros(size(rate_rsp)); 
+    std_rsp = zeros(size(rate_rsp));
+    numel_rsp = 1; 
+else
+%     [mean_rsp sem_rsp std_rsp numel_rsp num_nans] = grpstats(rate_rsp, grpid, {'mean','sem','std', 'numel', @nnan} );
+      % grpstats iterate individual column using 'for' statement and using tryeval(). 
+      % it is very inefficient and takes very long time. Just use built-in functions.
+%     [mean_rsp std_rsp numel_rsp] = grpstats(rate_rsp, grpid, {'mean','std', 'numel'} );
+    
+    unq_gid = nonnan_unique(grpid); unq_gid = unq_gid(:); nG = numel(unq_gid);
+%     mean_rsp = NaN(nG, nTime); std_rsp = NaN(nG, nTime);
+%     numel_rsp = NaN(nG, nTime); sem_rsp = NaN(nG, nTime);
+%     valid_rsp = false(nG, nTime);
+    mean_rsp = NaN(nTime, nNeuron, nG); std_rsp = NaN(nTime, nNeuron, nG);
+    numel_rsp = NaN(nTime, nNeuron, nG); sem_rsp = NaN(nTime, nNeuron, nG);
+    valid_rsp = false(nTime, nNeuron, nG);
+    
+    % TODO I may be able to impelment it without iterating iN and make it faster
+    for iN = 1:nNeuron
+    % iterate groups
+    for iG = 1:nG
+        % get the number of NaN trials at each time point
+        numel_rsp(:, iN, iG) = sum(~isnan(rate_rsp(:,iN, grpid == unq_gid(iG)) ), 3);
+        % the number of trials in at each time point should be greater than
+        % criterion to compute estimators. use '>' such that ignore 1/2 case.
+        valid_rsp(:, iN, iG) = numel_rsp(:,iN,iG) > repmat( max( numel_rsp(:,iN,iG),[], 1) * valid_x_crit, [nTime 1 1]);
+        % compute estimators in the valid range. Otherwise leave it as NaNs
+		% I CANNOT REMOVE iN b/c of THIS PART. I CANNOT TAKE SUBSET OF 2D
+		% ARRAY USING 2D LOGICAL VARIABLE. CAN IT? - HRK
+        mean_rsp(valid_rsp(:,iN,iG),iN,iG) = nanmean(rate_rsp(valid_rsp(:,iN,iG), iN, grpid == unq_gid(iG)), 3);
+        std_rsp(valid_rsp(:,iN,iG),iN,iG) = nanstd(rate_rsp(valid_rsp(:,iN,iG),  iN, grpid == unq_gid(iG)), [], 3);
+    end
+    end
+    % compute sem based on std and numel
+    sem_rsp = std_rsp ./ sqrt(numel_rsp);
+    
+%     assert(all(all(mean_rsp(~isnan(mean_rsp)) == mean_rsp2(~isnan(mean_rsp2)))));
+%     assert(all(all(std_rsp(~isnan(std_rsp)) == std_rsp2(~isnan(std_rsp2)))));
+%     assert(all(all(numel_rsp(~isnan(numel_rsp)) == numel_rsp2(~isnan(numel_rsp2))))); 
+
+end
+
+% get indice of groups in the increasing order of valid group size
+% [~, idx_sorted_by_num] = sort(sum(numel_rsp,2), 1, 'ascend');
+[~, idx_sorted_by_num] = sort(nanmean(sum(numel_rsp, 1), 3)', 2, 'ascend');
+
+%% now, perform statistical analysis for PSTH
+% test difference in mean rates using ANOVA
+pDiff = NaN(size(x));
+pBaseDiff = NaN(length(x), 1, nColor);
+p2 = NaN(1,3);
+
+nSkip = 1;
+% if length > 100, test approx. 100 time points
+% if length(x) > 100, nSkip = round( length(x) / 100 ); end
+
+if is_arg('test_bin')
+    nSkip = test_bin;
+else
+    % set nSkip to test every 0.1s
+    nSkip = round(0.1/(x(2)-x(1)));
+end
+
+% I need to set the resample x to be multiples of 10 to later combine it easily.
+% specifically, x should be matched in in adjust_psth_range()
+% find the start index that is a multiple of 10
+% resample_start_idx = find( mod(psth.x(1:10)*1000, 10) == 0 );
+[~,iM] = min( abs( x(1:min([numel(x) 10]))*1000 - round(x(1:min([numel(x) 10]))*100) * 10 ) );
+resample_start_idx = iM;
+
+if test_diff && any(any(any(~isnan(rate_rsp))))
+    % difference relative to baseline
+    for iG = 1:nColor
+        % use resample_start_idx instead of 1. Otherwise, p values will not
+        % be sampled below
+        for iC = resample_start_idx:nSkip:nTime
+            % compare response at x_base s with responses at each timepoint
+            if ~isempty(base_rsp)
+                base_rspG = base_rsp(grpid == iG);
+            elseif numel(x_base) == 1
+                base_rspG = rate_rsp(grpid == iG, x == x_base);
+            elseif numel(x_base) == 2
+				% base_rspG : [1 x Neuron x 1]
+                base_rspG = nanmean(rate_rsp(x >= x_base(1) & x < x_base(2), :, grpid == iG), 1);
+            end
+            % pairwise subtraction
+            diff_vals = rate_rsp(iC, :, grpid == iG) - base_rspG;
+            if nnum(diff_vals) > 0
+				
+				for iN = 1:nNeuron
+
+					switch(test_type)
+                    case 'nonpar'
+						% let's use same test for now...
+						test_vals = squeeze(diff_vals)';
+						pBaseDiff(iC, iN, iG) = signrank(diff_vals(:, iN) );
+						
+                    case 'par'
+% 						pBaseDiff(iC, 1, iG) = HotellingT2(diff_vals);
+                        [~, pBaseDiff(iC, iN, iG)] = ttest(diff_vals(:, iN) );
+                    otherwise
+                        error('Unknown test_type: %s', test_type);
+					end
+				
+				end
+				
+                switch(test_type)
+                    case 'nonpar'
+						% let's use same test for now...
+						test_vals = squeeze(diff_vals)';
+						if size(test_vals, 1) <= size(test_vals, 2)
+							pBaseDiffMD(iC, 1, iG) = NaN;
+						else
+							pBaseDiffMD(iC, 1, iG) = HotellingT2(test_vals);
+						end
+                        
+                    case 'par'
+						pBaseDiffMD(iC, 1, iG) = HotellingT2(diff_vals);
+%                         [~, pBaseDiff(iC, 1, iG)] = ttest(diff_vals);
+                    otherwise
+                        error('Unknown test_type: %s', test_type);
+                end
+            else
+                pBaseDiffMD(iC, 1, iG) = NaN;
+            end
+        end
+    end
+    
+    switch(btw_grp_test)
+        case 'unpaired'
+            switch(test_type)
+                case 'nonpar'
+%                     % difference between groups
+%                     if nColor == 2 % need to be changed using Wilcoxon test
+%                         for iC = resample_start_idx:nSkip:nTime
+%                             if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
+%                                 pDiff(iC) = ranksum(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+%                                 %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+%                             end
+%                         end
+%                     elseif nColor > 2
+%                         for iC = resample_start_idx:nSkip:nTime
+% %                             pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+%                             % Kruskal–Wallis one-way analysis of variance
+%                             pDiff = kruskalwallis(rate_rsp(:, iC), grpid, 'off');
+%                         end
+%                     end
+					for iC = resample_start_idx:nSkip:nTime
+						[~, tmp] = manova1( squeeze(rate_rsp(iC, :, :))', grpid );
+						pDiff(iC) = tmp(1);
+					end
+                case 'par'
+%                     % difference between groups
+%                     if nColor == 2 % need to be changed using Wilcoxon test
+%                         for iC = resample_start_idx:nSkip:nTime
+%                             if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
+% %                                 pDiff(iC) = ranksum(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+%                                  [~, pDiff(iC)] = ttest2(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+%                             end
+%                         end
+%                     elseif nColor > 2
+%                         for iC = resample_start_idx:nSkip:nTime
+%                             pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+%                         end
+%                     end
+					warning('not tested yet. may have error.')
+					for iC = resample_start_idx:nSkip:nTime
+						[~, tmp] = manova1( squeeze(rate_rsp(iC, :, :))', grpid );
+						pDiff(iC) = tmp(1);
+					end
+                otherwise
+                    error('Unknown test_type: %s', test_type);
+            end
+            
+        case 'paired'
+            switch(test_type)
+                case 'nonpar'
+                    % difference between groups
+                    if nColor == 2 % need to be changed using Wilcoxon test
+                        assert(nnz(grpid == 1) == nnz(grpid == 2), '# of groups should match in paired test');
+                        for iC = resample_start_idx:nSkip:nTime
+                            if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
+                                pDiff(iC) = signrank(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                                %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+                            end
+                        end
+                    elseif nColor > 2
+                        for iC = resample_start_idx:nSkip:nTime
+                            % create a 2D array for paired comparison
+                            rate_rsp_paired = NaN( numel(grpid)/max(grpid), max(grpid) );
+                            for iG = 1:max(grpid)
+                                bVG = grpid == iG;
+                                assert(nnz(bVG) == numel(grpid)/max(grpid), 'array creation for paired test failed');
+                                rate_rsp_paired(:, iG) = rate_rsp(bVG, iC);
+                            end
+%                             pDiff(iC) = anova_rm(rate_rsp_paired, 'off');
+                              if any(any(isnan(rate_rsp_paired)))
+                                    pDiff(iC) = NaN;
+                              else
+                                    pDiff(iC) = friedman(rate_rsp_paired, 1, 'off');
+                              end
+                              if iC == resample_start_idx
+                                  warning('Friedman test was not tested thoroughly. needs to be confirmed');
+                              end
+                        end
+                    end
+                    
+                case 'par'
+                    % difference between groups
+                    if nColor == 2 % need to be changed using Wilcoxon test
+                        assert(nnz(grpid == 1) == nnz(grpid == 2), '# of groups should match in paired test');
+                        for iC = resample_start_idx:nSkip:nTime
+                            if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
+                                [~, pDiff(iC)] = ttest(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
+                                %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
+                            end
+                        end
+                    elseif nColor > 2
+                        for iC = resample_start_idx:nSkip:nTime
+                            % create a 2D array for paired comparison
+                            rate_rsp_paired = NaN( numel(grpid)/max(grpid), max(grpid) );
+                            for iG = 1:max(grpid)
+                                bVG = grpid == iG;
+                                assert(nnz(bVG) == numel(grpid)/max(grpid), 'array creation for paired test failed');
+                                rate_rsp_paired(:, iG) = rate_rsp(bVG, iC);
+                            end
+                            p_tmp = anova_rm(rate_rsp_paired, 'off');
+                            pDiff(iC) = p_tmp(1);
+                            if iC == resample_start_idx
+                                warning('ANOVA_RM is not tested thoroughly. needs to be confirmed');
+                            end
+                        end
+                    end
+                    
+                otherwise
+                    error('Unknown test_type: %s', test_type);
+            end
+            
+        otherwise
+            error('Unknown between-group test type: %s', btw_grp_test);
+    end
+    
+end
+
+if test_timediff && any(any(~isnan(rate_rsp)))
+    % 3-way ANOVA adding trial duration, trial number as a second factor
+    array_x = repmat(x, [nTrial 1]);
+    array_trialid = repmat((1:nTrial)', [1 size(x, 2)]);
+    array_grp = repmat(grpid, [1 nTime]);
+    r = rate_rsp(:,1:nSkip:end); a = array_x(:, 1:nSkip:end); b = array_grp(:, 1:nSkip:end); c = array_trialid(:, 1:nSkip:end);
+    p2 = anovan(r(:), {a(:), b(:), c(:)},'display', 'off');
+end % test_diff
+
+% n_grp = grpstats(~isnan(trigger) & ~isnan(trial_start) & ~isnan(trial_end), grpid, {'sum'} );
+n_grp = grpstats( ~isnan(grpid), grpid, {'sum'} );
+
+
+psth.x = x;
+psth.mean = mean_rsp;
+psth.sem = sem_rsp;
+psth.std = std_rsp;
+psth.numel = numel_rsp;
+psth.pDiff = pDiff;
+psth.pBaseDiff = pBaseDiff;
+psth.gname = cellfun(@str2num, gname);
+psth.idx_sorted_by_num = idx_sorted_by_num;
+psth.p2 = p2;
+psth.gnumel = gnumel;
+
+psth.rate_rsp = rate_rsp;
+% psth.grp = grp;
+% psth.grpid = grpid; % added 11/3/2019 HRK
+psth.grp = grp(:)';
+psth.grpid = grpid(:)'; % added 11/3/2019 HRK
+psth.n_grp = n_grp;
+psth.resample_bin = resample_bin;
+% psth.array_rsp = array_rsp;  % do not use array_rsp. inaccurate timestamp
+psth.type = 'MD'; % multi-dimensional version
+
+% resample psth to save memory and disk  8/14/2018 HRK
+% iterate fields in the psth structure and resmaple
+if resample_bin > 1 && diff(psth.x(1:2)) < 0.002 % only downsample when x is 1ms bin.
+    assert(~isempty(resample_start_idx), 'cannot find resample_start_idx');
+
+    % get the length of x
+    nL = size(psth.x, 2);
+    fn = fieldnames(psth);
+    % subsample all fields that have the same size as x
+    for iF = 1:numel(fn)
+        % time is 1nd dim.
+        if size(psth.(fn{iF}), 1) == nL
+            psth.(fn{iF}) = psth.(fn{iF})(resample_start_idx:resample_bin:end,:,:);
+        end
+        % time is 2nd dim.
+        if size(psth.(fn{iF}), 2) == nL
+            psth.(fn{iF}) = psth.(fn{iF})(:, resample_start_idx:resample_bin:end);
+        end
+        
+    end
+end
+
+% make sure that x is multiple of 10 (I observed that occasionally x has
+% tiny errors
+x_interval = (1000/resample_bin);
+psth.x = round(psth.x * x_interval) / x_interval;
+
+% do ROC analysis after resampling because it takes lots of time..
+if roc
+    roc = NaN(nColor, length(psth.x) );
+    for iG = 1:nColor
+        % compare response at x_base s with responses at each timepoint
+        if ~isempty(base_rsp)
+            % use baseline in each group
+%             base_rspG = base_rsp(grpid == iG);
+            % use all baseline 
+            base_rspG = base_rsp;
+        elseif numel(x_base) == 1
+            % per-group baseline
+%             base_rspG = psth.rate_rsp(grpid == iG, psth.x == x_base);
+            % combined baseline 
+              base_rspG = psth.rate_rsp(:, psth.x == x_base);
+        elseif numel(x_base) == 2
+            % do not take mean for ROC. just take all data points
+            % per-group baseline
+%             base_rspG = psth.rate_rsp(grpid == iG, psth.x >= x_base(1) & psth.x < x_base(2) );
+            % combined baseline
+            base_rspG = psth.rate_rsp(:, psth.x >= x_base(1) & psth.x < x_base(2) );
+            base_rspG = base_rspG(:);
+        end
+        
+        for iC = 1:size(psth.rate_rsp,2)
+            % ROC comparison between groups
+            if ~isempty(roc_base_grpid)
+                base_rspG = psth.rate_rsp(grpid == roc_base_grpid, iC);
+            end
+            roc(iG, iC) = auROC(psth.rate_rsp(grpid == iG, iC), base_rspG );
+        end
+    end
+else
+    roc = [];
+end
+psth.roc = roc;

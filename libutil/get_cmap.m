@@ -1,4 +1,7 @@
 function cmap = get_cmap(nColor)
+% GET_CMAP get colormap for plotting
+%
+% HRK
 global gP
 
 if isfield(gP, 'cmap') && ~isempty(gP.cmap)

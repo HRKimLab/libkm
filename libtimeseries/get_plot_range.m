@@ -1,5 +1,7 @@
 function [xl yl] = get_plot_range(psth, adj_xl)
-
+% get proper x and y range from data
+% 
+% HRK
 if ~is_arg('adj_xl'), adj_xl = 1; end
 
 % find a range of x that contains 95% of trials

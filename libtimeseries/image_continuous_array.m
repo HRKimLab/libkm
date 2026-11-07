@@ -1,4 +1,4 @@
-function hP = image_continouse_array(x, array_resp, varargin)
+function [hP h_colorbar] = image_continouse_array(x, array_resp, varargin)
 % function hP = image_continouse_array(x, array_resp, grp_idx, bSkipNaN,
 % grp_lim, xl, ax) changed to varargin 1/14/2019 HRK
 % grp_idx: array of group index 1..# of group
@@ -86,7 +86,10 @@ set(h_colorbar, 'position', [p_axes(1)+p_axes(3)+p_axes(3)*0.05 pos_colorbar(2)+
 box(h_colorbar, 'off');
 
 % delete colorbar if needed
-if ~show_colorbar, delete(h_colorbar); end
+if ~show_colorbar
+	delete(h_colorbar); 
+	h_colorbar = [];
+end
 
 iGrpChanged = find( abs(diff(grp_idx(~isnan(grp_idx))) ) > 0);
 % draw split line if trials are ordered by group

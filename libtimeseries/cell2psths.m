@@ -8,9 +8,9 @@ process_varargin(varargin);
 
 assert(all(size(cPSTH) == size(cName) ), 'size of cPSTH and cName should match');
 % empty entities in cell array should matche with the empty entities in names
-bPSTH = cellfun(@isempty, cPSTH);
-bName = cellfun(@isempty, cName);
-assert(all(all(bPSTH == bName)), 'valid entities in cPSTH and cName should match');
+bPSTH = ~cellfun(@isempty, cPSTH);
+bName = ~cellfun(@isempty, cName);
+assert(all(all( (bPSTH & bName) == bPSTH )), 'valid entities in cPSTH should have entities in cName');
 % make structured psths
 psths = struct();
 for iR = 1:size(cPSTH, 1)

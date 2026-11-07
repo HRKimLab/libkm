@@ -1,5 +1,12 @@
 function plotmatrix_ext(x, y, grp, xnames,ynames, xl, yl)
-% PLOTMATRIX_EXT an extension version of plotmatrix
+% PLOTMATRIX_EXT Create a matrix of scatter plots (plotmatrix) and perform
+% statistical analysis.
+%    plotmatrix is a basic tool for exploratory data analysis. After
+%    calling plotmatrix, this also shows Spearman correlation and p value
+%    for each pair.
+% 
+%  See also PLOTMATRIX
+
 % 2019 HRK
 
 if ~is_arg('y')
@@ -7,6 +14,9 @@ if ~is_arg('y')
     y=x; 
 else
     xy_same = 0;
+end
+if ~is_arg('grp')
+    grp = [];
 end
 if ~is_arg('xnames'), xnames=[]; end;
 if ~is_arg('ynames'), ynames = xnames; end;

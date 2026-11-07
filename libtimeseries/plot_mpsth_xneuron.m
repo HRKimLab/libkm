@@ -1,4 +1,11 @@
 function [p, ax, flist, cPSTH] = plot_mpsth_xneuron(cPSTH, varargin)
+% PLOT_MPSTH_XNEURON plot all psths
+%   PLOT_MPSTH_XNEURON(cPSTH) visualize all psths. 
+%     Instead of plotting average, it plots all paths in seperate panels. 
+%     Thus it may create lots of axes, and plot psths one at a time.
+%     It is useful to thoroughly examine population time course data.
+% HRK
+
 parent_panel = [];
 parent_ax = [];
 % new: generate new axis and arrange vertically,

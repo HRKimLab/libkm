@@ -1,5 +1,7 @@
 function hP = plot_linesep(x, y, y_sep, varargin)
 
+% ydir = 'normal'
+
 assert(length(x) == size(y, 1) )
 
 nT = size(y,2);

@@ -1,7 +1,8 @@
 function [hG ax_grp] = mark_group_on_plot(ax, grp_idx, cmap, mode)
 % color code group info on the right side of raster or image array
 % 2016 HRK, made separate function 2018
-assert(max(grp_idx) <= size(cmap,1) );
+assert(max(grp_idx) <= size(cmap,1), '# of colormap (%d) < # of groups (%d)', ...
+	size(cmap,1), max(grp_idx) );
 ax_pos = get(ax,'position');
 parent_fig = get(ax, 'parent');
 xl = get(ax,'xlim'); yl = get(ax,'ylim');

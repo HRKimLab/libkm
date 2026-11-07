@@ -11,6 +11,7 @@ check_ginfo = 1;         % 1: check string-level ginfo 0: do not evoke error but
 psth_sort_format = [];         % 'unitkey5', 'no_sort'
 repack = 1;                   % remove invalid PSTHs and repack psths. set to 0 to keep the order.
 valid_x_crit = 0.5;      % use valid x if # of trial > (total # * valid_x_crit)
+use_subgrp_psths = 0;    % use psths with a subset of groups
 
 process_varargin(varargin);
 
@@ -145,6 +146,61 @@ end
 
 if check_ginfo
     assert(~isempty(ref_ginfo), 'ref_ginfo is empty. ginfo will not be checked.');
+end
+
+% use the ref groups as a superset. If the psth groups are a subset of it,
+% fill NaNs in the absent groups and use it as a valid psth.
+if use_subgrp_psths
+    i_grp_ref = find(b_valid_psths, 1, 'first');
+    % for now, just use gnames instead of ginfo. 
+    % if psths have ginfo, this can be ginfo.unq_grp_label
+    gnames = cellfun(@(x) x.gname, cPSTH , 'UniformOutput', false);
+    ref_grp = gnames{i_grp_ref};
+    fprintf(1, 'use group superset of:\n');
+    ref_grp
+    for iR = 1:n_psth
+        % get subgroup index
+        [bMember i_Member] = ismember(gnames{iR}, ref_grp);
+        if all(bMember) && sum(bMember) == n_grp % grp exact matches
+            assert(b_valid_psths(iR) == true, 'group matches exactly but psths is not valid. why?' )
+            continue;
+        elseif all(bMember) && sum(bMember) < n_grp % subset
+            tmp_psth = nullify_psth( cPSTH{iR}, [], n_grp);
+            
+            cF = fieldnames(tmp_psth);
+            n_time = size(cPSTH{iR}.x, 2);
+            for iF = 1:numel(cF)
+                switch(cF{iF})
+                    % do not nullify these meta information.
+                    case {'x','numel','grp','idx_sorted_by_num'}
+                    case 'n_grp'
+                        tmp_psth.(cF{iF}) = n_grp;
+                    case 'gname'
+                        tmp_psth.(cF{iF}) = ref_grp;
+                    case 'gnumel'
+                        tmp_psth.(cF{iF}) = zeros(n_grp, 1);
+                        tmp_psth.(cF{iF})(i_Member, :) = cPSTH{iR}.(cF{iF});
+                    case {'pDiff','roc','array_rsp','rate_rsp'}
+                        tmp_psth.(cF{iF}) = cPSTH{iR}.(cF{iF});
+                    case 'event'
+                        tmp_psth.(cF{iF}) = cPSTH{iR}.(cF{iF});
+                    otherwise % nullify data fields.
+                        if size(tmp_psth.(cF{iF}), 2) == n_time  % time course data
+                            tmp_psth.(cF{iF}) = NaN(n_grp, n_time);
+                            % assign the subset
+                            tmp_psth.(cF{iF})(i_Member, :) = cPSTH{iR}.(cF{iF});
+                        end
+                end
+            end
+            % swap the two psths
+            cPSTH{iR} = tmp_psth;
+            
+            b_valid_psths(iR) = true;
+            fprintf(1, '%dth psth: expanded # of groups (%d => %d)\n', iR, ...
+                sum(bMember), n_grp);
+        end
+            
+    end
 end
 
 % print info about excluded psths

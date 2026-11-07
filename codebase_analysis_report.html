@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>libkm Analysis Report</title>
+  <style>
+    :root {
+      --bg: #f5f7f4;
+      --paper: #ffffff;
+      --ink: #1f2a2e;
+      --muted: #5a6a70;
+      --accent: #2f6f5e;
+      --accent-soft: #dcece6;
+      --line: #cfded8;
+      --code: #eef5f2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f7faf8 0%, #eef4f1 100%);
+      line-height: 1.6;
+    }
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 72px;
+    }
+    .hero, .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 12px 28px rgba(30, 55, 45, 0.06);
+    }
+    .hero { padding: 32px; }
+    .card { padding: 20px; }
+    h1, h2, h3 {
+      margin-top: 0;
+      color: #163127;
+      line-height: 1.2;
+    }
+    h1 { font-size: 2.3rem; margin-bottom: 10px; }
+    h2 { font-size: 1.55rem; margin: 34px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+    h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .lede { color: var(--muted); font-size: 1.06rem; max-width: 900px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .chip {
+      background: var(--accent-soft);
+      border: 1px solid #bfd9d0;
+      color: #214c40;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.92rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .flow { display: grid; gap: 12px; }
+    .step {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--accent);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    code {
+      background: var(--code);
+      border: 1px solid #d9e8e2;
+      border-radius: 6px;
+      padding: 1px 5px;
+      font-family: Consolas, "Courier New", monospace;
+    }
+    pre {
+      background: #1f2c28;
+      color: #edf7f2;
+      padding: 16px;
+      border-radius: 14px;
+      overflow-x: auto;
+      border: 1px solid #3d5951;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th { background: #e7f1ed; color: #22483d; }
+    ul, ol { padding-left: 22px; }
+    .footer { margin-top: 36px; color: var(--muted); text-align: center; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>libkm Analysis Report</h1>
+      <p class="lede">
+        <code>libkm</code> is a MATLAB toolbox for behavioral and neural data analysis. It is organized as a set of cooperating sublibraries for big-table aggregation, exploratory population statistics, trial-aligned time-series analysis, state-space analysis, and shared utility functions.
+      </p>
+      <div class="meta">
+        <span class="chip">Language: MATLAB</span>
+        <span class="chip">Type: toolbox</span>
+        <span class="chip">Domain: neural and behavioral analysis</span>
+        <span class="chip">Style: path-based reusable library</span>
+      </div>
+    </section>
+
+    <h2>Executive Summary</h2>
+    <div class="card">
+      <p>
+        This repository is a reusable lab toolbox rather than a single project. Its core value is making common analysis workflows faster and more consistent: save per-session results, merge them into one population table, filter and visualize those results, and analyze event-aligned PSTHs across trials, neurons, sessions, and subjects.
+      </p>
+      <p>
+        The strongest design idea is that loading and population analysis are treated as first-class workflows. Data is loaded broadly first, then filtered later, which makes iterative analysis easier during exploratory science.
+      </p>
+    </div>
+
+    <h2>Top-Level Structure</h2>
+    <div class="grid">
+      <article class="card">
+        <h3><code>libbigtable/</code></h3>
+        <p>Aggregates per-session result files into a large numeric array or table keyed by unit/session identifiers.</p>
+      </article>
+      <article class="card">
+        <h3><code>libpopulation/</code></h3>
+        <p>Population plotting and statistics for column-based data, with many functions integrating visualization and significance testing.</p>
+      </article>
+      <article class="card">
+        <h3><code>libtimeseries/</code></h3>
+        <p>PSTH and event-aligned time-course analysis for neural and behavioral signals across trials and groups.</p>
+      </article>
+      <article class="card">
+        <h3><code>libss/</code></h3>
+        <p>State-space analysis built on timecourse arrays and PSTH-derived representations.</p>
+      </article>
+      <article class="card">
+        <h3><code>libutil/</code></h3>
+        <p>Shared utilities for plotting, axis control, NaN-aware operations, key-value parsing, grouping, and naming.</p>
+      </article>
+      <article class="card">
+        <h3><code>demo/</code></h3>
+        <p>End-to-end demo scripts showing how the modules are meant to work together in real analysis workflows.</p>
+      </article>
+    </div>
+
+    <h2>Main Workflow</h2>
+    <div class="flow">
+      <div class="step"><strong>1. Save session-level outputs</strong><br>Per-session analyses write one-line result rows or PSTH structs using conventions expected by the loaders.</div>
+      <div class="step"><strong>2. Build a population table</strong><br><code>libbigtable</code> loads many result files into <code>aPD</code> or <code>tPD</code>, keyed by <code>unitname</code>.</div>
+      <div class="step"><strong>3. Filter after loading</strong><br>Boolean masks and group filters are applied after broad loading, which is the explicit philosophy shown in the demos.</div>
+      <div class="step"><strong>4. Plot and test</strong><br><code>libpopulation</code> functions generate exploratory figures with attached statistical summaries.</div>
+      <div class="step"><strong>5. Analyze timecourses</strong><br><code>libtimeseries</code> computes, saves, loads, filters, and combines PSTHs across units or sessions.</div>
+      <div class="step"><strong>6. Move into state space</strong><br><code>libss</code> converts PSTH-derived arrays into state-space representations for dimensionality reduction and trajectory analysis.</div>
+    </div>
+
+    <h2>Key Modules</h2>
+    <table>
+      <thead>
+        <tr><th>Module</th><th>Purpose</th><th>Representative files</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>libbigtable</code></td>
+          <td>Load many result files into one analysis-ready big table. Handles duplicate keys and missing values.</td>
+          <td><code>StoreResults.m</code>, <code>LoadPopulationData5Key.m</code>, <code>load_population_data_table.m</code>, <code>pd2tb.m</code></td>
+        </tr>
+        <tr>
+          <td><code>libpopulation</code></td>
+          <td>Scatter, histogram, bar, tuning, and grouped comparison plotting with built-in statistical tests.</td>
+          <td><code>plot_scatter.m</code>, <code>plotsqscatter.m</code>, <code>plot_histgrp.m</code>, <code>plot_bargrp.m</code>, <code>test_same_dist.m</code></td>
+        </tr>
+        <tr>
+          <td><code>libtimeseries</code></td>
+          <td>PSTH computation and management for trial-aligned neural/behavioral signals.</td>
+          <td><code>plot_timecourse.m</code>, <code>compute_psth.m</code>, <code>load_psth_files.m</code>, <code>filter_psth.m</code>, <code>plot_mpsths.m</code></td>
+        </tr>
+        <tr>
+          <td><code>libss</code></td>
+          <td>State-space analysis of TCN/TNC arrays and PSTH-derived population trajectories.</td>
+          <td><code>psth2ss.m</code>, <code>TCN2ss.m</code>, <code>analyze_state_space.m</code>, <code>plot3_TCN.m</code></td>
+        </tr>
+        <tr>
+          <td><code>libutil</code></td>
+          <td>Foundational helpers used throughout the toolbox.</td>
+          <td><code>process_varargin.m</code>, <code>setfig.m</code>, <code>gna.m</code>, <code>draw_refs.m</code>, <code>nonnans.m</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Data Conventions</h2>
+    <div class="card">
+      <ul>
+        <li>The central identifier for aggregated data is <code>unitname</code>, typically a five-part numeric key like subject, session, run, electrode, unit.</li>
+        <li><code>libbigtable</code> assumes the first column of result files is the unit key and that later duplicate rows override earlier ones.</li>
+        <li>Missing values are represented as <code>NaN</code>.</li>
+        <li>The central time-series contract is the <code>psth</code> struct, with fields such as <code>x</code>, <code>mean</code>, <code>sem</code>, <code>event</code>, <code>rate_rsp</code>, and <code>ginfo</code>.</li>
+      </ul>
+    </div>
+
+    <h2>Representative Demo Flow</h2>
+    <pre>session result files / PSTH files
+        ->
+LoadPopulationData5Key + load_psth_files
+        ->
+aPD table + PSTH collections
+        ->
+boolean filters / group selection
+        ->
+plot_bargrp / plot_scatter / plot_barpair / plot_mpsths
+        ->
+exploratory stats and population summaries
+        ->
+psth2ss / analyze_state_space
+        ->
+trajectory and dimensionality analysis</pre>
+
+    <h2>Strengths</h2>
+    <div class="card">
+      <ul>
+        <li>Very practical end-to-end workflow for lab data analysis.</li>
+        <li>Strong separation between per-session saving, population loading, and downstream visualization.</li>
+        <li>Demos make the intended usage much clearer than in many MATLAB toolboxes.</li>
+        <li>Time-series support is broad and appears to be the most feature-rich part of the repo.</li>
+        <li>Utility layer is extensive, which keeps higher-level analysis scripts compact.</li>
+      </ul>
+    </div>
+
+    <h2>Tradeoffs And Risks</h2>
+    <div class="card">
+      <ul>
+        <li>Heavy convention dependence: callers must follow expected naming and file formats.</li>
+        <li>Path-based toolbox usage means reproducibility depends on correct path setup.</li>
+        <li>Optional external dependencies are not bundled.</li>
+        <li>MATLAB script-style patterns and workspace assumptions are still present in some demos.</li>
+        <li>The toolbox is broad, so discoverability depends on knowing the right module and naming conventions.</li>
+      </ul>
+    </div>
+
+    <h2>Best Reading Order</h2>
+    <div class="card">
+      <ol>
+        <li><code>README.md</code></li>
+        <li><code>demo/demo_population_analysis_framework.m</code></li>
+        <li><code>libbigtable/README.md</code></li>
+        <li><code>libtimeseries/README.md</code></li>
+        <li><code>Contents.m</code></li>
+        <li><code>libpopulation/demo_population_analysis_functions.m</code></li>
+        <li><code>libtimeseries/demo_timecourse_data_analysis.m</code></li>
+        <li><code>libss/demo_analyse_state_space.m</code></li>
+      </ol>
+    </div>
+
+    <h2>Conclusion</h2>
+    <div class="card">
+      <p>
+        <code>libkm</code> is best understood as a shared lab toolbox for behavioral and neural data analysis with a strong emphasis on practical workflows. It connects single-session outputs to population analysis and PSTH/state-space methods in a way that is optimized for iterative exploratory science rather than formal packaging.
+      </p>
+    </div>
+
+    <p class="footer">Generated from local inspection of <code>Z:\km_lab\libkm\</code>.</p>
+  </main>
+</body>
+</html>

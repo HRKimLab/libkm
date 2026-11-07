@@ -1,6 +1,9 @@
 function [mean_rate trial_rate] = psth2rate(psth, sTrigger, sWin, func, bTrialData)
-% PSTH2RATE Calculate mean response from psth in the given time window
-% returns [# of groups, 1]
+% PSTH2RATE quantify responses from psth using given time windows.
+% returns [# of groups, 1]. This is called by MPSTHS2RATE.
+%
+% see also MPSTHS2RATE, PSTH2PDCOL, PSTH2PDIDX
+%
 % 2018 HRK
 assert(isstruct(psth), 'psth should be structure with psths');
 if ~is_arg('func'), func = @(x) nanmean(x, 2); end;

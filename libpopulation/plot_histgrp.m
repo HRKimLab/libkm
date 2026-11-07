@@ -1,5 +1,34 @@
 function [n, center, median_x, pDiff, pMedian, hB] = plot_histgrp(x, grp, edges, x_ref, varargin)
-% plot histogram with group
+% PLOT_HISTGRP Create histograms for each group
+% PLOT_HISTGRP(x, grp) x is (n_obs * 1) column vector (measurements), and
+% grp is (n_obs * 1) indicating correponding group. It draws histograms for
+% each group.
+% 
+% Note that plot_bargrp shows equivalent results, but in a different format
+% (bar plot).
+% 
+% plot_histgrp(x, grp, edges) uses a row vector (edges) to set up bins for
+% the histograms.
+%
+% plot_histgrp(x, grp, edges, x_ref) draws reference line at x_ref and performs 
+%  statistical tests under H0: median of each group is x_ref; median of
+%  whole population is x_ref
+% 
+% plot_histgrp(x, grp, edges, x_ref, varargin)
+% open the function to see details of avialable varargin options.
+% 
+% RETURN VALUES:
+% [n, center, median_x, pDiff, pMedian, hB] = plot_histgrp
+% n:        count for each bin
+% center:   center for each bin
+% median_x: median for each group. The last element is median for total
+%   population.
+% pDiff:    p value under H0: the median is same across groups
+% pMedian:  p value under H0: median is same as x_ref
+% hB:       graphic handle for bars
+% 
+% See also PLOT_BARGRP, PLOT_HISTSIG
+
 % 2012 HRK
 
 type = 'bar';
@@ -7,7 +36,7 @@ estimator = @median;
 
 process_varargin(varargin);
 
-% shit. diff -1:.1:1 gives not equal space. floating point bug..
+% Diff -1:.1:1 gives not equal space. floating point bug..
 %assert(length(unique(diff(edges)))== 1, 'edge should be equi-linearly spaced');
 if length(x) == 1 && ~isnan(x)
     x_label = evalin('base', ['pcd_colname{' num2str(x) '}']); 

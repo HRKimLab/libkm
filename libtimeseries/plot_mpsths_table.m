@@ -1,6 +1,27 @@
-function [ax p1] = plot_mpsths_table(tb, data_tags, varargin)
-% plot PSTHs from a table of dataname arranged by ( protocols X subjects ), 
-% plot averagd psth from for each row in a columnar manner
+function [ax p1 avg_psths psths] = plot_mpsths_table(tb, data_tags, varargin)
+% PLOT_MPSTHS_TABLE plot PSTHs from a table of dataname.
+%    plot_mpsths_table(tb, data_tags, varargin) creates a battery of average PSTHs 
+%      that summarize your experiments nicely. It creates a matrix of average psths.
+%
+%       The columns of the matrix is defined by data_tags.
+%       (e.g., TAINING_D1, TRAINING_D2, ... TRAINING_LASTDAY, TELEPORT_D1).
+%     
+%       The row of the matrix is defined by the varargin parameters.
+%       If you pass three different psths (e.g., lick, locomotion, neural
+%       activity), the number of rows becomes three. As a result, a figure
+%       will show psths in the following layout, with options
+%       'n_row', 1, 'n_col', 4.
+%
+%   [lick,       D1]  [lick,       D2] [lick,       D3] [lick,       lastday]
+%   [locomotion, D1]  [locomotion, D2] [lick,       D3] [locomotion, lastday]
+%   [neuron,     D1]  [neuron,     D2] [lick,       D3] [neuron,     lastday]
+% 
+%      Note that three PSTHs are considered as one chunk of row in the n_row option.
+%      If the data_tag becomes too long, it will automatically
+%      create a new figrue to plot results. 
+%      Note that you always need to check the N on the plot, and make sure
+%      that the behavioral and neural data match well.
+
 % 5/30/2018 HRK
 
 uk_filter = [];
@@ -12,11 +33,16 @@ event_header = {};  % events to show.
 v_col = [];         % normalized heigh
 base_sub_win = [];
 mark_diff = 0;
+test_diff = 1;
 filter_grp = [];
 check_ginfo = 1;
 homogenize = 1;
 y_labels = [];
 subsample_x = 1;
+smooth_win = [];
+exact_match = 0;   % not working for now.
+check_event_timing = 2; % 0: print out msg, 1: warning (might miss), 2: msg dialog (cannot miss but can ignore) 3: evoke an error (no way to miss)
+grp_order_only = 0;     
 
 % get PSTH structures from varargin
 bStr = cellfun(@isstruct, varargin);
@@ -61,8 +87,10 @@ end
 for iT = 1:nTag
     % get next columnar panel
     p = gnp;
-    % extract dataset names from data tag
-    dname = get_datanames(tb, data_tags{iT});
+    % extract dataset names from data tag 
+    % (not working for now.. need to be fixed)
+    fprintf(1, 'retrieve datanames using %s ...\n', data_tags{iT} );
+    dname = get_datanames(tb, data_tags{iT}, 'exact_match', exact_match);
     
     p.pack('v', v_col);
     
@@ -83,10 +111,15 @@ for iT = 1:nTag
         if ~isempty(filter_grp)
             filt_psth = filter_psth_group(filt_psth, filter_grp);
         end
+        if nfields(filt_psth) == 0
+            continue;
+        end
+        
         % plot averaged psth
-        plot_mpsths(filt_psth, 'individual_psths', individual_psths, 'errbar_type', errbar_type, ...
+        [avg_psths{iP} psths{iP}] = plot_mpsths(filt_psth, 'individual_psths', individual_psths, 'errbar_type', errbar_type, ...
             'x', x, 'ax', ax(iP, iT), 'show_legend', iP == 1, 'event_header', event_header, 'base_lim', basewin, ...
-            'mark_diff', mark_diff, 'check_ginfo', check_ginfo, 'homogenize', homogenize, 'subsample_x', subsample_x);
+            'test_diff', test_diff, 'mark_diff', mark_diff, 'check_ginfo', check_ginfo, 'homogenize', homogenize, ...
+            'subsample_x', subsample_x, 'smooth_win', smooth_win, 'check_event_timing', check_event_timing, 'grp_order_only', grp_order_only); %
         % show data tag
         if iP == 1
             sT = regexprep( data_tags{iT}, '_', '\\_');

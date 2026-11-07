@@ -1,4 +1,4 @@
-% a demo of Matlab functions for time-series data analysis
+% DEMO_TIMECOURSE_DATA_ANALYSIS a demo for time-series data analysis
 % 
 % This demo consists of two parts. 
 % First, it show how to plot timecourse data in a variety of different ways 
@@ -17,9 +17,15 @@
 %
 % functions often have multiple options. Open each function and look at the first 
 % few lines if you want to figure out all of the options.
-% See also DEMO_POPULATION_ANALYSIS, PLOT_TIMECOURSE, PANEL, REGRESS_PERP
+%
+% See also PLOT_TIMECOURSE, DEMO_POPULATION_ANALYSIS_FRAMEWORK, DEMO_POPULATION_ANALYSIS_FUNCTIONS
 %
 % 2019 HyungGoo Kim. 
+
+% useful shortcuts:
+% >> edit demo_ <tab> => auto-completion
+% In the editor, Ctrl + Enter : run the current section
+% In the editor, Shift + Enter : run the current section and move to the next section
 %%%%%%%%%%
 %% Part 1. single-session analysis
 %%%%%%%%%%
@@ -99,7 +105,7 @@ psth.ginfo
 psth.x
 
 %% Plot timecouse with advanced options
-p = setpanel(3,2);
+p = setpanel(3,3);
 p.gnp;
 
 % Plot sorted by experimental condition. 
@@ -162,18 +168,6 @@ plot_timecourse('stream', speed, event.REWARD_CD, event.TRIAL_START_CD, event.TR
 % 이 둘을 구분해서 plot 한다.
 atitle('Sort by median speed');
 
-p.gnp;
-% plot response as a function of distance. In this case, x axis becomes
-% position instead of time. if the size of the first arguemnt (position) is
-% same as the size of the second argurment (DAsensor), then plot_timecourse
-% does ???? plot (first arg = x(t), second arg = y(t)).
-% since it is open-loop condition, I used distance from the trial start to
-% the reward delivery. (once reward is given, animal's position does not change in open-loop 
-% so taking average is not very useful)
-plot_timecourse(position , DAsensor, event.VSTIM_ON_CD, -2000, event.REWARD_CD+3000, expcond, ...
-    'test_diff', 1);
-atitle('f(dist)');
-
 % Save single-session timecourse results in a file. 
 % If the file exists, it appends to it.
 % So you can save PSTHs from multiple sessions in one file.
@@ -206,6 +200,31 @@ atitle('Plot loaded PSTH');
 % let's take a look at the fields of psth structure
 d.m0s1r1
 
+p.gnp;
+% 
+[~, ~,~,quant_res] = plot_timecourse('stream', DAsensor, event.REWARD_CD, -3000, 3000, expcond, 'quant_win', [-2 -1; 0 1]);
+
+% results are not sorted by condition, but pooled across conditions.
+p.gna;
+plot_barpair( quant_res );
+set(gca,'xtick',[1 2], 'xticklabel', {'preRew','postRew'});
+ylabel('DA (zscore)');
+
+% use plot_barpair_grp() to see results grouped by conditions.
+% 'test_mode', 'withingrp' gives pretty plot without statistical test
+p.gna;
+plot_barpair_grp(quant_res, expcond,'show_individual', 0, 'test_mode', 'withingrp');
+ylabel('DA (zscore)');
+
+% 'test_mode', 'withingrp' gives less pretty plot but performs statistical test 
+% to compare all combinations of (time window * grp).
+% heights of the bars should be identical to the above pretty plot.
+p.gna;
+plot_barpair_grp(quant_res, expcond,'show_individual', 0, 'test_mode', 'allpairs');
+ylabel('DA (zscore)');
+
+
+
 %% single-session, yet another advanced option
 setfig(3,2);
 ab = event.REWARD_CD; % aligned by
@@ -232,9 +251,22 @@ plot_timecourse('stream', DAsensor, ab, -3000, 3000, expcond, 'adjust_clim', 10)
 
 % if you just want to compute psth without plotting (faster)
 [~, psth_only] = plot_timecourse('stream', DAsensor, ab, -3000, 3000, expcond, 'plot_type','none');
+% to confirm that psth_only was computed correctly
 gna;
 plot_psma(psth_only);
 
+
+gna;
+% plot response as a function of distance. In this case, x axis becomes
+% position instead of time. if the size of the first arguemnt (position) is
+% same as the size of the second argurment (DAsensor), then plot_timecourse
+% does ???? plot (first arg = x(t), second arg = y(t)).
+% since it is open-loop condition, I used distance from the trial start to
+% the reward delivery. (once reward is given, animal's position does not change in open-loop 
+% so taking average is not very useful)
+plot_timecourse(position , DAsensor, event.VSTIM_ON_CD, -2000, event.REWARD_CD+3000, expcond, ...
+    'test_diff', 1);
+atitle('f(dist)');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Part 2. plotting time courses from multiple-session data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -344,6 +376,14 @@ lastday_neuron_LocOnV = filter_psth(all_neuron_LocOnV, dnames_lastday)
 % 'VR_LASTDAY' protocol을 시행한 session들의 photometry data를 가져온다.
 plot_mpsths(lastday_neuron_LocOnV, 'event_header','RewOn');
 
+% note that there are other functions by which you can filter psths.
+% filter psths that has 4 groups
+filtered_psths = filter_psth_by_n(all_neuron_LocOnV, 'n_grp', 4)
+% filter psths that has at least one condition with label containing 'yTp'
+filtered_psths = filter_psth_by_cond(filtered_psths, 'name','yTp')
+figure;
+plot_mpsths(filtered_psths )
+
 % you can call function inside a function to make it more concise
 figure;
 plot_mpsths(filter_psth(all_neuron_LocOnV, get_datanames(tD, 'VR_LASTDAY')), 'event_header','RewOn');
@@ -353,6 +393,13 @@ plot_mpsths(filter_psth(all_neuron_LocOnV, get_datanames(tD, 'VR_LASTDAY')), 'ev
 plot_mpsths_table(tD, {'VR_LASTDAY', 'VR_ONE_TP2','VR_SPD2'}, all_neuron_LocOnV, 'event_header','RewOn')
 % 여러개의 protocol과 그 protocol을 시행한 session들에 대한 plot 함수.
 
+% you can filter groups in each psth using filter_psth_group()
+spd_psths = filter_psth(all_neuron_LocOnV, get_datanames(tD, 'VR_SPD2'))
+% take the first two groups, and discard the third group.
+% look into filtered_psths variable. It contains only two groups.
+filtered_psths = filter_psth_group(spd_psths, [1 1 0]'); 
+figure;
+plot_mpsths(filtered_psths);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% quantify and population analysis
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -378,6 +425,10 @@ SaveResults('sample_data_summary2.dat', cF, {'CELL', 'V1','V2','V3'}, DA_bef_rew
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Part 4. More advanced functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if ~is_arg('ms_time')
+	load('sample_session.mat', 'ms_time', 'lick','speed','DAsensor','expcond','event', 'position');
+end
+
 %% Plot lick, locomotion speed, neural data aligned by reward onset
 % this function subdivide a given panel, call plot_timecourse function iteratively 
 % to plot results aligned by the same trigger.
@@ -387,7 +438,7 @@ SaveResults('sample_data_summary2.dat', cF, {'CELL', 'V1','V2','V3'}, DA_bef_rew
 p = setpanel(1,2);
 p1 = p.gnp;
 [pp h_psths psths] = plot_mtimecourses(ms_time, event.REWARD_CD, event.TRIAL_START_CD, event.TRIAL_END_CD, expcond, ...
-    lick, speed, DAsensor, 'n_row', 3, 'pp', p1, 'y_labels', {'Lick','Speed','DA'}, 'titles',{'Lick','Speed','DA'} );
+    lick, speed, DAsensor, 'n_row', 3, 'y_labels', {'Lick','Speed','DA'}, 'titles',{'Lick','Speed','DA'} );
 
 %% Plotting simultaneously recorded large-scale neural data (e.g., Neuropixels or 2-photon microscopy)
 d = load('probe_recording_sample.mat', 'cSpikes', 'trial_start', 'rew_on');
@@ -454,10 +505,18 @@ plot_histgrp(val, grp);
 gna;
 plot_histgrp([tb.V1 - tb.V2], [], -1:.2:1, 0);
 % pair된 data 값을 보기 위해 V1-V2를 했다.
+% set 'fig_<name>' tag to use this axes for publication-quality figure making
+% (see below in formatfig() section)
+set(gca, 'tag', 'fig_lickbarplot');  
+% Note that for single-session results, put mid (e.g., fig_m1239behavior)
 
 % Bar plots for N-variable pairwise comparisons
 gna;
 plot_barpair([tb.V1 tb.V2 tb.V3]);
+% set 'fig_<name>' tag to use this axes for publication-quality figure making
+% (see below in formatfig() section)
+% h0.5v1 : make horizontal x0.5, vertical x1 of the standard size
+set(gca, 'tag', 'fig_lickcomparison_h0.5v1'); 
 
 % Bar plots for N-variable pairwise comparisons. 
 % parametric test shows warning if normality condition is not satisfied
@@ -471,12 +530,46 @@ plot_barpair([tb.V1 tb.V2 tb.V3], [],  0, 'test_type','par');
 gna;
 plot_bargrp(vals, grp);
 
-%% format and save plots to pdf files
-% foramt figure to use it for presentation or paper
-global gP
-gP.show_title = 0; % do not show title
+% use 'yl_sigstar' option to adjust the positions of star marks
+gna;
+plot_bargrp(vals, grp, 'yl_sigstar', [2 4]);
 
-formatfig
 
-% save it to pdf. it requres APPEND_PDFS and ghostscript installation
+%% save open plots to pdf files for archiving the results
+% save figures to pdf to save it and use it for personal meeting
+% This requres APPEND_PDFS and ghostscript installation
+% Try below after you install ghostscript (Z:\setup\gs9550w64.exe or download it)
 % fig2pdf('all');
+
+%% format selected figures for lab meeting, seminar, and publication
+% Run this after running 'Perform population analysis based..' section above.
+%
+% if you run this multiple times, delete already open pubfigs.
+delete( findobj(0, 'type','figure','tag','pubfig') )
+% struct variable related to figure printing, used by below formatfig() function
+global gP 
+
+% do not show title. 1 if you want to keep title
+gP.show_title = 0; 
+
+% It assumes that you already have open figures and axis with 'fig_<name>' tags 
+% that you selected (set in the above section). 
+% This function re-generates them as individual figures.
+% the new individual figures has a 'pubfig' tag with 'fig_<name>' as a filename.
+figtag2fig('all'); % 'all' searches all open figures. 
+
+% foramt figure to use it for presentation or paper.
+% Often, you want to do further fine-formatting.
+formatfig('fig');  % 'all': all open figures / % 'fig': figures with 'pubfig' tag.
+
+% this saves the individual figures to C:\tmp\fig_dir\.
+% change the fig_dir to your own target dir. e.g.,
+% Y:\NeuRLab\protocol_specific\<your protocl>\results\conference\<conference name>
+% Y:\NeuRLab\protocol_specific\<your protocl>\results\manuscript\<proj name>
+% Y:\NeuRLab\member_specific\manuscript\<proj name>
+% Y:\NeuRLab\member_specific\conference\<conference name>
+% 'all' : all open figures. 'fig': figures with 'pubfig' tag
+% fig2pdf('fig','','fig_dir', 'C:\tmp\fig_dir\');
+
+%% later on, 
+% TODO: add isnan() and boolean operator example

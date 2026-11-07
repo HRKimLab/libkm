@@ -1,7 +1,26 @@
 function [col grp] = cols2grp(varargin)
-% [data grpid] = cols2grp([data1 data2], [grpid4data1 grpid4data2], ...);
-% generate one data vector and one grpid vector for column vector based
-% analysis
+% COLS2GRP transform data from 2D array format to column vector format.
+% [col grp] = cols2grp(x, ids) x is 2D array of [N observations X M groups].
+%  sometimes you need to convert it to an unpaired format of a column vector 
+%  of N*M elements. 
+% 
+%
+% EXAMPLES:
+% x = [1 2; 1.1 2.1; 1.2 2.2];
+% [col grp] = cols2grp(x, [10 20]);
+%
+% % results:
+% % col = [1;  1.1; 1.2;  2;  2.1; 2.2];
+% % grp = [10; 10;  10;   20; 20;  20];
+%
+% % paired comparison
+% plot_barpair(x);
+% 
+% % unpaired comparison
+% plot_bargrp(col, grp);
+% 
+% See also PLOT_BARPAIR, PLOT_BARGRP, PLOT_HISTGRP
+% 
 % HRK 2013
 
 assert(mod(nargin,2) == 0, '# of argument should be even');

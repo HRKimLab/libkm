@@ -1,6 +1,15 @@
 function [arAligned tTime] = train2array_varwin(train, tEvent, tOn, tOff)
+% TRAIN2ARRAY_VARWIN align train of activity using time windows
 % train: a stream of data [1 nTime]
 % tOn(i) <= tEvent(i) <= tOff(i)
+% 
+% RETURN VALUES:
+% arAligned: train aligned by tEvent, [nTrial nTime] 
+% tTime: time points, [1 nTime] 
+% 
+% see also train2array_varwinMD
+%
+% 2009 HRK
 
 tEvent = round(tEvent);
 tOn = round(tOn);
@@ -13,7 +22,13 @@ if numel(tOff) == 1, tOff = tEvent + tOff; end
 assert(length(tEvent) == length(tOn) && length(tEvent) == length(tOff), 'the size of tEvent, tOn, tOff should be same')
 % actually this is not really required condition
 bV = ~isnan(tEvent) & ~isnan(tOn) & ~isnan(tOff);
-assert(all(tOff(bV) >= tOn(bV)) && all(tEvent(bV) >= tOn(bV)) && all(tOff(bV) >= tEvent(bV)), 'timing should be tOn < tEvent < tOff')
+assert(all(tOff(bV) >= tOn(bV)))
+if ~all(tEvent(bV) >= tOn(bV))
+    warning('timing of some tEvent < tOn')
+end
+if ~all(tOff(bV) >= tEvent(bV))
+    warning('timing of some tOff < tEvent')
+end
 
 % find largest negative relative to the tEvent
 t_xlim(1) = min(tOn - tEvent);

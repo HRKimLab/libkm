@@ -1,11 +1,24 @@
 function psths = filter_psth_group(psths, filter_grp_func)
-% FILTER_PSTH_GROUP filter specific groups for each psth
-% filter_grp_func can be a boolean flag, 'argmax_gnumel', 'argmin_gnumel', etc.
+% FILTER_PSTH_GROUP filter-in specific groups for each psth. 
+%   as a result, the ouput psths would have smaller group numbers than the
+%   input psths. 
+%   
+% filter_grp_func can be the following:
+%    a boolean flag: the size should match with the group #. 
+%    'argmax_gnumel': filter-in the group with max # of elements.
+%    'argmin_gnumel': filter-in the group with min # of elements.
+% 
+% See also filter_psth, filter_psth_by_cond, filter_psth_by_n for filteing
+% psths themselves.
+% 
 % 2019 HRK
+
+% iterate each psth
 psth_type = class(psths);
 switch(psth_type)
     case 'struct'
-        if ~isfield(psths, 'x')
+        % if it contains 'x', it means that argument is an individual psth struct
+        if ~isfield(psths, 'x') 
             fn = fieldnames(psths);
             for iF = 1:numel(fn)
                 psths.(fn{iF}) = filter_psth_group(psths.(fn{iF}), filter_grp_func);
@@ -34,6 +47,8 @@ switch(psth_type)
             return;
 end
 
+% here, it processes individual psths
+% first, make sure that it contains  'x'
 assert(isstruct(psths) && isfield(psths, 'x'), 'psths is not psth struct')
 
 % use psth 
@@ -55,7 +70,11 @@ switch class(filter_grp_func)
                 error('Unknown filter_grp_func: %s', filter_grp_func);
         end
     case {'double','logical'} % it should be 0 / 1 bitwise vector
-        assert(size(filter_grp_func, 1) == nG, 'size of group in psth (%d) should be same as # of rows in argument (%d)', ...
+		assert(size(filter_grp_func, 1) > 1 && size(filter_grp_func, 2) == 1, ...
+			'filter_grp_func should be a column vector of size [# of groups * 1] = [%d 1], but it is [%d %d]', ...
+			nG, size(filter_grp_func, 1), size(filter_grp_func, 2));
+        assert(size(filter_grp_func, 1) == nG, ...
+            'size of group in psth (%d) should be same as # of rows in the argument (%d)', ...
             nG, size(filter_grp_func, 1));
     otherwise
         error('Unknown filter_grp_func type : %s', class(filter_grp_func));

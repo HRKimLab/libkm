@@ -1,9 +1,25 @@
 function fid = setfig(h, v, sTitle, orient_f)
-% SETFIG(h, v, sTitle, orient)
-% h: # of rows
-% v: # of columns
-% sTitle: title of the figures
-% orient: 0 (landsacpe), 1 (portrait), 2 (dep. on subplots)
+% SETFIG Create figure for easy creation of panels
+%   setfig(h, v, sTitle) creates a figure with sTitle. It fixes the layout 
+%     of panels at the time of figure creation. You call gna to obtain an axis.
+%     when you frequently add/remove panels in a figure, you will see setfig()
+%     is more convenient thant subplot().
+%     h: # of panels in row
+%     v: # of panels in column
+%     sTitle: title of the figures
+%
+%   setfig(h, v, sTitle, orient_f) specify the orientation of the
+%     figure. 0 (landsacpe), 1 (portrait), 2 (dependent on subplots). 
+%     If 2 is given, it makes the shape of the figure proportional to the # of rows 
+%     and columns of the square panels. It's useful if you make many figures.
+%     
+%   If you want to pack more panels into a figure, check out setpanel. it uses panel
+%   class and enables you to adjust layout and margins in detail.
+%
+% See also GNA, SETPANEL
+%
+% HRK
+
 global gP
 % figinfo.h  : # of horizontal axis
 % figinfo.v  : # of vertical axis

@@ -1,13 +1,17 @@
-function fig_title(sTitle, font_size)
+function axT = fig_title(sTitle, font_size)
 % FIG_TITLE create figure with some additional information
 % note the anootations have tag starting with 'fig_'
 % so you can find those using finbobj and regular expression option
 % finbobj(0, '-regexp', 'tag', 'fig_');
 % HRK
+
+axT = [];
+
 % pStartOffset = 0.2;
 pStartOffset = 0.04;
 if ~is_arg('font_size'), font_size = 12; end;
-if ~is_arg('sTitle'), return; end;
+% if ~is_arg('sTitle'), return; end; % don't return; print func info. HRK
+
 % This is not necessary in the new landscape figure style
 % if length(sTitle) > 45
 %     pStartOffset = 0.01;
@@ -25,12 +29,13 @@ set(ax, 'tag', 'fig_title');
 hT = text(pStartOffset, 0.5, sTitle, 'fontsize', font_size, ...
     'fontweight','bold', 'linestyle','none','tag','fig_title');
 set(ax, 'visible','off','HandleVisibility','off');
+axT = ax;
 % display data collection date
 global data
 
 % get data collection date from global data if possible
-if isfield(data, 'one_time_params')
-    RigInfo = '';
+ RigInfo = '';
+if isfield(data, 'one_time_params') && isfield(data.one_time_params, 'MachineName')
     switch(data.one_time_params.MachineName)
         case 'Mcb-Uchida-VS5'
             RigInfo = 'R1';
@@ -46,6 +51,9 @@ if isfield(data, 'one_time_params')
                 'NeuRLab-VR16','NeuRLab-VR17','NeuRLab-VR18','NeuRLab-VR19','NeuRLab-VR20'}
            RigInfo = regexprep(data.one_time_params.MachineName, 'NeuRLab-','');
     end
+end
+
+if isfield(data, 'one_time_params') && isfield(data.one_time_params, 'Datetime')
     dn = datenum(data.one_time_params.Datetime);
     sDate = [ datestr( dn, 'mm/DD') '  ' RigInfo];
 else
@@ -57,7 +65,7 @@ ax = axes('Position', [0.8 .973 .2 .027], 'tag', 'fig_date');
 sDate = [sDate ' / DoA:' datestr(now(), 'mm/DD')];
 text(pStartOffset, 0.65, sDate, 'fontsize', 8, ...
     'fontweight','bold', 'linestyle','none', 'tag','fig_col_date');
-
+axT = [axT ax];
 % % analysis date
 % sDate = ['Analyzed: ' datestr(now(), 'mm/DD')];
 % text(pStartOffset, 0.0, sDate, 'fontsize', 8, ...

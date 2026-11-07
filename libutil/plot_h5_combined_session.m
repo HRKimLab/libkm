@@ -22,18 +22,20 @@ for iR = 1:numel(finfo.Groups)
     d{iR}.metainfo.session_datetime = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/metainfo/session_datetime']);
     d{iR}.metainfo.implant_ML = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/metainfo/implant_ML']);
     d{iR}.metainfo.grp_label = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/metainfo/grp_label']);
-    d{iR}.metainfo.event_label = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/metainfo/event_label']);
+    % use char( d{iR}.metainfo.event_label ) to convert it to string
+    d{iR}.metainfo.event_label = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/metainfo/event_label']); 
     
     d{iR}.event = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/event']);
     d{iR}.grp_idx = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/grp_idx']);
-    d{iR}.lick = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/lick']);
-    d{iR}.loc = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/loc']);
-    d{iR}.pos = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/pos']);
-    % resample
+    d{iR}.lick = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/lick']); % lick rate (licks/s)
+    d{iR}.loc = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/loc']);   % running speed (cm/s)
+    d{iR}.pos = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/pos']);   % position (a.u.)
+    % loc and pos was saved at 100Hz. resample it to be at 1kHz.
+    % plotting function below (plot_mtimecourses) assumes continuous data sampling rate is 1kHz
     d{iR}.loc = resample(d{iR}.loc, 10, 1);
     d{iR}.pos = resample(d{iR}.pos, 10, 1);
     try
-        d{iR}.fl = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/fl']);
+        d{iR}.fl = h5read(h5_dest_fpath, [finfo.Groups(iR).Name '/fl']);  % dopamine response (zscore)
         d{iR}.fl = resample(d{iR}.fl, 10, 1);
     catch, d{iR}.fl = []; end
     try

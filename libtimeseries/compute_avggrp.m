@@ -1,9 +1,30 @@
 function [psth] = compute_avggrp(x, rate_rsp, grp, varargin)
-% test_diff, grp_lim, test_bin)
-% make elements of grp to NaN if trigger or windows is not valid
+% COMPUTE_AVGGRP compute average activities for each group
+%  compute_avggrp(x, rate_rsp, grp) computes average activity of 
+%   rate_rsp [nTrial nTime] based on grp [nTrial 1]. Note that psth.rate_rsp 
+%   keeps the original order in the input parameter rate_rsp. 
+%   Make grp element to NaN if trigger or windows is not valid
+% 
+% RETURN VALUE:
+% psth: psth struct that contains results of grouping.
+%   x           [1 * # of timepoints]	time point of PSTHs
+%   mean        [# of groups * # of timepoints]	average activity for each group
+%   sem         [# of groups * # of timepoints]	standard error of mean for each group
+%   std         [# of groups * # of timepoints]	standard deviation for each group
+%   numel       [# of groups * # of timepoints]	# of valid trials for each group
+%   pDiff       [1 * # of timepoints]	p-values to test whether responses are same or different across groups
+%   pBaseDiff	[# of groups * # of timepoints]	p-values to test whether responses are same or different from baseline
+%   event       [1 * # of events]	a table containing the medians of events
+%   rate_rsp	[# of trials * # of timepoints]	trial-to-trial responses that was used to compute the averages for each group
+%   ginfo.grp_idx	[# of trials * 1]	group indice of individual trials
+%   ginfo.unq_grp_label	[# of groups * 1]	string labels for the group indice
+% 
+% See also compute_avggrpMD
+%
 % HRK 2016
-if ~is_arg('grp'), grp = ones(size(rate_rsp, 1), 1); end;
+if ~is_arg('grp'), grp = ones(nTrial, 1); end;
 
+estimator = 'mean';     % number: percentile
 test_diff = false;
 test_timediff = false;
 test_type = 'nonpar';   % 'nonpar', 'par'
@@ -16,6 +37,7 @@ resample_bin = 10;
 roc = 0;
 roc_base_grpid = [];   % compute auROC based on the specified two groups
 valid_x_crit = 0.5; % criterion (trial ratio) to compute estimators at each time point (mean, std, sem, etc)
+FDR = [];        % control the false discovery rate (FDR). see fdr_bh().
 
 % array_rsp = [];  % do not use array_rsp. timestamp will be dropped due to subsampling
 
@@ -24,11 +46,12 @@ process_varargin(varargin);
 assert(valid_x_crit < 1, 'valid_x_crit should be less than 1'); % b/c I do > below
 
 [cmap nColor grpid gname gnumel] = grp2coloridx(grp, grp_lim);
-n_trial = size(rate_rsp, 1);
-    
+nTrial = size(rate_rsp, 1);
+nTime = size(rate_rsp,2);
+
 % stats for drawing PSTH.
 % mean can also be NaN if all column values are NaN
-if size(rate_rsp,1) == 1 % grpstats does some stupid thing with row size is 1 (transpose it)
+if nTrial == 1 % grpstats does some stupid thing with row size is 1 (transpose it)
     mean_rsp  = rate_rsp;
     sem_rsp = zeros(size(rate_rsp)); 
     std_rsp = zeros(size(rate_rsp));
@@ -40,9 +63,9 @@ else
 %     [mean_rsp std_rsp numel_rsp] = grpstats(rate_rsp, grpid, {'mean','std', 'numel'} );
     
     unq_gid = nonnan_unique(grpid); unq_gid = unq_gid(:); nG = numel(unq_gid);
-    mean_rsp = NaN(nG, size(rate_rsp,2)); std_rsp = NaN(nG, size(rate_rsp,2));
-    numel_rsp = NaN(nG, size(rate_rsp,2)); sem_rsp = NaN(nG, size(rate_rsp,2));
-    valid_rsp = false(nG, size(rate_rsp,2));
+    mean_rsp = NaN(nG, nTime); std_rsp = NaN(nG, nTime);
+    numel_rsp = NaN(nG, nTime); sem_rsp = NaN(nG, nTime);
+    valid_rsp = false(nG, nTime);
     % iterate groups
     for iG = 1:nG
         % get the number of NaN trials at each time point
@@ -53,6 +76,11 @@ else
         % compute estimators in the valid range. Otherwise leave it as NaNs
         mean_rsp(iG, valid_rsp(iG,:) ) = nanmean(rate_rsp( grpid == unq_gid(iG), valid_rsp(iG,:) ), 1);
         std_rsp(iG, valid_rsp(iG,:) ) = nanstd(rate_rsp( grpid == unq_gid(iG), valid_rsp(iG,:) ), [], 1);
+        
+        if isstr(estimator) && strcmp(estimator,'mean')
+        elseif isnumeric(estimator)
+            mean_rsp(iG, valid_rsp(iG,:) ) = prctile(rate_rsp( grpid == unq_gid(iG), valid_rsp(iG,:) ), estimator, 1);
+        end
     end
     % compute sem based on std and numel
     sem_rsp = std_rsp ./ sqrt(numel_rsp);
@@ -95,7 +123,7 @@ if test_diff && any(any(~isnan(rate_rsp)))
     for iG = 1:nColor
         % use resample_start_idx instead of 1. Otherwise, p values will not
         % be sampled below
-        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+        for iC = resample_start_idx:nSkip:nTime
             % compare response at x_base s with responses at each timepoint
             if ~isempty(base_rsp)
                 base_rspG = base_rsp(grpid == iG);
@@ -119,6 +147,13 @@ if test_diff && any(any(~isnan(rate_rsp)))
                 pBaseDiff(iG, iC) = NaN;
             end
         end
+        % control for FDR (false discovery rate)
+        if ~isempty(FDR)
+            % apply Benjamini & Hochberg (1995) procedure for controlling the false discovery rate (FDR)
+            % added 6/28/2024 HRK
+            [h_tmp, crit_p_tmp, adj_ci_cvrg_tmp, p_adj_Benjamini] = fdr_bh(pBaseDiff(iG, :), FDR , 'pdep', 'yes');
+            pBaseDiff(iG, :) = p_adj_Benjamini;
+        end
     end
     
     switch(btw_grp_test)
@@ -127,31 +162,31 @@ if test_diff && any(any(~isnan(rate_rsp)))
                 case 'nonpar'
                     % difference between groups
                     if nColor == 2 % need to be changed using Wilcoxon test
-                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                        for iC = resample_start_idx:nSkip:nTime
                             if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
                                 pDiff(iC) = ranksum(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
                                 %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
                             end
                         end
                     elseif nColor > 2
-                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                        for iC = resample_start_idx:nSkip:nTime
 %                             pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
                             % Kruskal–Wallis one-way analysis of variance
-                            pDiff = kruskalwallis(rate_rsp(:, iC), grpid, 'off');
+                            pDiff(iC) = kruskalwallis(rate_rsp(:, iC), grpid, 'off');
                         end
                     end
                     
                 case 'par'
                     % difference between groups
                     if nColor == 2 % need to be changed using Wilcoxon test
-                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                        for iC = resample_start_idx:nSkip:nTime
                             if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
 %                                 pDiff(iC) = ranksum(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
                                  [~, pDiff(iC)] = ttest2(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
                             end
                         end
                     elseif nColor > 2
-                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                        for iC = resample_start_idx:nSkip:nTime
                             pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
                         end
                     end
@@ -165,14 +200,14 @@ if test_diff && any(any(~isnan(rate_rsp)))
                     % difference between groups
                     if nColor == 2 % need to be changed using Wilcoxon test
                         assert(nnz(grpid == 1) == nnz(grpid == 2), '# of groups should match in paired test');
-                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                        for iC = resample_start_idx:nSkip:nTime
                             if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
                                 pDiff(iC) = signrank(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
                                 %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
                             end
                         end
                     elseif nColor > 2
-                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                        for iC = resample_start_idx:nSkip:nTime
                             % create a 2D array for paired comparison
                             rate_rsp_paired = NaN( numel(grpid)/max(grpid), max(grpid) );
                             for iG = 1:max(grpid)
@@ -196,14 +231,14 @@ if test_diff && any(any(~isnan(rate_rsp)))
                     % difference between groups
                     if nColor == 2 % need to be changed using Wilcoxon test
                         assert(nnz(grpid == 1) == nnz(grpid == 2), '# of groups should match in paired test');
-                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                        for iC = resample_start_idx:nSkip:nTime
                             if nnum(rate_rsp(grpid == 1,iC)) > 0 && nnum(rate_rsp(grpid==2,iC)) > 0
                                 [~, pDiff(iC)] = ttest(nonnans(rate_rsp(grpid==1,iC)), nonnans(rate_rsp(grpid==2,iC)));
                                 %         pDiff(iC) = anova1(rate_rsp(:, iC), grpid,'off');
                             end
                         end
                     elseif nColor > 2
-                        for iC = resample_start_idx:nSkip:size(rate_rsp,2)
+                        for iC = resample_start_idx:nSkip:nTime
                             % create a 2D array for paired comparison
                             rate_rsp_paired = NaN( numel(grpid)/max(grpid), max(grpid) );
                             for iG = 1:max(grpid)
@@ -226,14 +261,20 @@ if test_diff && any(any(~isnan(rate_rsp)))
         otherwise
             error('Unknown between-group test type: %s', btw_grp_test);
     end
-    
+    % control for FDR (false discovery rate)
+    if ~isempty(FDR)
+        % apply Benjamini & Hochberg (1995) procedure for controlling the false discovery rate (FDR)
+        % added 6/28/2024 HRK
+        [h_tmp, crit_p_tmp, adj_ci_cvrg_tmp, p_adj_Benjamini] = fdr_bh(pDiff, FDR , 'pdep', 'yes');
+        pDiff = p_adj_Benjamini;
+    end
 end
 
 if test_timediff && any(any(~isnan(rate_rsp)))
     % 3-way ANOVA adding trial duration, trial number as a second factor
-    array_x = repmat(x, [size(rate_rsp,1) 1]);
-    array_trialid = repmat((1:n_trial)', [1 size(x, 2)]);
-    array_grp = repmat(grpid, [1 size(rate_rsp,2)]);
+    array_x = repmat(x, [nTrial 1]);
+    array_trialid = repmat((1:nTrial)', [1 size(x, 2)]);
+    array_grp = repmat(grpid, [1 nTime]);
     r = rate_rsp(:,1:nSkip:end); a = array_x(:, 1:nSkip:end); b = array_grp(:, 1:nSkip:end); c = array_trialid(:, 1:nSkip:end);
     p2 = anovan(r(:), {a(:), b(:), c(:)},'display', 'off');
 end % test_diff

@@ -32,10 +32,10 @@ for iR = 1:length(TCExt)
     fprintf(1, 'Loading %s\n', TCExt{iR});
     % iterate monkeys and cells
     for iM=1:length(MonkOfInterest)
-        for iC=1:length(CellOfInterest{iM})
+        for iC=1:length(SessionOfInterest{iM})
             % get monkey id, cell id
             monkid = MonkOfInterest(iM);
-            cellid = CellOfInterest{iM}(iC);
+            cellid = SessionOfInterest{iM}(iC);
             % make filename. if ext doesn't include '.', it's an extension.
             if isempty(findstr(TCExt{iR}, '.'))
                 fname = sprintf('m%ds%dr*.%s', monkid , cellid, TCExt{iR});
@@ -46,12 +46,13 @@ for iR = 1:length(TCExt)
             % set search directory
             if iscell(TCSummary{iR})
                 tuning_dir = TCSummary{iR}{iM};
-            elseif isstr(TCSummary{iR}) && isdir(TCSummary{iR})
-                tuning_dir = TCSummary{iR};
+%             elseif isstr(TCSummary{iR}) && isdir(TCSummary{iR})
+%                 tuning_dir = TCSummary{iR};
             else
                 tuning_dir = [ANALYSIS_ROOT num2str(MonkOfInterest(iM)) filesep TCSummary{iR}];
             end
             % file files
+%             [tuning_dir fname]
             flist = dir([tuning_dir fname]);
             if isempty(flist)
                 % cTC{iRow, iR} = []; I should not this in Key-based

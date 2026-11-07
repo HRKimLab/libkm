@@ -1,16 +1,44 @@
 function [r,p,N,sl,itc,fitdata,hS] = plot_scatter(x,y,grp, varargin)
-% regdata: [x y basic_#(N;r;p) fit_params(sl;itc)
-% substitute x if given as column idx
+% PLOT_SCATTER create a scatter plot and performs statistical tests.
+%   It visualizes data to see if there is a linear correlation between x and y.
+%   Use plotsqscatter if you x and y have the same unit and you compare them.
+%   e.g., # of bacteria before (x) and after (y) treatment.
+%
+%   PLOT_SCATTER(X, Y) x, y are [n_obs * 1] colums vectors. 
+%     it creates a scatter plot with n_obs data points. 
+%  
+%   PLOT_SCATTER(X, Y, GRP) grp is [n_obs * 1] column vector indicating groups
+%     of corresponding data points. It will color-code dots 
+% 
+%  PLOT_SCATTER(X, Y, GRP, VARARGIN) open the function for details of
+%     additional arguments.
+% 
+% RETURN VALUES:
+% r:        Spearman correlation.
+% p:        p value of the above r.
+% N:        number of valid data points
+% sl:       slope of regression
+% itc:      intercept of regression
+% fitdata:  fitted data points 
+% hS:       graphic handle 
+%
+% See also PLOTSQSCATTER, PLOTSQSCATTER_HIST, MODIFY_LEGEND
 
-xl = []; yl = [];
-show_individual = 1;
-show_grpmean = 0;
+% 2013? HRK
+
+xl = [];            % x range of the plot. [x_min x_max]
+yl = [];            % y range of the plot. [y_min y_max]
+show_individual = 1;% 1: show individual dots.
+show_grpmean = 0;   % 1: show the means of each group.
 grp_zscore = 0;         % 1: zscore   2: subtract mean, 'ymean': y mean
 grp_lim = 25;
 show_ci = 0;            % confidence interval for R
 show_regress_ci = 0;    % confidence interval for type 2 regression
 marker_size = [];
-regress_type = 'type2';       % 'none', 'type1' or 'type2' regression
+% 'none', 'type1', or 'type2' regression. 
+% type 1 assumes that x is not noisy (e.g., experimenter contols it). 
+% type 2 assumes that both x and y are noisy measurements.
+regress_type = 'type2';  
 
 process_varargin(varargin);
 

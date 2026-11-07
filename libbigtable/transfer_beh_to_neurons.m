@@ -2,7 +2,7 @@
 % identify behavior results
 % bBeh and KEY_COLS is required
 % HRK 2018
-assert(is_arg('bBeh') && is_arg('KEY_COLS'), 'bBeh (flag for behavior) and KEY_COLS (1:5)');
+assert(exist('bBeh','var') && is_arg('KEY_COLS'), 'bBeh (flag for behavior) and KEY_COLS (1:5)');
 bBehRes = any(aPD(bBeh,:), 1); bBehRes(KEY_COLS) = false;
 
 % iterate behavior rows

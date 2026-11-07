@@ -26,7 +26,17 @@ for iF = 1:length(fpaths)
     filepath = fpaths{iF};
     
     % load psth mat file
-    if ~exist(filepath,'file'), continue; end;
+    if ~exist(filepath,'file'), 
+		if verbose
+			fprintf(1, 'Cannot find data file: %s\n', filepath)
+		end
+		continue; 
+	end;
+	
+	if verbose
+		fprintf(1, 'Found data file: %s\n', filepath)
+	end
+	
     try
     d = load(filepath);
     catch ME

@@ -1,11 +1,59 @@
-function [cD tD] = load_tabular_dataset_info(fpath, varargin)
-% load tabular dataset from file
-% First column is reserved for protocol name (anything after ', %?' is ignored)
-% First row is for animal id (should be number for now)
+function [cD tD cTag tTag] = load_tabular_dataset_info(fpath, varargin)
+% LOAD_TABULAR_DATASET_INFO load tabular dataset information from a .tsv file
+% load_tabular_dataset_info(fpath, varargin)
+%   fpath:          file path of a tab-separated file (.tsv).
+%   below are more options.
+%   delim:          define delimiter (default is tab, '\t').
+%   num_skip_lines: # of lines to be skipped (lines before header).
+%   num_header:     # of line to ignore after header.
 % 
-% it will ignore columns and rows that starts with '%'
+%
+% The target TSV file is a table [# of data tags * # of animals].
+% Session numbers do not usually reflect specific protocol because 1) you try out 
+% different things 2) training often takes different amount of time. 
+% Therefore, for population ananlysis, you need to know which datasets are 
+% from a specific protocol. Also, often you run the same protocol over multiple days, 
+% and you want to analyze them separately. here, 'data tag' is a string that 
+% refers to a subset of your data. (e.g., VR_DAY1: VR open loop, training day 1).
+% You organize this info into a table using a spreadsheet program 
+% (e.g., google sheet), save it to .tsv file. Once the table info is loaded, 
+% use get_datanames()  to retrieve datanames or unitnames of one protocol 
+% or protocols or your interest.
+%
+% Check out 'example_dataset_table (single batch)' and 
+% 'example_dataset_table (multiple_batches)' in the google drive to see
+% the detailed format of the data table. You click 'File->download->.tsv file.
+% Save the .tsv file in your protocol_specific folder.
 % 
-% 2018 HRK
+% Here are some rules in writing data table:
+%  - Do not use space (' ') in data tag. Use '_'.
+%  - First column of the table is data tag name (anything after ', %?' is ignored)
+%  - For header, use numbers (mid) only. Do not put 'm'.
+%  - If the first columns of a row starts with '%', the entire row is not loaded.
+%  - If the first row of a column starts with '%', the entire column is not loaded.
+%    Use the above methods to leave some lengthy comments about datasets
+%    e.g., [% below datasets are from second batch, revision 1]
+%  - You can put comments after dataname by putting '%'. Please use this to
+%    note some details about the dataset. You will forget things later.
+%      e.g., [m29s4r1 %animal didn't work well]
+% 
+% 
+% RETURN VALUES:
+% cD:   cell array of strings representing the 2D table.
+% tD:   table variable representing the same 2D table.
+% cTag: cell array of data tags
+% tTag: table of data tags
+%
+% Examples:
+% tD = load_tabular_dataset_info ( ...
+%  [Y:\NeuRLab\DARamping\DARamping_20200429.tsv'], 'debug', 1);
+% data_tags = get_datanames(tD);            % retrieve all data tags
+% all_dataname = get_datanames(tD,'all');   % retrieve all datanames
+% get_datanames(tD, 'VR_D1')             % retreive datanames in VR_D1 tag.
+%
+% See also LoadPopulationData5Key, get_datanames, get_datanames_col
+%
+% 2018 HRK Nawoon
 
 delim = '\t';
 debug = 0;  % 1: open only uitable  2: open both tsv file and uitable 
@@ -116,9 +164,12 @@ fprintf('Final table is %d rows, %d columns\n', nRow, nCol);
 % trim comments for the first column. 
 for iR = 1:nRow
     % ignore comments. only take the first token
-    cD{iR,1} = strtok(cD{iR,1}, ', %?');
+    [cD{iR,1} tmp] = strtok(cD{iR,1}, ', %?');
 end
-        
+
+% identify data tag and create cell array for tag
+% Nawoon
+
 if debug == 2
     edit(fpath);
 end

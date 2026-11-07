@@ -8,7 +8,7 @@ assert(isstruct(ginfo));
 % Therefore, what matters most in terms of grouping, it is simply
 % 'grp_idx' and 'unq_grp_label', which is the label indexed by grp_idx.
 assert(size(ginfo.grp,1) == size(ginfo.grp_idx,1));
-assert((size(ginfo.grp,1) == size(trial_start,1)) || numel(trial_start) == 1);
+assert((size(ginfo.grp,1) == size(trial_start,1)) || numel(trial_start) == 1, '# of grp shoould match with trial start, trial_end');
 assert(length(ginfo.grp_label) == size(ginfo.grp,2) || length(ginfo.grp_label)==0);
 assert(size(ginfo.unq_grp, 1) == length(ginfo.unq_grp_label) );
 assert( nunique(ginfo.grp_idx) == length(ginfo.unq_grp_label), '# of unique values in grp_idx does not match unq_grp_label');

@@ -41,6 +41,8 @@ set(hTraveler3,'tag','traveler3D');
 hTitle = title('0s');
 if animation 
     h_button3D = uicontrol(gcf,'style','pushbutton')
+    h_button3D_p = uicontrol(gcf,'style','pushbutton','Position',[10 350 100 30])
+    h_button3D_r = uicontrol(gcf,'style','pushbutton','Position',[10 400 100 30])
 %     h_buttonSave = uicontrol(gcf,'style','pushbutton')
     % h_edit_pause_period = uicontrol(gcf,'style','pushbutton') edit 
     % save data for reply
@@ -49,16 +51,26 @@ if animation
     dt.pc_score = pc_score;
 %     dt.iTime
     set(h_button3D,'string','Travel', 'callback',@travel_3D,'UserData', dt);
-%     set(h_button3D,'string','Travel', 'callback',@pause_travel_3D,'UserData', dt);
+    set(h_button3D_p,'string','Pause', 'callback',@pause_travel_3D);
+    set(h_button3D_r,'string','Resume', 'callback',@resume_travel_3D);
 %     set(h_buttonSave,'string','Travel', 'callback',@travel_save,'UserData', dt);
     travel_3D(h_button3D);
+%     pause_travel_3D(h_button3D_p);
+%     resume_travel_3D(h_button3D_r);
+end
+function pause_travel_3D(varargin)
+    uiwait;
 end
 
+
+function resume_travel_3D(varargin);
+    uiresume;
+end
 
 function travel_3D(src,event)
     % temp. to save video
     global g_travel
-    
+    g_travel.b_go=[];
     hTraveler3 = findobj(gcf,'tag','traveler3D');
     % retrieve saved data
     dt = get(src,'UserData');
@@ -72,7 +84,7 @@ function travel_3D(src,event)
         set(hTraveler3,'XData', dt.pc_score(iTime, :, 1), 'YData', dt.pc_score(iTime, :, 2), 'ZData',  dt.pc_score(iTime, :, 3));
         set(hTitle, 'string', sprintf('%.1fs', iTime/sampling_rate) );
         drawnow;
-        pause(0.1);
+        pause(0.2);
         
         if ~isempty(g_travel) && isfield(g_travel, 'save_output') && g_travel.save_output
            if iTime == 1

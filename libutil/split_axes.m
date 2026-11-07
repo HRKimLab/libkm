@@ -1,5 +1,9 @@
 function ax = split_axes(ax, h, v, pGap)
-% split_axes() split existing axis 
+% SPLIT_AXES split existing axis
+% split_axes(ax, h, v) splits axis ax, into h vertical axes and v
+%   horizontal axes.
+% 
+%
 % 10/27/2017 HRK
 orig_ax = ax;
 if ~is_arg('h'), h = 1; end;

@@ -13,14 +13,21 @@ for iR = 1:length(s)
     elseif findstr(unitkey, '_N') % m112s23r1_N1
         tmp = sscanf(unitkey, 'm%ds%dr%d_N%d');
         tmp(5) = 1;
-    else % m112s23r1e0u1
+    else 
         if ~isempty(regexp(unitkey, 'm[0-9]+s[0-9]+r[0-9]+e[0-9]+u[0-9]+')) && isempty(regexprep(unitkey, 'm[0-9]+s[0-9]+r[0-9]+e[0-9]+u[0-9]+',''))
+            % m112s23r1e0u1
             tmp = sscanf(unitkey, 'm%ds%dr%de%du%d');
         elseif ~isempty(regexp(unitkey, 'm[0-9]+s[0-9]+r[0-9]+')) && isempty(regexprep(unitkey, 'm[0-9]+s[0-9]+r[0-9]+',''))
+            % m112s23r1
+            tmp = sscanf(unitkey, 'm%ds%dr%d');
+        elseif ~isempty(regexp(unitkey, 'm[0-9]+s[0-9]+r[0-9]+\_[a-zA-Z_]*')) && isempty(regexprep(unitkey, 'm[0-9]+s[0-9]+r[0-9]+\_[a-zA-Z_]*',''))
+            % m112s23r1_VS_DS
             tmp = sscanf(unitkey, 'm%ds%dr%d');
         elseif ~isempty(regexp(unitkey, 'm[0-9]+c[0-9]+r[0-9]+')) && isempty(regexprep(unitkey, 'm[0-9]+c[0-9]+r[0-9]+',''))
+            % m112c23r1
             tmp = sscanf(unitkey, 'm%dc%dr%d');
         elseif ~isempty(regexp(unitkey, 'm[0-9]+c[0-9]+')) && isempty(regexprep(unitkey, 'm[0-9]+c[0-9]+',''))
+            % m112c23
             tmp = sscanf(unitkey, 'm%dc%d');
             tmp(3) = -1;
         else

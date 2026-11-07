@@ -1,11 +1,19 @@
 function [hPS hPL mY semY] = plot_xmyerr(x,y, varargin)
-% plot_xymerr(x,y,c,ebtype)
-% x: 1 * time 
-% y: (# of trials) * (time)
+% PLOT_XMYERR Plot the average line plot with error bars, using x tick and
+%   array data.
+%   PLOT_XYERR(x, y) x is a row vector of [1 * n_time], y is a matrix of 
+%    [n_observation) * (n_time)] (my means that y is a matrix). It iterate 
+%    columns (e.g., time) and compute mean and s.e.m. across rows.
+%    
+%    Note that the number of columns in x should be matched with the number
+%    of columns in y.
+% 
+% See also plot_xyerr, plot_xygrp, plot_xmygrp, plot_xyerr_wrt_tD_rows
 
 % c, ebtype, raw_linestyle
 color = [];
-ebtype = [];
+ebtype = [];		% old option (for compatibility)
+errbar_type = [];	% new option 
 individual_style = [];
 show_individual = 1;
 estimator = [];
@@ -16,6 +24,7 @@ if ~is_arg('estimator'), estimator = @nanmean;end
 % color is a reserved keyword. change variable name.
 c = color; clear('color');
 if ~is_arg('c'), c = [0 0 0]; end
+if is_arg('errbar_type'), ebtype = errbar_type; end
 if ~is_arg('ebtype'), ebtype = 'line'; end;
 if ~is_arg('individual_style'), individual_style = 'o'; end;
 

@@ -1,6 +1,12 @@
-function ret = cluster_psths(comb_psth, varargin)
-% perform dimensionality reduction and cluster population psths
+function [ret cid_kmeans] = cluster_psths(comb_psth, varargin)
+% CLUSTER_PSTHS dimensionality reduction and cluster population responses
 % wrapper function to call pre-existing clustering routine
+%  [ret cid_kmeans] = cluster_psths(comb_psth) comb_psth is either
+%     - array of [neuron x (time*cond)]
+%     - average population psth (the first output of plot_mpsths)
+% 
+% See also analyze_state_space, psth2ss, TCN2ss, ss2TCN
+%
 % 2019 HRK
 
 nclust = 3;
@@ -13,7 +19,7 @@ x_label = '';
 t_sne = 0;
 auto_crop_x = 1;        % crop x to remove NaNs
 tutorial = 0;   % make a simple, tutorial version data
-preproc = 'none';
+preproc = 'none'; % preprocessing option: none, zscore, etc
 test_diff = 0; % perform pairwise tests if two pairs of cluster are significantly different
 use_parallel = 1; % 1: use default parallel processing toolbox. delete 2: do not delete
 border = [];        % border for top level subgroups (unit of x)
@@ -27,7 +33,8 @@ event_header = 'all';    % show all cancatenated events
 
 process_varargin(varargin);
 
-psth_type = class(comb_psth)
+% obtain pop_data of [neuron x (time*cond)]
+psth_type = class(comb_psth);
 switch(psth_type)
     case 'struct'
         if isfield(comb_psth, 'x')
@@ -115,6 +122,7 @@ ret.pop_data = pop_data;
 if ndim > size(pop_data, 1)
     ndim = size(pop_data, 1);
 end
+
 %% reduce dimensionality
 % n-by-p data matrix X. Rows of X correspond to observations and columns 
 % correspond to variables. The coefficient matrix is p-by-p.
@@ -167,6 +175,7 @@ set(draw_refs(0, i_border2, NaN), 'linestyle', ':');
 ylim([0.5 size(pop_data, 1)+0.5]);
 axis ij;
 ylabel('Obs. #');
+xlabel('Variables or Time');
 stitle('%d obs * %d variables data', size(pop_data, 1), size(pop_data, 2) );
 % apply colormap and clim
 if ~isempty(image_cmap), colormap(image_cmap); end
@@ -215,6 +224,7 @@ end
 p.gna;
 pc_explained = pc_explained(:); tot_explained = tot_explained(:);
 plot([pc_explained(1:min([end 10])) tot_explained(1:min([end 10]))], '-o');
+set(gca,'ylim', [0 100]);
 xlabel('PC'); ylabel('% variance');
 legend('Ind','Accum'); legend boxoff;
 title('% variance explained');
@@ -369,6 +379,12 @@ switch(psth_type)
         ax = plot_timecourse('stream', [], [], [], [], [], 'use_this_psth', this_psth, ...
             'parent_panel', mp);
 end
+
+axes(ax(1));
+% draw refs and borders
+draw_refs(0, x_refs, 0);
+draw_refs(0, border, NaN);
+set(draw_refs(0, border2, NaN), 'linestyle', ':');
 
 axes(ax(2));
 % draw refs and borders

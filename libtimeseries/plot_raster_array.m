@@ -29,7 +29,11 @@ n_resp = NaN(n_trial,1);
 row_idx = 1;
 % set marker size
 est_ntrial = sum( ~isnan(grp_idx) & any(~isnan(array_resp),2) );
-if  est_ntrial > 200
+if est_ntrial > 1500
+	marker_size = 0.5;  %for agent. this may not work..
+elseif est_ntrial > 500
+	marker_size = 1;
+elseif  est_ntrial > 200
     marker_size = 2;
 elseif est_ntrial > 100
     marker_size = 3;

@@ -1,5 +1,6 @@
 function new_st = filter_psth_by_cond(st, varargin)
-% filter psth structure by unitkey, regular expression, or  explicit list
+% filter_psth_by_cond filter psth structure by unitkey, regular expression, 
+% or  explicit list.
 % explicit list should be the first argument.
 % 5/20/2018 HRK
 

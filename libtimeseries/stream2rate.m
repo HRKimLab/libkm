@@ -1,5 +1,13 @@
 function rate = stream2rate( stream, onset, offset, func)
-% compute averaged rate from stream at events
+% STREAM2RATE compute the average rate from stream using time windows
+%   stream2rate( stream, onset, offset, func) assumes two things:
+%    1) stream is data sampled at 1kHz
+%    2) onset and offset are timestamps of time windows in milisecond unit.
+%    Based on the two assumptions, it simply take a subset of data by using
+%    a numeric vector (onset to offset) as array indice for stream.
+%	 Note that it takes onset <= time <= offset (not onset <= time < offset).
+%    This is important when window is small.
+% 
 % HRK 2016
 if ~is_arg('func'), func = @nanmean; end;
 

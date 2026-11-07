@@ -1,7 +1,20 @@
-% A script showing the population analysis framework using libkm
+% DEMO_POPULATION_ANALYSIS_FRAMEWORK An demo script shoing population
+% analysis framework.
+%
 % This script consists of two parts.
-% In the first part, it load and combines analysis results across subjects
-% In the second part, it shows some examples of population analyses
+% 1) In the first part, it load and combines analysis results across subjects
+%    It loads aPD big table and psth time course data.
+% 2) it shows examples of how you can do population analyses
+%
+% Note that the philosophy of this framework is:
+% 'load everything altogether. Then you filter them to dissect the data'
+% So if you are partially loading data using 'if' statement, or loading
+% data in a multiple different sections (not just in the beginning). You
+% are not maximally utilizing this framework.
+%
+% Also, functions have help doc. type >> help (func name) for info.
+% 
+% see also DEMO_POPULATION_ANALYSIS_FUNCTIONS, DEMO_TIMECOURSE_DATA_ANALYSIS, DEMO_SAVE_SU_RESULTS
 %
 % 2020 HRK
 
@@ -15,12 +28,12 @@ addpath([KM_DIR filesep 'km_public\libkm\libpopulation\']);
 addpath([KM_DIR filesep 'km_public\libkm\libutil\']);
 
 
-% ANALYSIS_ROOT  = 'C:\D\data\DemoAnalysisRoot\'; % for HyungGoo
-ANALYSIS_ROOT  = [CURR_DIR filesep 'DemoAnalysisRoot' filesep];
+ANALYSIS_ROOT  = 'Z:\km_lab\libkm\demo'; % for HyungGoo
+% ANALYSIS_ROOT  = [CURR_DIR filesep 'DemoAnalysisRoot' filesep];
 
 % set cell numbers of interest for each monkey
-MonkOfInterest = [159	209	210	211	213	214	215	217	218	219]; % 248 is missing
-CellOfInterest = {1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100};
+MonkOfInterest =	[159	209		210	  211	 213	214	  215	  217	 218	219]; % 248 is missing
+SessionOfInterest = {1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100, 1:100};
  
 ResultsExt={}; ResultsHeader={};
 nResults = 0; ResultsMultipleDelims=[];
@@ -96,8 +109,8 @@ transfer_beh_to_neurons;
 MICE = MonkOfInterest;
 
 % psths ab reward onset
-lick_RewOn = load_psth_files('lick_ab_RewOn.mat', MICE, 'analysis_root', ANALYSIS_ROOT);
-loc_RewOn = load_psth_files('loc_ab_RewOn.mat', MICE, 'analysis_root', ANALYSIS_ROOT);
+lick_RewOn = load_psth_files('lick_ab_RewOn.mat', MICE, 'analysis_root', ANALYSIS_ROOT,'verbose', 1);
+loc_RewOn = load_psth_files('loc_ab_RewOn.mat', MICE, 'analysis_root', ANALYSIS_ROOT,'verbose', 1);
 
 %%
 global gP

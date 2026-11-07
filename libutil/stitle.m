@@ -1,8 +1,13 @@
 function hT = stitle(varargin)
-% sprintf + title 
-% HRK
+% STITLE combines string formatting (sprintf) and title()
 % stitle(format, parameters) 
 % stitle(AX, format, parameters) 
+% 
+% Examples:
+% stitle('Behaviral latency: %.1f', 1.3);
+% stitle(ax, 'Behaviral latency: %.1f', 1.3);
+
+% HRK
 % 
 if ishandle(varargin{1})  % first argument is axes handle
     

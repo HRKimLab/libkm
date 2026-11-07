@@ -1,18 +1,24 @@
-function [dnames mids sids] = get_datanames_col(tD, prot_name, b_allow_alternative)
-% get_datanames_col: get_datanames(), but with columnar structure
-% get dataset names based on a tabular format of dataset file
-% using regular expression
+function [dnames mids sids] = get_datanames_col(tD, data_tags, b_allow_alternative)
+% GET_DATANAMES_COL retrieve datanames from a data table with columnar organization.
+% GET_DATANAMES_COL(tD, data_tags) retrieve datanames from data info tD.
+%   It works the same way as get_datanames, except for that tD is organized
+%   in a columnar way (# of single neurons * # of data tags).
+% 
+% Examples:
 % tD = load_tabular_dataset_info('Z:\data.csv');
-% datanames = get_datanames(tD, {'VR_DAY1','VR_DAY2'});
+% datanames = get_datanames_col(tD, {'VR_DAY1','VR_DAY2'});
 %
+% See also get_datanames, load_tabular_dataset_info
+% 
 % 2019 HRK
+
 ROW_OFF = 2;
 COL_OFF = 2;
 
 mids = []; sids = {};
 
 % deal with NO_FILTER
-if (ischar(tD) && strcmp(tD, 'NO_FILTER')) || (nargin > 1 && ischar(prot_name) && strcmp(prot_name, 'NO_FILTER'))
+if (ischar(tD) && strcmp(tD, 'NO_FILTER')) || (nargin > 1 && ischar(data_tags) && strcmp(data_tags, 'NO_FILTER'))
     dnames = [];
     return;
 end
@@ -42,13 +48,13 @@ end
 if ~iscell(tD), error('first argument should be cell array of tabular dataset'); end;
 
 % return protocol names if no name is given
-if ~is_arg('prot_name')
+if ~is_arg('data_tags')
     dnames = tD(1, COL_OFF:end);
     return;
 end
 
 
-if isstr(prot_name), prot_name = {prot_name}; end;
+if isstr(data_tags), data_tags = {data_tags}; end;
 
 % get numeric id
 mids = tD(:, 1);
@@ -86,14 +92,14 @@ for iR = ROW_OFF:size(tD, 1)
 end
 
 % find proper column in the table
-% iR = find(cellfun(@(x) ~isempty(regexp(x, prot_name)), tD(:,1)));
-iC = find( ~cellfun(@isempty, regexp(tD(1, :), prot_name)) );
+% iR = find(cellfun(@(x) ~isempty(regexp(x, data_tags)), tD(:,1)));
+iC = find( ~cellfun(@isempty, regexp(tD(1, :), data_tags)) );
 
-if strcmp(prot_name, 'all')
+if strcmp(data_tags, 'all')
     dnames = tD(ROW_OFF:end,COL_OFF:end);
     dnames = dnames(:)';
 elseif numel(iC) == 0
-    error('No dataset with protocol name %s\n', prot_name{1});
+    error('No dataset with protocol name %s\n', data_tags{1});
     dnames = {};
 else
     % get a subset of table
@@ -109,7 +115,7 @@ end
 iValidCol = find(cellfun(@(x) ~isempty(x) && x(1) ~= '-', dnames));
 dnames = dnames(iValidCol);
 
-fprintf(1, '['); fprintf(1, '%s ', prot_name{:}); fprintf(1, ': %s] (n=%d): ', sprintf('%s ',tD{iR, 1}), numel(dnames));
+fprintf(1, '['); fprintf(1, '%s ', data_tags{:}); fprintf(1, ': %s] (n=%d): ', sprintf('%s ',tD{iR, 1}), numel(dnames));
 fprintf(1, '%s ', dnames{:});
 fprintf(1, '\n');
 

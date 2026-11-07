@@ -1,6 +1,8 @@
 function asave(varargin)
-% .mat file with append. save() evokes an error when there is no created file 
-% with -append what a stupid behavior..  here is a dirty fix. 
+% ASAVE save .mat file with append. 
+% save( ,'-append') is usuful for saving data, but it evokes an error 
+% if there is no existing file. What a stupid behavior.  here is a dirty fix.
+
 % 2016 HRK
 
 % if file exist, append to the file

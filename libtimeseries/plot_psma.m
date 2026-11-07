@@ -1,7 +1,11 @@
 function [h_psth hT hL h_event] = plot_psma(psth, varargin)
-% plot peri-stimulus moving average
-%  psth is a structure computed by compute_avggrp()
+% PLOT_PSMA plot peri-stimulus moving average
+%  PLOT_PSMA(psth) draws time courses. psth is a return value of plot_timecourse.
+%    more specifically, it is a struct variable computed by compute_avggrp()
+%    This is one of several modular functions used in plot_timecourse.
+%
 % 1/27/2017 HRK
+
 % mean = []; p2 = NaN; pBaseDiff = NaN; gname = [];
 eb_type = []; % erorbar type
 cmap = []; 
@@ -24,6 +28,7 @@ valid_x_crit = 0.5;        % criterion to determine how many trials should be at
 auto_filter_x = 1;       % for concatenated psths, it's good to include nans to disconnect each individual one.
 color_event_by_grp = 0;    % color event based on group, not by event type
 subsample_x = 1;           % subsample x for plotting. the data size becomes roughly inversly proportional to this ratio
+iN = [];
 
 if isempty(psth), return; end;
 if ~isstruct(psth) || ~isfield(psth, 'mean')
@@ -33,6 +38,15 @@ end
 process_varargin(varargin);
 
 % struct2var(psth);
+
+if is_arg('iN')
+    psth.mean = psth.mean(:,:,iN)';
+    psth.sem = psth.sem(:,:,iN)';
+    psth.std = psth.std(:,:,iN)';
+    psth.numel = psth.numel(:,:,iN)';
+    psth.rate_rsp = psth.rate_rsp(:,:,iN)';
+    psth.array_rsp = psth.array_rsp(:,:,iN)';
+end
 
 nColor = size(psth.mean, 1);
 if ~is_arg('eb_type'), eb_type = 'patch'; end
@@ -192,7 +206,7 @@ end
 % % keep this same as the ones in plot_events_on_raster()
 % marker_list = {'rx','gx','mx','cx','yx','kx','r+','g+','m+','c+','y+','k+','rv','gv','mv','cv','yv','kv'};
 % color_list = {'r','g','m','c','y','k','r','g','m','c','y','k','r','g','m','c','y','k'};
-if ~isempty(event_header) && isfield(psth, 'event')
+if ~isempty(event_header) && isfield(psth, 'event') && ~isempty(psth.event)
     if isstr(event_header)
         event_header = {event_header};
     end

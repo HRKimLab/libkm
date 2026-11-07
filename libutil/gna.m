@@ -1,6 +1,16 @@
-function [hP iP]=gna(axis_id)
+function [hP iP] = gna(axis_id)
+% GNA get the next axis
+% gna creates an axis (panel) in a figure. 
+%   You first determine the layout of a figure using setfig (e.g., setfig(3,2).
+%   Then, you can use GNA function to get a next axis without remembering
+%   the last axis index. It is particularly useful when you frequently test, 
+%   comment in, and comment out analysis panels in a figure.
+% 
+% See also SETFIG
+%
+% HRK
+
 global gP
-% get next axis
 % h = evalin('caller','figinfo.h');
 % v = evalin('caller','figinfo.v');
 % iP = evalin('caller','figinfo.iP');

@@ -23,7 +23,7 @@ if ~is_arg('grp'), grp = ones(n_trial,1); end;
 assert(size(grp,1) == n_trial, 'trigger and grp must have the same # of rows');
 
 % check size of arguments
-assert(size(trigger,1) == size(events,1), 'trigger and events must have the same # of rows');
+assert(size(trigger,1) == size(events,1), ['trigger (' num2str( size(trigger) ) ') and events (' num2str( size(events) ) ') must have the same # of rows']);
 % assert(size(events,2) == length(event_label), '# of columns in events should match to the event_label');
 
 % find group to use for color code and simple analysis.

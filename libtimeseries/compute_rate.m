@@ -6,12 +6,18 @@ function [x rate_rsp array_rsp base_rate] = compute_rate(data_type, ts_resp, tri
 win_len = 60;
 bPlotRawCh = 0;
 n_trial = size(trigger, 1);
-base_sub_win = []; % window for baseline subtraction
+base_sub_win = []; % [1, 2]: window in second for baseline subtraction
 distance_edge = [];
 array_rsp = [];    % given array_rsp
 x = [];            % given x for array_rsp (ms)
 
 process_varargin(varargin);
+
+% convert unit from second to milisecond only when it ix fixed time window of size [1 2]
+if is_arg('base_sub_win') && all(size(base_sub_win) == [1 2])
+    % x in this function is milisecond, not second.
+    base_sub_win = round(base_sub_win * 1000);
+end
 
 base_rate = [];
 % additional temporal margin to avoid cutoff of running average
@@ -129,12 +135,14 @@ switch(data_type)
             rate_rsp = rate_rsp - repmat(base_rate, [1 size(rate_rsp, 2)]);
         end        
         
-    case {'stream'}
+    case {'stream','stream_2D'}
         [array_rsp x] = train2array_varwin(ts_resp, trigger, trial_start, trial_end);
         % baseline subtraction
         if ~isempty(base_sub_win)
+            % one time window
             if all(size(base_sub_win) == [1 2])
                 base_rate = mean(array_rsp (:,x >= base_sub_win(1) & x < base_sub_win(2)), 2) ;
+                % direct substraction of baseline rate for each group
             elseif size(base_sub_win, 1) == size(array_rsp, 1)
                 base_rate = base_sub_win;
             else

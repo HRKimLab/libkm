@@ -1,4 +1,4 @@
-function iM = argmax(x)
+function iM = argmax(x, varargin)
 
-[~, iM] = max(x);
+[~, iM] = max(x, varargin{:});
 

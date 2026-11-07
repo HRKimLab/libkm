@@ -11,6 +11,8 @@ if ~is_arg('fig_list')
 end
 if strcmp(fig_list, 'all')
     fig_list = sort(fig2num( get(0, 'child') ))';
+elseif strcmp(fig_list, 'fig')
+    fig_list = sort(fig2num(findobj(0, 'type','figure','tag','pubfig')));
 end
 if ~is_arg('bReposition')
     bReposition = 0;

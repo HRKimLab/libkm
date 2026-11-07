@@ -1,5 +1,5 @@
 function ss = TCN2ss(TCN)
-
+% TCN2SS transform [time * condition * neuron] to [
 nTime = size(TCN, 1);
 nCond = size(TCN, 2);
 nNeuron = size(TCN, 3);
