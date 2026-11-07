@@ -1,2 +1,2 @@
-demo/**/*.dat
-demo/**/*.mat
+demo/result/**/*.dat
+demo/result/**/*.mat
